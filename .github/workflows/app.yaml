@@ -1,0 +1,28 @@
+name: Main Application
+
+env:
+  AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
+  AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "cdk-stacks/app/**"
+      - ".github/workflows/app.yaml"
+jobs:
+  deploy:
+    name: Build/Deploy Application Infrastructure
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v2
+      - name: Configure AWS CLI and Credentials
+        uses: ./.github/actions/configure-aws-cli
+      - name: Synth Stack
+        run: cd cdk-stacks/app && cdk synth
+      - name: Deploy Stack
+        run: cd cdk-stacks/app && cdk deploy --require-approval "never"
