@@ -15,6 +15,7 @@ jobs:
       contents: read
       id-token: write
     steps:
+      - uses: actions/checkout@v2
       - name: Configure AWS CLI and Credentials
         uses: ./.github/actions/configure-aws-cli
       # - name: Configure AWS credentials
