@@ -5,6 +5,7 @@ on:
       - main
     paths:
       - "cdk-stacks/github-actions-stack/**"
+      - ".github/workflows/**"
 jobs:
   deploy:
     name: Test OIDC Permissions
@@ -17,7 +18,7 @@ jobs:
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
-          role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCESS_KEY_ID }}:role/GitHubDeployRole
+          role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/GitHubDeployRole
           aws-region: ${{ secrets.AWS_DEFAULT_REGION }}
       - name: Test AWS Permissions
         run: aws s3 ls
