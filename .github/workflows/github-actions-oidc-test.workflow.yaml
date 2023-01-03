@@ -5,7 +5,7 @@ on:
       - main
     paths:
       - "cdk-stacks/github-actions-stack/**"
-      - ".github/workflows/**"
+      - ".github/actions/configure-aws-cli/actions.yaml"
 jobs:
   deploy:
     name: Test OIDC Permissions
