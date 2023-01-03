@@ -9,7 +9,7 @@ on:
       - main
     paths:
       - "cdk-stacks/github-actions-stack/**"
-      - ".github/actions/configure-aws-cli/actions.yaml"
+      - ".github/actions/configure-aws-cli/*"
       - ".github/workflows/*"
 jobs:
   deploy:
