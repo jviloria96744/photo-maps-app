@@ -1,3 +1,5 @@
 # Photo Maps App
 
-TODO: Fill this out
+## Setup
+
+Install AWS CLI, CDK and run `cdk bootstrap`
