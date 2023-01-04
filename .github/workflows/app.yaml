@@ -22,6 +22,13 @@ jobs:
       - uses: actions/checkout@v2
       - name: Configure AWS CLI and Credentials
         uses: ./.github/actions/configure-aws-cli
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16.17.0
+      - name: Install CDK
+        run: npm install -g aws-cdk
+      - name: Install Dependencies
+        run: cd cdk-stacks/app && npm install
       - name: Synth Stack
         run: cd cdk-stacks/app && cdk synth
       - name: Deploy Stack
