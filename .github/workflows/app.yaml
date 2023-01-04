@@ -16,6 +16,7 @@ jobs:
     name: Create Admin Portal Artifact
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v3
       - name: Build and Upload Artifact
         uses: ./.github/actions/build-web-artifact
         with:
@@ -37,6 +38,7 @@ jobs:
     name: Create Web Client Artifact
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v3
       - name: Build and Upload Artifact
         uses: ./.github/actions/build-web-artifact
         with:
