@@ -1,0 +1,25 @@
+name: "Build Web Artifacts"
+description: "Create build artifacts for react app in a given directory and upload during workflow"
+inputs:
+  directory:
+    description: "Directory of React Project, will also be used to create artifact name"
+    required: true
+    default: ""
+
+runs:
+  using: "composite"
+  steps:
+    - uses: actions/checkout@v3
+    - uses: actions/setup-node@v3
+      with:
+        node-version: 16.17.0
+    - name: Build Deployment Artifact
+      run: cd ${{ inputs.directory }} && npm install && npm run build
+      shell: bash
+    - name: Archive Build Artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: ${{ inputs.directory }}-artifact
+        path: ./${{ inputs.directory }}/dist/
+        if-no-files-found: error
+        retention-days: 1

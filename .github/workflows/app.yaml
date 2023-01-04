@@ -10,41 +10,51 @@ on:
     paths:
       - "cdk-stacks/app/**"
       - ".github/workflows/app.yaml"
+      - ".github/actions/**"
 jobs:
   build-admin-portal:
     name: Create Admin Portal Artifact
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
+      - name: Build and Upload Artifact
+        uses: ./.github/actions/build-web-artifact
         with:
-          node-version: 16.17.0
-      - name: Build Admin Portal Deployment Artifact
-        run: cd admin-portal && npm install && npm run build
-      - name: Archive Build Artifact
-        uses: actions/upload-artifact@v3
-        with:
-          name: admin-portal-artifact
-          path: ./admin-portal/dist/
-          if-no-files-found: error
-          retention-days: 1
+          directory: "admin-portal"
+      # - uses: actions/checkout@v3
+      # - uses: actions/setup-node@v3
+      #   with:
+      #     node-version: 16.17.0
+      # - name: Build Admin Portal Deployment Artifact
+      #   run: cd admin-portal && npm install && npm run build
+      # - name: Archive Build Artifact
+      #   uses: actions/upload-artifact@v3
+      #   with:
+      #     name: admin-portal-artifact
+      #     path: ./admin-portal/dist/
+      #     if-no-files-found: error
+      #     retention-days: 1
   build-client-web:
     name: Create Web Client Artifact
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
+      - name: Build and Upload Artifact
+        uses: ./.github/actions/build-web-artifact
         with:
-          node-version: 16.17.0
-      - name: Build Web Client Deployment Artifact
-        run: cd client-web && npm install && npm run build
-      - name: Archive Build Artifact
-        uses: actions/upload-artifact@v3
-        with:
-          name: client-web-artifact
-          path: ./client-web/dist/
-          if-no-files-found: error
-          retention-days: 1
+          directory: "client-web"
+    # steps:
+    #   - uses: actions/checkout@v3
+    #   - uses: actions/setup-node@v3
+    #     with:
+    #       node-version: 16.17.0
+    #   - name: Build Web Client Deployment Artifact
+    #     run: cd client-web && npm install && npm run build
+    #   - name: Archive Build Artifact
+    #     uses: actions/upload-artifact@v3
+    #     with:
+    #       name: client-web-artifact
+    #       path: ./client-web/dist/
+    #       if-no-files-found: error
+    #       retention-days: 1
   deploy:
     name: Build/Deploy Application Infrastructure
     runs-on: ubuntu-latest
@@ -70,10 +80,6 @@ jobs:
         with:
           name: client-web-artifact
           path: ./client-web/dist/
-      # - name: Test Outputting Download
-      #   run: cd admin-portal && ls
-      # - name: Build Web Client Deployment Artifact
-      #   run: cd client-web && npm install && npm run build
       - name: Install CDK
         run: npm install -g aws-cdk
       - name: Install Dependencies
