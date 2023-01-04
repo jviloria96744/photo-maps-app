@@ -50,13 +50,15 @@ jobs:
         with:
           name: admin-portal-artifact
           path: ${{ github.workspace }}/admin-portal/
-      - name: Build Web Client Deployment Artifact
-        run: cd client-web && npm install && npm run build
-      - name: Install CDK
-        run: npm install -g aws-cdk
-      - name: Install Dependencies
-        run: cd cdk-stacks/app && npm install
-      - name: Synth Stack
-        run: cd cdk-stacks/app && cdk synth
-      - name: Deploy Stack
-        run: cd cdk-stacks/app && cdk deploy --require-approval "never"
+      - name: Test Outputting Download
+        run: cd admin-portal && ls
+      # - name: Build Web Client Deployment Artifact
+      #   run: cd client-web && npm install && npm run build
+      # - name: Install CDK
+      #   run: npm install -g aws-cdk
+      # - name: Install Dependencies
+      #   run: cd cdk-stacks/app && npm install
+      # - name: Synth Stack
+      #   run: cd cdk-stacks/app && cdk synth
+      # - name: Deploy Stack
+      #   run: cd cdk-stacks/app && cdk deploy --require-approval "never"
