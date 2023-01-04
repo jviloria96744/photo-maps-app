@@ -10,7 +10,6 @@ on:
     paths:
       - "cdk-stacks/app/**"
       - ".github/workflows/app.yaml"
-      - "admin-portal/**"
 jobs:
   deploy:
     name: Build/Deploy Application Infrastructure
