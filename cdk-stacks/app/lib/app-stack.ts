@@ -1,9 +1,17 @@
 import * as cdk from "aws-cdk-lib";
 import { Construct } from "constructs";
-// import * as sqs from 'aws-cdk-lib/aws-sqs';
+import { StaticSite, StaticSiteProps } from "../constructs/static-site";
 
 export class AppStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
+
+    const adminSiteProps: StaticSiteProps = {
+      domainName: "jviloria.com.",
+      siteSubDomain: "admin-portal.photo-maps-app.",
+      siteBuildDirectory: "build",
+      siteDirectory: "admin-portal",
+    };
+    new StaticSite(this, "admin-site", adminSiteProps);
   }
 }
