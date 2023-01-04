@@ -49,7 +49,7 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: admin-portal-artifact
-          path: ./admin-portal/
+          path: ./admin-portal/dist/
       - name: Test Outputting Download
         run: cd admin-portal && ls
       # - name: Build Web Client Deployment Artifact
