@@ -7,7 +7,7 @@ export class AppStack extends cdk.Stack {
     super(scope, id, props);
 
     const adminSiteProps: StaticSiteProps = {
-      domainName: "jviloria.com.",
+      domainName: "jviloria.com",
       siteSubDomain: "admin-portal.photo-maps-app",
       siteBuildDirectory: "dist",
       siteDirectory: "admin-portal",
