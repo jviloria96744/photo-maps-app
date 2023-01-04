@@ -126,7 +126,8 @@ export class StaticSite extends Construct {
       zone,
     });
 
-    const pathName = path.resolve(__dirname, siteDirectory, siteBuildDirectory);
+    const basePath = process.env.GITHUB_WORKSPACE || "";
+    const pathName = path.resolve(basePath, siteDirectory, siteBuildDirectory);
     // Deploy site contents to S3 bucket and invalidate cache
     new s3deploy.BucketDeployment(this, "DeployWithInvalidation", {
       sources: [s3deploy.Source.asset(pathName)],
