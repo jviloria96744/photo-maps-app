@@ -52,8 +52,8 @@ jobs:
           path: ./admin-portal/dist/
       - name: Test Outputting Download
         run: cd admin-portal && ls
-      # - name: Build Web Client Deployment Artifact
-      #   run: cd client-web && npm install && npm run build
+      - name: Build Web Client Deployment Artifact
+        run: cd client-web && npm install && npm run build
       - name: Install CDK
         run: npm install -g aws-cdk
       - name: Install Dependencies
