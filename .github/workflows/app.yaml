@@ -27,6 +27,8 @@ jobs:
           node-version: 16.17.0
       - name: Build Admin Portal Deployment Artifact
         run: cd admin-portal && npm install && npm run build
+      - name: Build Web Client Deployment Artifact
+        run: cd client-web && npm install && npm run build
       - name: Install CDK
         run: npm install -g aws-cdk
       - name: Install Dependencies
