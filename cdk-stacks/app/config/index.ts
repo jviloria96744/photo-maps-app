@@ -29,5 +29,5 @@ export const createStaticSiteProps = (siteName: SiteName): StaticSiteProps => {
 
 export const adminSiteCallbackUrls: string[] = [
   "http://localhost:5173/",
-  `https://admin-portal.${subDomain}.${domainName}`,
+  `https://admin-portal.${subDomain}.${domainName}/`,
 ];
