@@ -26,3 +26,9 @@ export const createStaticSiteProps = (siteName: SiteName): StaticSiteProps => {
       throw "siteName is not correct";
   }
 };
+
+export const adminSiteCallbackUrls: string[] = [
+  "http://localhost:5173/",
+  "http://127.0.0.1:5173/",
+  `https://admin-portal.${subDomain}.${domainName}`,
+];

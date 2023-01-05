@@ -1,6 +1,7 @@
 import * as cognito from "aws-cdk-lib/aws-cognito";
 import { CfnOutput, Stack, RemovalPolicy, Duration } from "aws-cdk-lib";
 import { Construct } from "constructs";
+import { adminSiteCallbackUrls } from "../config";
 
 export class AdminAuthFlow extends Construct {
   constructor(parent: Stack, name: string) {
@@ -64,7 +65,7 @@ export class AdminAuthFlow extends Construct {
             cognito.OAuthScope.OPENID,
             cognito.OAuthScope.resourceServer(resourceServer, adminScope),
           ],
-          callbackUrls: ["http://localhost:5173/"],
+          callbackUrls: adminSiteCallbackUrls,
         },
       }
     );

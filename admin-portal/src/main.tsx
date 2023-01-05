@@ -27,8 +27,8 @@ Amplify.configure({
         import.meta.env.VITE_AWS_REGION
       }.amazoncognito.com`,
       scope: ["admin-site-resource-server/admin", "openid"],
-      redirectSignIn: "http://localhost:5173/",
-      redirectSignOut: "http://localhost:5173/",
+      redirectSignIn: window.location.href,
+      redirectSignOut: window.location.href,
       responseType: "code", // or 'token', note that REFRESH token will only be generated when the responseType is code
     },
   },
