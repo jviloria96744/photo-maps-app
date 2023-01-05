@@ -71,7 +71,7 @@ export class AdminAuthFlow extends Construct {
 
     userPool.addDomain("admin-site-domain", {
       cognitoDomain: {
-        domainPrefix: "admin-portal",
+        domainPrefix: "auth-admin-portal",
       },
     });
 
