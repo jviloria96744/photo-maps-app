@@ -6,7 +6,7 @@ export class AdminAuthFlow extends Construct {
   constructor(parent: Stack, name: string) {
     super(parent, name);
 
-    const userPool = new cognito.UserPool(this, name, {
+    const userPool = new cognito.UserPool(this, `${name}-userpool`, {
       selfSignUpEnabled: true,
       signInAliases: {
         email: true,
@@ -28,38 +28,46 @@ export class AdminAuthFlow extends Construct {
       scopeDescription: "Admin Scope",
     });
 
-    const resourceServer = new cognito.UserPoolResourceServer(this, name, {
-      scopes: [adminScope],
-      userPool,
-      identifier: "admin-site-resource-server",
-    });
+    const resourceServer = new cognito.UserPoolResourceServer(
+      this,
+      `${name}-user-pool-resource-server`,
+      {
+        scopes: [adminScope],
+        userPool,
+        identifier: "admin-site-resource-server",
+      }
+    );
 
     new CfnOutput(this, "userPoolId", {
       value: userPool.userPoolId,
     });
 
-    const userPoolClient = new cognito.UserPoolClient(this, name, {
-      userPool,
-      accessTokenValidity: Duration.minutes(60),
-      idTokenValidity: Duration.minutes(60),
-      generateSecret: false,
-      refreshTokenValidity: Duration.days(1),
-      enableTokenRevocation: true,
-      preventUserExistenceErrors: true,
-      authFlows: {
-        userPassword: true,
-      },
-      oAuth: {
-        flows: {
-          authorizationCodeGrant: true,
+    const userPoolClient = new cognito.UserPoolClient(
+      this,
+      `${name}-user-pool-client`,
+      {
+        userPool,
+        accessTokenValidity: Duration.minutes(60),
+        idTokenValidity: Duration.minutes(60),
+        generateSecret: false,
+        refreshTokenValidity: Duration.days(1),
+        enableTokenRevocation: true,
+        preventUserExistenceErrors: true,
+        authFlows: {
+          userPassword: true,
         },
-        scopes: [
-          cognito.OAuthScope.OPENID,
-          cognito.OAuthScope.resourceServer(resourceServer, adminScope),
-        ],
-        callbackUrls: ["http://localhost:5173/"],
-      },
-    });
+        oAuth: {
+          flows: {
+            authorizationCodeGrant: true,
+          },
+          scopes: [
+            cognito.OAuthScope.OPENID,
+            cognito.OAuthScope.resourceServer(resourceServer, adminScope),
+          ],
+          callbackUrls: ["http://localhost:5173/"],
+        },
+      }
+    );
 
     userPool.addDomain("admin-site-domain", {
       cognitoDomain: {
