@@ -7,7 +7,7 @@ export class AdminAuthFlow extends Construct {
     super(parent, name);
 
     const userPool = new cognito.UserPool(this, `${name}-userpool`, {
-      selfSignUpEnabled: true,
+      // selfSignUpEnabled: true,
       signInAliases: {
         email: true,
       },
