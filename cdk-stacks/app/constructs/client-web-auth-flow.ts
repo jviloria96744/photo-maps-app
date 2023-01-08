@@ -17,8 +17,8 @@ export class WebClientAuthFlow extends Construct {
       },
     });
 
-    const googleClientId = "";
-    const googleClientSecret = "";
+    const googleClientId = "hello";
+    const googleClientSecret = "hello_secret";
 
     new cognito.UserPoolIdentityProviderGoogle(this, "google-idp", {
       userPool,
