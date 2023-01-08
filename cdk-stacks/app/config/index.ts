@@ -31,3 +31,9 @@ export const adminSiteCallbackUrls: string[] = [
   "http://localhost:5173/",
   `https://admin-portal.${subDomain}.${domainName}/`,
 ];
+
+export const webClientCallbackUrls: string[] = [
+  "http://localhost:5173/",
+  "http://localhost:3000/",
+  `https://${subDomain}.${domainName}/`,
+];
