@@ -25,7 +25,7 @@ export class WebClientAuthFlow extends Construct {
       userPool,
       clientId: googleClientId,
       clientSecret: googleClientSecret,
-      scopes: ["email"],
+      scopes: ["profile", "email", "openid"],
       attributeMapping: {
         email: cognito.ProviderAttribute.GOOGLE_EMAIL,
       },
