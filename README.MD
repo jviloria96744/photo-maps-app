@@ -25,6 +25,6 @@ These contain some references that were used to handle troublesome parts of this
 
 ### Setup Google OAuth Consent Screen (Cognito with Google Social Login)
 
-- https://aws-cdk.com/cognito-google
+- https://aws-cdk.com/cognito-google (Note also the instructions for setting up the google console part of this project for the google identity provider)
 - https://github.com/awesome-cdk/cognito-google-federation-example
 - https://sst.dev/examples/how-to-add-google-login-to-your-cognito-user-pool.html
