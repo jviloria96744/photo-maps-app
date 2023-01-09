@@ -70,6 +70,8 @@ export class WebClientAuthFlow extends Construct {
           scopes: [
             cognito.OAuthScope.OPENID,
             cognito.OAuthScope.resourceServer(resourceServer, adminScope),
+            cognito.OAuthScope.EMAIL,
+            cognito.OAuthScope.PROFILE,
           ],
           callbackUrls: webClientCallbackUrls,
         },
