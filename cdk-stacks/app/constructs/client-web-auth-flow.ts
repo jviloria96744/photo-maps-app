@@ -57,7 +57,7 @@ export class WebClientAuthFlow extends Construct {
         userPool,
         accessTokenValidity: Duration.minutes(60),
         idTokenValidity: Duration.minutes(60),
-        generateSecret: true,
+        generateSecret: false,
         refreshTokenValidity: Duration.days(1),
         enableTokenRevocation: true,
         supportedIdentityProviders: [
