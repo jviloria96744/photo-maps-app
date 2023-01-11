@@ -37,3 +37,9 @@ export const webClientCallbackUrls: string[] = [
   "http://localhost:3000/",
   `https://${subDomain}.${domainName}/`,
 ];
+
+export const lambdaBuildCommands = [
+  "bash",
+  "-c",
+  "pip install -r requirements.txt -t /asset-output && cp -au . /asset-output",
+];

@@ -1,9 +1,24 @@
+from io import BytesIO
 import exifread
 
 
+def get_exif_data_from_s3_image(bucket_name, key, s3_client):
+
+    try:
+        s3_response_object = s3_client.get_object(Bucket=bucket_name, Key=key)
+        object_content = s3_response_object['Body'].read()
+    except Exception as e:
+        print(str(e))
+        raise Exception("Error retrieving file from S3")
+
+    return get_exif_data(object_content)
+
 def lat_lng_calculator(lat_lng, ref, values):
     try:
-        decimal = sum([float(values[i].num / values[i].den) / 60 ** i for i in range(3)])
+        decimal = sum([float(values[i]) / 60 ** i for i in range(3)])
+        
+        if (lat_lng == "Lat" and (decimal < -90 or decimal > 90)) or (lat_lng == "Lng" and (decimal < -180 or decimal > 180)):
+            raise Exception("Lat/Lng value is out of bounds")  
 
         if (lat_lng == "Lat" and ref == "S") or (lat_lng == "Lng" and ref == "W"):
             decimal = -1 * decimal
@@ -16,17 +31,20 @@ def lat_lng_calculator(lat_lng, ref, values):
 
 
 def convert_exif_date_to_iso(date_string):
+    if type(date_string) is not str:
+        date_string = ''
     return date_string.replace(":", "-")
 
 def get_exif_data(image):
+    image_file = BytesIO(image)
     
     exif_dict = {}
     try:
-        tags = exifread.process_file(image, details=False)
+        tags = exifread.process_file(image_file, details=False)
         # for (k, v) in tags.items():
         #     print("Tag: " + k + ", Value: " + str(v.values))
         
-        if "GPS GPSDate" not in tags:
+        if "GPS GPSLatitude" not in tags or "GPS GPSLongitude" not in tags:
             raise Exception("Image contains no GPS Data")
 
 
@@ -34,10 +52,10 @@ def get_exif_data(image):
             "date": convert_exif_date_to_iso(tags["GPS GPSDate"].values), 
             "image_width": str(tags["Image ImageWidth"].values[0]),
             "image_length": str(tags["Image ImageLength"].values[0]),
-            "gps_lat": str(lat_lng_calculator(
+            "lat": str(lat_lng_calculator(
                 "Lat", tags["GPS GPSLatitudeRef"].values, tags["GPS GPSLatitude"].values
             )),
-            "gps_lng": str(lat_lng_calculator(
+            "lng": str(lat_lng_calculator(
                 "Lng", tags["GPS GPSLongitudeRef"].values, tags["GPS GPSLongitude"].values
             )),
         }
@@ -50,11 +68,9 @@ def get_exif_data(image):
 
 if __name__ == '__main__':
     import boto3
-    from io import BytesIO
 
     BUCKET_NAME = 'map-image-test'
     KEY_NAME = 'IMG_20170529_110527.jpg'
     s3_client = boto3.client('s3')
-    s3_response_object = s3_client.get_object(Bucket=BUCKET_NAME, Key=KEY_NAME)
-    object_content = s3_response_object['Body'].read()
-    print(get_exif_data(BytesIO(object_content)))
+    
+    print(get_exif_data_from_s3_image(BUCKET_NAME, KEY_NAME, s3_client))

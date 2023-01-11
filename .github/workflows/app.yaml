@@ -15,6 +15,7 @@ on:
       - ".github/actions/**"
       - "admin-portal/**"
       - "client-web/**"
+      - "lambdas/**"
 jobs:
   build-admin-portal:
     name: Create Admin Portal Artifact
@@ -34,10 +35,22 @@ jobs:
         uses: ./.github/actions/build-web-artifact
         with:
           directory: "client-web"
+  test-image-processor-lambda:
+    name: Run Image Processor Unit Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: "3.9.16"
+      - name: Install Dependencies
+        run: cd lambdas/image_processor && pip install -r requirements_dev.txt
+      - name: Run Tests
+        run: cd lambda/image_processor && pytest
   deploy:
     name: Build/Deploy Application Infrastructure
     runs-on: ubuntu-latest
-    needs: [build-admin-portal, build-client-web]
+    needs: [build-admin-portal, build-client-web, test-image-processor-lambda]
     permissions:
       actions: write
       contents: read
