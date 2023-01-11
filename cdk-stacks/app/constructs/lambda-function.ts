@@ -1,5 +1,5 @@
 import * as lambda from "aws-cdk-lib/aws-lambda";
-import { Stack } from "aws-cdk-lib";
+import { CfnOutput, Stack, Duration } from "aws-cdk-lib";
 import { Construct } from "constructs";
 import * as path from "path";
 import { lambdaBuildCommands } from "../config";
@@ -24,6 +24,15 @@ export class LambdaFunction extends Construct {
       }),
       runtime: lambda.Runtime.PYTHON_3_9,
       handler: "app.handler",
+      architecture: lambda.Architecture.ARM_64,
+      timeout: Duration.seconds(15),
+    });
+
+    const fnRole = fn.role;
+
+    new CfnOutput(this, `${name}-function`, { value: fn.functionName });
+    new CfnOutput(this, `${name}-function-role`, {
+      value: fnRole?.roleName || "roleName",
     });
   }
 }
