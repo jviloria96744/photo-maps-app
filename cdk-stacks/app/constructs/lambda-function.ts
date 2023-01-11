@@ -30,8 +30,8 @@ export class LambdaFunction extends Construct {
 
     const fnRole = fn.role;
 
-    new CfnOutput(this, `${name}-function`, { value: fn.functionName });
-    new CfnOutput(this, `${name}-function-role`, {
+    new CfnOutput(this, `${name}-function-name`, { value: fn.functionName });
+    new CfnOutput(this, `${name}-function-role-name`, {
       value: fnRole?.roleName || "roleName",
     });
   }
