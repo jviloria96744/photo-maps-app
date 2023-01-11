@@ -4,7 +4,7 @@ import { Construct } from "constructs";
 import { StaticSite } from "../constructs/static-site";
 import { AdminAuthFlow } from "../constructs/admin-auth-flow";
 import { WebClientAuthFlow } from "../constructs/client-web-auth-flow";
-import { LambdaFunction } from "../constructs/lambda-function";
+import { ImageProcessorLambda } from "../constructs/image-processor-lambda";
 
 export class AppStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
@@ -20,8 +20,9 @@ export class AppStack extends cdk.Stack {
 
     new WebClientAuthFlow(this, "web-client-auth-flow");
 
-    new LambdaFunction(this, "image-processor", {
+    new ImageProcessorLambda(this, "image-processor", {
       codeDirectory: "image_processor",
+      layerDirectories: ["boto3", "exifread", "reverse-geocode"],
     });
   }
 }
