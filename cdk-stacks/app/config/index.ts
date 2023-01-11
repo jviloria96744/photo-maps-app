@@ -41,5 +41,5 @@ export const webClientCallbackUrls: string[] = [
 export const lambdaBuildCommands = [
   "bash",
   "-c",
-  "pip install -r requirements.txt -t /asset-output && cp -au . /asset-output && rm -rf /asset-output/tests",
+  "pip install -r requirements.txt -t /asset-output && cp -au . /asset-output && rm -rf /asset-output/tests requirements.txt requirements_dev.txt",
 ];
