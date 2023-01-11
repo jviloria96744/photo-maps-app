@@ -46,7 +46,7 @@ jobs:
       - name: Install Dependencies
         run: cd lambdas/image_processor && pip install -r requirements_dev.txt
       - name: Run Tests
-        run: cd lambda/image_processor && pytest
+        run: cd lambdas/image_processor && pytest
   deploy:
     name: Build/Deploy Application Infrastructure
     runs-on: ubuntu-latest
