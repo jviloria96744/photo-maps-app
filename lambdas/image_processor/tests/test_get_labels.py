@@ -1,5 +1,5 @@
 import pytest
-from .. import get_labels
+import get_labels
 
 @pytest.mark.parametrize("label_object, expected", [
     ({'Name': 'Landmark', 'Confidence': 66.17167663574219, 'Instances': [], 'Parents': [], 'Aliases': [], 'Categories': [{'Name': 'Popular Landmarks'}]}, True),

@@ -1,9 +1,9 @@
 import pytest
-from .. import get_reverse_geocoding
+import get_reverse_geocoding
 
 @pytest.mark.parametrize("key, expected", [
     ("country_code", "IT"),
-    ("city", "Rome"),
+    ("city", "Roma"),
     ("country", "Italy"),
 ])
 def test_get_reverse_geocoding_valid(key, expected):

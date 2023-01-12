@@ -5,6 +5,8 @@ env:
   AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
   GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
   GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
+  IMAGE_PROCESSOR_SECRET_NAME: ${{ secrets.IMAGE_PROCESSOR_SECRET_NAME }}
+  IMAGE_PROCESSOR_SECRET_KEY: ${{ secrets.IMAGE_PROCESSOR_SECRET_KEY }}
 on:
   push:
     branches:
@@ -46,7 +48,7 @@ jobs:
       - name: Install Dependencies
         run: cd lambdas/image_processor && pip install -r requirements_dev.txt
       - name: Run Tests
-        run: cd lambdas/image_processor && pytest
+        run: cd lambdas/image_processor && python -m pytest tests/
   deploy:
     name: Build/Deploy Application Infrastructure
     runs-on: ubuntu-latest
