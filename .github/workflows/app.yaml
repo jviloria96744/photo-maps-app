@@ -62,6 +62,9 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: 16.17.0
+      - uses: actions/setup-python@v4
+        with:
+          python-version: "3.9.16"
       - name: Download Admin Portal Artifact
         uses: actions/download-artifact@v3
         with:
@@ -72,6 +75,8 @@ jobs:
         with:
           name: client-web-artifact
           path: ./client-web/dist/
+      - name: Build Reverse Geocoding Layer
+        run: cd lambdas/layers/reverse-geocode && pip install -r requirements.txt --target=.
       - name: Install CDK
         run: npm install -g aws-cdk
       - name: Install Dependencies
