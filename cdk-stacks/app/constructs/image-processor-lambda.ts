@@ -31,23 +31,23 @@ export class ImageProcessorLambda extends Construct {
       timeout: Duration.seconds(15),
     });
 
-    const functionLayers = layerDirectories.map((layerDirectory) => {
-      const layerPathName = path.resolve(
-        basePath,
-        "lambdas",
-        "layers",
-        layerDirectory
-      );
+    // const functionLayers = layerDirectories.map((layerDirectory) => {
+    //   const layerPathName = path.resolve(
+    //     basePath,
+    //     "lambdas",
+    //     "layers",
+    //     layerDirectory
+    //   );
 
-      return new lambda.LayerVersion(this, `${name}-${layerDirectory}-layer`, {
-        compatibleRuntimes: [lambda.Runtime.PYTHON_3_9],
-        compatibleArchitectures: [lambda.Architecture.ARM_64],
-        code: lambda.Code.fromAsset(layerPathName),
-        removalPolicy: RemovalPolicy.RETAIN,
-      });
-    });
+    //   return new lambda.LayerVersion(this, `${name}-${layerDirectory}-layer`, {
+    //     compatibleRuntimes: [lambda.Runtime.PYTHON_3_9],
+    //     compatibleArchitectures: [lambda.Architecture.ARM_64],
+    //     code: lambda.Code.fromAsset(layerPathName),
+    //     removalPolicy: RemovalPolicy.RETAIN,
+    //   });
+    // });
 
-    baseFunction.addLayers(...functionLayers);
+    // baseFunction.addLayers(...functionLayers);
 
     const fnRole = baseFunction.role;
 
