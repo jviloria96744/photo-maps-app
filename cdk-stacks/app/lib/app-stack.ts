@@ -22,7 +22,6 @@ export class AppStack extends cdk.Stack {
 
     new ImageProcessorLambda(this, "image-processor", {
       codeDirectory: "image_processor",
-      layerDirectories: ["boto3", "exifread", "reverse-geocode"],
     });
   }
 }

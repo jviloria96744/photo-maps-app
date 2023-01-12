@@ -1,19 +1,19 @@
+import * as iam from "aws-cdk-lib/aws-iam";
 import * as lambda from "aws-cdk-lib/aws-lambda";
-import { CfnOutput, Stack, Duration, RemovalPolicy } from "aws-cdk-lib";
+import { CfnOutput, Stack, Duration } from "aws-cdk-lib";
 import { Construct } from "constructs";
 import * as path from "path";
 import { lambdaBuildCommands } from "../config";
 
 export interface ImageProcessorLambdaProps {
   codeDirectory: string;
-  layerDirectories: string[];
 }
 
 export class ImageProcessorLambda extends Construct {
   constructor(parent: Stack, name: string, props: ImageProcessorLambdaProps) {
     super(parent, name);
 
-    const { codeDirectory, layerDirectories } = props;
+    const { codeDirectory } = props;
 
     const basePath = process.env.GITHUB_WORKSPACE || "";
     const pathName = path.resolve(basePath, "lambdas", codeDirectory);
@@ -31,25 +31,15 @@ export class ImageProcessorLambda extends Construct {
       timeout: Duration.seconds(15),
     });
 
-    // const functionLayers = layerDirectories.map((layerDirectory) => {
-    //   const layerPathName = path.resolve(
-    //     basePath,
-    //     "lambdas",
-    //     "layers",
-    //     layerDirectory
-    //   );
-
-    //   return new lambda.LayerVersion(this, `${name}-${layerDirectory}-layer`, {
-    //     compatibleRuntimes: [lambda.Runtime.PYTHON_3_9],
-    //     compatibleArchitectures: [lambda.Architecture.ARM_64],
-    //     code: lambda.Code.fromAsset(layerPathName),
-    //     removalPolicy: RemovalPolicy.RETAIN,
-    //   });
-    // });
-
-    // baseFunction.addLayers(...functionLayers);
-
     const fnRole = baseFunction.role;
+
+    fnRole?.addToPrincipalPolicy(
+      new iam.PolicyStatement({
+        effect: iam.Effect.ALLOW,
+        actions: ["rekognition:DetectLabels"],
+        resources: ["*"],
+      })
+    );
 
     new CfnOutput(this, `${name}-function-name`, {
       value: baseFunction.functionName,
