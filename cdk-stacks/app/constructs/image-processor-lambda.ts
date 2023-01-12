@@ -39,6 +39,8 @@ export class ImageProcessorLambda extends Construct {
       layers: [
         new lambdaPython.PythonLayerVersion(parent, `${name}-layer`, {
           entry: layerPath,
+          compatibleRuntimes: [lambda.Runtime.PYTHON_3_9],
+          compatibleArchitectures: [lambda.Architecture.ARM_64],
         }),
       ],
     });
