@@ -40,6 +40,10 @@ jobs:
   test-image-processor-lambda:
     name: Run Image Processor Unit Tests
     runs-on: ubuntu-latest
+    permissions:
+      actions: write
+      contents: read
+      id-token: write
     steps:
       - uses: actions/checkout@v3
       - name: Configure AWS CLI and Credentials
