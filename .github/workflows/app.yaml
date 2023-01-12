@@ -42,11 +42,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+      - name: Configure AWS CLI and Credentials
+        uses: ./.github/actions/configure-aws-cli
       - uses: actions/setup-python@v4
         with:
           python-version: "3.9.16"
-      - name: Configure AWS CLI and Credentials
-        uses: ./.github/actions/configure-aws-cli
       - name: Install Dependencies
         run: cd lambdas/image_processor && pip install -r requirements_dev.txt
       - name: Run Tests
