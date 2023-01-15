@@ -21,7 +21,7 @@ export class AdminAuthFlow extends Construct {
         emailStyle: cognito.VerificationEmailStyle.CODE,
       },
       accountRecovery: cognito.AccountRecovery.EMAIL_ONLY,
-      removalPolicy: RemovalPolicy.RETAIN,
+      removalPolicy: RemovalPolicy.DESTROY,
     });
 
     const adminScope = new cognito.ResourceServerScope({
