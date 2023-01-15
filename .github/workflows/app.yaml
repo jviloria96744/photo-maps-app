@@ -87,7 +87,5 @@ jobs:
         run: npm install -g aws-cdk
       - name: Install Dependencies
         run: cd cdk-stacks/app && npm install
-      - name: Synth Stack
-        run: cd cdk-stacks/app && cdk synth
       - name: Deploy Stack
         run: cd cdk-stacks/app && cdk deploy --require-approval "never"
