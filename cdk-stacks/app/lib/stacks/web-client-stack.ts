@@ -15,9 +15,9 @@ export class WebClientStack extends cdk.NestedStack {
       process.env.GOOGLE_CLIENT_SECRET || "client_secret";
 
     const webClientProps = createStaticSiteProps("client-web");
-    const webClient = new StaticSite(this, id, webClientProps);
+    const webClient = new StaticSite(this, `${id}-static-site`, webClientProps);
 
-    const webClientAuthFlow = new WebClientAuthFlow(this, "web-client", {
+    const webClientAuthFlow = new WebClientAuthFlow(this, `${id}-auth-flow`, {
       googleClientId,
       googleClientSecret,
     });

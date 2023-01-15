@@ -12,7 +12,7 @@ export class AdminAuthFlow extends Construct {
   constructor(parent: Stack, name: string) {
     super(parent, name);
 
-    const userPool = new cognito.UserPool(this, `${name}-userpool`, {
+    const userPool = new cognito.UserPool(this, `${name}-user-pool`, {
       selfSignUpEnabled: false,
       signInAliases: {
         email: true,
@@ -44,7 +44,7 @@ export class AdminAuthFlow extends Construct {
       }
     );
 
-    new CfnOutput(this, "userPoolId", {
+    new CfnOutput(this, `${name}-user-pool-id`, {
       value: userPool.userPoolId,
     });
 
@@ -81,7 +81,7 @@ export class AdminAuthFlow extends Construct {
       },
     });
 
-    new CfnOutput(this, "userPoolClientId", {
+    new CfnOutput(this, `${name}-user-pool-client-id`, {
       value: userPoolClient.userPoolClientId,
     });
 

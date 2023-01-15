@@ -20,7 +20,7 @@ export class WebClientAuthFlow extends Construct {
 
     const { googleClientId, googleClientSecret } = props;
 
-    const userPool = new cognito.UserPool(this, `${name}-userpool`, {
+    const userPool = new cognito.UserPool(this, `${name}-user-pool`, {
       removalPolicy: RemovalPolicy.DESTROY,
     });
 
@@ -31,7 +31,7 @@ export class WebClientAuthFlow extends Construct {
     });
 
     const userPoolIdentityProviderGoogle =
-      new cognito.UserPoolIdentityProviderGoogle(this, "google-idp", {
+      new cognito.UserPoolIdentityProviderGoogle(this, `${name}-google-idp`, {
         userPool,
         clientId: googleClientId,
         clientSecret: googleClientSecret,
@@ -56,7 +56,7 @@ export class WebClientAuthFlow extends Construct {
       }
     );
 
-    new CfnOutput(this, `${name}-userPoolId`, {
+    new CfnOutput(this, `${name}-user-pool-id`, {
       value: userPool.userPoolId,
     });
 
@@ -88,7 +88,7 @@ export class WebClientAuthFlow extends Construct {
       }
     );
 
-    new CfnOutput(this, `${name}-userPoolClientId`, {
+    new CfnOutput(this, `${name}-user-pool-client-id`, {
       value: userPoolClient.userPoolClientId,
     });
 
