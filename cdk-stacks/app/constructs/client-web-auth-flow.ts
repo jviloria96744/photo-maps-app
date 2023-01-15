@@ -3,9 +3,22 @@ import { CfnOutput, Stack, RemovalPolicy, Duration } from "aws-cdk-lib";
 import { Construct } from "constructs";
 import { webClientCallbackUrls } from "../config";
 
+interface WebClientAuthFlowProps {
+  googleClientId: string;
+  googleClientSecret: string;
+}
+
 export class WebClientAuthFlow extends Construct {
-  constructor(parent: Stack, name: string) {
+  userPool: cognito.UserPool;
+  userPoolIdentityProviderGoogle: cognito.UserPoolIdentityProviderGoogle;
+  adminScope: cognito.ResourceServerScope;
+  resourceServer: cognito.UserPoolResourceServer;
+  userPoolClient: cognito.UserPoolClient;
+
+  constructor(parent: Stack, name: string, props: WebClientAuthFlowProps) {
     super(parent, name);
+
+    const { googleClientId, googleClientSecret } = props;
 
     const userPool = new cognito.UserPool(this, `${name}-userpool`, {
       removalPolicy: RemovalPolicy.DESTROY,
@@ -17,19 +30,16 @@ export class WebClientAuthFlow extends Construct {
       },
     });
 
-    const googleClientId = process.env.GOOGLE_CLIENT_ID || "client_id";
-    const googleClientSecret =
-      process.env.GOOGLE_CLIENT_SECRET || "client_secret";
-
-    new cognito.UserPoolIdentityProviderGoogle(this, "google-idp", {
-      userPool,
-      clientId: googleClientId,
-      clientSecret: googleClientSecret,
-      scopes: ["profile", "email", "openid"],
-      attributeMapping: {
-        email: cognito.ProviderAttribute.GOOGLE_EMAIL,
-      },
-    });
+    const userPoolIdentityProviderGoogle =
+      new cognito.UserPoolIdentityProviderGoogle(this, "google-idp", {
+        userPool,
+        clientId: googleClientId,
+        clientSecret: googleClientSecret,
+        scopes: ["profile", "email", "openid"],
+        attributeMapping: {
+          email: cognito.ProviderAttribute.GOOGLE_EMAIL,
+        },
+      });
 
     const adminScope = new cognito.ResourceServerScope({
       scopeName: "admin",
@@ -81,5 +91,11 @@ export class WebClientAuthFlow extends Construct {
     new CfnOutput(this, `${name}-userPoolClientId`, {
       value: userPoolClient.userPoolClientId,
     });
+
+    this.userPool = userPool;
+    this.userPoolIdentityProviderGoogle = userPoolIdentityProviderGoogle;
+    this.adminScope = adminScope;
+    this.resourceServer = resourceServer;
+    this.userPoolClient = userPoolClient;
   }
 }

@@ -1,27 +1,27 @@
 import * as cdk from "aws-cdk-lib";
-// import { createStaticSiteProps } from "../config";
 import { Construct } from "constructs";
-// import { StaticSite } from "../constructs/static-site";
-// import { AdminAuthFlow } from "../constructs/admin-auth-flow";
-// import { WebClientAuthFlow } from "../constructs/client-web-auth-flow";
-// import { ImageProcessorLambda } from "../constructs/image-processor-lambda";
+import { AdminSiteStack } from "./stacks/admin-site-stack";
+import { WebClientStack } from "./stacks/web-client-stack";
+import { ImageProcessorWorkflowStack } from "./stacks/image-processor-workflow-stack";
 
 export class AppStack extends cdk.Stack {
+  adminSiteStack: AdminSiteStack;
+  webClientStack: WebClientStack;
+  imageProcessorWorkflowStack: ImageProcessorWorkflowStack;
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
 
-    // const adminSiteProps = createStaticSiteProps("admin-portal");
-    // new StaticSite(this, "admin-site", adminSiteProps);
+    const adminSiteStack = new AdminSiteStack(this, "admin-site");
 
-    // const webPlatformProps = createStaticSiteProps("client-web");
-    // new StaticSite(this, "client-web", webPlatformProps);
+    const webClientStack = new WebClientStack(this, "web-client");
 
-    // new AdminAuthFlow(this, "admin-auth-flow");
+    const imageProcessorWorkflowStack = new ImageProcessorWorkflowStack(
+      this,
+      "image-processor"
+    );
 
-    // new WebClientAuthFlow(this, "web-client-auth-flow");
-
-    // new ImageProcessorLambda(this, "image-processor", {
-    //   codeDirectory: "image_processor",
-    // });
+    this.adminSiteStack = adminSiteStack;
+    this.webClientStack = webClientStack;
+    this.imageProcessorWorkflowStack = imageProcessorWorkflowStack;
   }
 }

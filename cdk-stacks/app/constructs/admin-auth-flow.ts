@@ -4,6 +4,11 @@ import { Construct } from "constructs";
 import { adminSiteCallbackUrls } from "../config";
 
 export class AdminAuthFlow extends Construct {
+  userPool: cognito.UserPool;
+  adminScope: cognito.ResourceServerScope;
+  resourceServer: cognito.UserPoolResourceServer;
+  userPoolClient: cognito.UserPoolClient;
+
   constructor(parent: Stack, name: string) {
     super(parent, name);
 
@@ -79,5 +84,10 @@ export class AdminAuthFlow extends Construct {
     new CfnOutput(this, "userPoolClientId", {
       value: userPoolClient.userPoolClientId,
     });
+
+    this.userPool = userPool;
+    this.adminScope = adminScope;
+    this.resourceServer = resourceServer;
+    this.userPoolClient = userPoolClient;
   }
 }

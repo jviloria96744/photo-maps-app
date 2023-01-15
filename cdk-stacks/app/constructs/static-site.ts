@@ -15,6 +15,7 @@ export interface StaticSiteProps {
   siteSubDomain: string;
   siteDirectory: string;
   siteBuildDirectory: string;
+  basePath: string;
 }
 
 /**
@@ -27,8 +28,13 @@ export class StaticSite extends Construct {
   constructor(parent: Stack, name: string, props: StaticSiteProps) {
     super(parent, name);
 
-    const { domainName, siteSubDomain, siteBuildDirectory, siteDirectory } =
-      props;
+    const {
+      domainName,
+      siteSubDomain,
+      siteBuildDirectory,
+      siteDirectory,
+      basePath,
+    } = props;
 
     const zone = route53.HostedZone.fromLookup(this, `${name}-zone`, {
       domainName: domainName,
@@ -46,7 +52,7 @@ export class StaticSite extends Construct {
     new CfnOutput(this, "Site", { value: "https://" + siteDomain });
 
     // Content bucket
-    const siteBucket = new s3.Bucket(this, name, {
+    const siteBucket = new s3.Bucket(this, `${name}-bucket`, {
       publicReadAccess: false,
       blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
       removalPolicy: RemovalPolicy.DESTROY,
@@ -69,7 +75,7 @@ export class StaticSite extends Construct {
     // TLS certificate
     const certificate = new acm.DnsValidatedCertificate(
       this,
-      `${name}Certificate`,
+      `${name}-certificate`,
       {
         domainName: siteDomain,
         hostedZone: zone,
@@ -118,7 +124,7 @@ export class StaticSite extends Construct {
     });
 
     // Route53 alias record for the CloudFront distribution
-    new route53.ARecord(this, `${name}-site-alias-record`, {
+    new route53.ARecord(this, `${name}-alias-record`, {
       recordName: siteDomain,
       target: route53.RecordTarget.fromAlias(
         new targets.CloudFrontTarget(distribution)
@@ -126,10 +132,9 @@ export class StaticSite extends Construct {
       zone,
     });
 
-    const basePath = process.env.GITHUB_WORKSPACE || "";
     const pathName = path.resolve(basePath, siteDirectory, siteBuildDirectory);
     // Deploy site contents to S3 bucket and invalidate cache
-    new s3deploy.BucketDeployment(this, "DeployWithInvalidation", {
+    new s3deploy.BucketDeployment(this, `${name}-deploy-with-validation`, {
       sources: [s3deploy.Source.asset(pathName)],
       destinationBucket: siteBucket,
       distribution,

@@ -1,22 +1,30 @@
 import * as iam from "aws-cdk-lib/aws-iam";
-import * as secretsmanager from "aws-cdk-lib/aws-secretsmanager";
 import * as lambda from "aws-cdk-lib/aws-lambda";
-import { CfnOutput, Stack, Duration } from "aws-cdk-lib";
+import { Stack, Duration } from "aws-cdk-lib";
 import { Construct } from "constructs";
 import * as path from "path";
 import { lambdaBuildCommands } from "../config";
 
 export interface ImageProcessorLambdaProps {
   codeDirectory: string;
+  basePath: string;
+  imageProcessorSecretName: string;
+  imageProcessorSecretKey: string;
 }
 
 export class ImageProcessorLambda extends Construct {
+  function: lambda.Function;
+  fnRole: iam.IRole;
+
   constructor(parent: Stack, name: string, props: ImageProcessorLambdaProps) {
     super(parent, name);
 
-    const { codeDirectory } = props;
-
-    const basePath = process.env.GITHUB_WORKSPACE || "";
+    const {
+      codeDirectory,
+      basePath,
+      imageProcessorSecretName,
+      imageProcessorSecretKey,
+    } = props;
     const pathName = path.resolve(basePath, "lambdas", codeDirectory);
 
     const baseFunction = new lambda.Function(this, `${name}-function`, {
@@ -31,10 +39,8 @@ export class ImageProcessorLambda extends Construct {
       architecture: lambda.Architecture.ARM_64,
       timeout: Duration.seconds(15),
       environment: {
-        IMAGE_PROCESSOR_SECRET_NAME:
-          process.env.IMAGE_PROCESSOR_SECRET_NAME || "",
-        IMAGE_PROCESSOR_SECRET_KEY:
-          process.env.IMAGE_PROCESSOR_SECRET_KEY || "",
+        IMAGE_PROCESSOR_SECRET_NAME: imageProcessorSecretName,
+        IMAGE_PROCESSOR_SECRET_KEY: imageProcessorSecretKey,
       },
     });
 
@@ -48,18 +54,7 @@ export class ImageProcessorLambda extends Construct {
       })
     );
 
-    const lambdaSecrets = secretsmanager.Secret.fromSecretNameV2(
-      parent,
-      `${name}-secret`,
-      process.env.SECRET_NAME || ""
-    );
-    lambdaSecrets.grantRead(fnRole);
-
-    new CfnOutput(this, `${name}-function-name`, {
-      value: baseFunction.functionName,
-    });
-    new CfnOutput(this, `${name}-function-role-name`, {
-      value: fnRole?.roleName || "roleName",
-    });
+    this.function = baseFunction;
+    this.fnRole = fnRole;
   }
 }

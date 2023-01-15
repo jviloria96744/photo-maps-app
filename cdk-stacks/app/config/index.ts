@@ -1,5 +1,7 @@
 import { StaticSiteProps } from "../constructs/static-site";
 
+const basePath = process.env.GITHUB_WORKSPACE || "";
+
 export const domainName = "jviloria.com";
 export const subDomain = "photo-maps-app";
 export const siteBuildDirectory = "dist";
@@ -10,6 +12,7 @@ export const createStaticSiteProps = (siteName: SiteName): StaticSiteProps => {
   switch (siteName) {
     case "admin-portal":
       return {
+        basePath,
         domainName,
         siteSubDomain: `${siteName}.${subDomain}`,
         siteBuildDirectory,
@@ -17,6 +20,7 @@ export const createStaticSiteProps = (siteName: SiteName): StaticSiteProps => {
       };
     case "client-web":
       return {
+        basePath,
         domainName,
         siteSubDomain: subDomain,
         siteBuildDirectory,
