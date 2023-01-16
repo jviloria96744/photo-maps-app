@@ -1,45 +1,47 @@
 import boto3
-# from get_exif_data import get_exif_data_from_s3_image
-# from get_labels import get_labels_from_s3_image
-# from get_reverse_geocoding import get_reverse_geocoding
+from get_exif_data import get_exif_data_from_s3_image
+from get_labels import get_labels_from_s3_image
+from get_reverse_geocoding import get_reverse_geocoding
 
 s3_client = boto3.client('s3')
 rekognition_client = boto3.client("rekognition")
 
 def get_event_metadata(event):
-    # Implement actual logic to extract relevant metadata from event
+    try:
+        event_metadata = event["Records"][0]["body"]["Records"][0]
 
-    BUCKET_NAME = event.get("bucket_name")
-    KEY = event.get("key")
-
-    if not BUCKET_NAME or not KEY:
-        raise Exception("Bucket Name and Key are required to process image")
-    
-    return {
-        "bucket_name": event["bucket_name"],
-        "key": event["key"]
-    }
+        s3_bucket_name = event_metadata["s3"]["bucket"]["name"]
+        s3_object_key = event_metadata["s3"]["object"]["key"] 
+        return {
+            "bucket_name": s3_bucket_name,
+            "key": s3_object_key,
+            "username": "jviloria", # Logic needed to create these
+            "sort_key": "IMAGE_s3_object_key" # Logic needed to create these
+        }
+    except Exception as e:
+        print(str(e))
+        raise Exception("Error when retrieving metadata from sqs event object")
 
 def handler(event, _):
-    print(event)
-    return 1
-    # event_metadata = get_event_metadata(event)
+    event_metadata = get_event_metadata(event)
 
-    # exif_data = get_exif_data_from_s3_image(event_metadata["bucket_name"], event_metadata["key"], s3_client)
+    exif_data = get_exif_data_from_s3_image(event_metadata["bucket_name"], event_metadata["key"], s3_client)
 
-    # rev_geocode_data = get_reverse_geocoding(exif_data["lat"], exif_data["lng"])
+    rev_geocode_data = get_reverse_geocoding(exif_data["lat"], exif_data["lng"])
 
-    # label_data = get_labels_from_s3_image(event_metadata["bucket_name"], event_metadata["key"], rekognition_client)
+    label_data = get_labels_from_s3_image(event_metadata["bucket_name"], event_metadata["key"], rekognition_client)
 
-    # db_item = {
-    #     "geo_data": {
-    #         **exif_data,
-    #         **rev_geocode_data
-    #     },
-    #     "image_labels": label_data
-    # }
+    db_item = {
+        "geo_data": {
+            **exif_data,
+            **rev_geocode_data
+        },
+        "image_labels": label_data
+    }
 
-    # return db_item
+    print(db_item)
+
+    return db_item
 
 
 if __name__ == '__main__':

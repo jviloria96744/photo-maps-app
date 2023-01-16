@@ -1,0 +1,57 @@
+{
+  "Records": [
+    {
+      "messageId": "50df26a3-2d2c-4031-ab09-f16ea8529146",
+      "receiptHandle": "AQEBJJYVsFABtT3FPzhYl0BwkyiVf1LjYQ/vitRuapFNtJ+jrYSYBCcSar+ba9qWouQE6BUo/ZW6tta1Svpsr2+8tng9fPGrExhQiylZPCDKPKs10Imf1N/HVx3TpOPuEktNCLB6hFnFT28eoPwKf/w1Hs4ECVDrEaSqaWj0GjPb4It8bGBDBw9cWRyCO0hKCNi0EbjCYD4NCUfSzJQPmhhLhfyWYBaXi7RubElOAs2dU08/vc/58Eu6GObwGC8dfASgSl7G5Ni4N/piJYZNdEUG2Nv2Bd0I8vR4ZfymvflEUrz8XrW9ux2KOozODAYlfEbnNQ2RYzxXvnD9A/LRMhr+yn01yv2sLBT3hiMAPE/1Io8fdvlsfRLPcf9rQev2tQnSwLrQJJRNLgE8NBH2Ss9rZ7BD9kPoAyrP16NLl0DTuVt7vjN65UueszNMIpMxW+OAG5wRLkc+UKVcB1tZZWq7m3I1t72ulBozDxl34lAFvJU=",
+      "body": {
+        "Records": [
+          {
+            "eventVersion": "2.1",
+            "eventSource": "aws:s3",
+            "awsRegion": "us-west-2",
+            "eventTime": "2023-01-16T09:50:55.634Z",
+            "eventName": "ObjectCreated:Put",
+            "userIdentity": {
+              "principalId": "AWS:AIDAZWWEZMDZ423HO57HG"
+            },
+            "requestParameters": {
+              "sourceIPAddress": "172.88.117.169"
+            },
+            "responseElements": {
+              "x-amz-request-id": "J1YPK5QWHC6FSKZW",
+              "x-amz-id-2": "7g88kgVbt9YxGX2QS+Ki0g1TJZpYOMX6W0h1sUjfC7/VBgM0KYAV7TLMyrEGpoEsRk9x0+ICFyGwYaLgK67co7pJBus/7ODl"
+            },
+            "s3": {
+              "s3SchemaVersion": "1.0",
+              "configurationId": "YmIxMzQ1ZDMtOTQ2ZS00OTg0LTk5MTYtMjY4MzY0ZTg5OTA1",
+              "bucket": {
+                "name": "appstack-imageprocessorn-imageprocessorassetasset-kgu6769j08fz",
+                "ownerIdentity": {
+                  "principalId": "A1EY0QH9PMNXZ2"
+                },
+                "arn": "arn:aws:s3:::appstack-imageprocessorn-imageprocessorassetasset-kgu6769j08fz"
+              },
+              "object": {
+                "key": "IMG_20170529_110527.jpg",
+                "size": 3141294,
+                "eTag": "b756387fb871cf06463637cce5b8a207",
+                "sequencer": "0063C51DFF8A1F5DE6"
+              }
+            }
+          }
+        ]
+      },
+      "attributes": {
+        "ApproximateReceiveCount": "1",
+        "SentTimestamp": "1673862656604",
+        "SenderId": "AIDAJFWZWTE5KRAMGW5A2",
+        "ApproximateFirstReceiveTimestamp": "1673862656614"
+      },
+      "messageAttributes": {},
+      "md5OfBody": "b7c444d952df0548fdbbc32c3bcb93dc",
+      "eventSource": "aws:sqs",
+      "eventSourceARN": "arn:aws:sqs:us-west-2:667206377715:AppStack-imageprocessorNestedStac-imageprocessorassetasseteventqueu-pWiTZojwm8kH",
+      "awsRegion": "us-west-2"
+    }
+  ]
+}
