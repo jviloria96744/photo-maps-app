@@ -17,12 +17,11 @@ export class ImageProcessorWorkflowStack extends cdk.NestedStack {
       process.env.IMAGE_PROCESSOR_SECRET_NAME || "";
     const imageProcessorSecretKey =
       process.env.IMAGE_PROCESSOR_SECRET_KEY || "";
-    const secretName = process.env.SECRET_NAME || "";
 
     const lambdaSecrets = secretsmanager.Secret.fromSecretNameV2(
       this,
       `${id}-secret`,
-      secretName
+      imageProcessorSecretName
     );
 
     const imageProcessorLambda = new ImageProcessorLambda(
