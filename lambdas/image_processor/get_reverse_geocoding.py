@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-def are_valid_inputs(lat, lng):
+def are_valid_inputs(lat: str, lng: str) -> bool:
     try:
         lat_float, lng_float = float(lat), float(lng)
 
@@ -16,7 +16,7 @@ def are_valid_inputs(lat, lng):
 
     return True
 
-def get_reverse_geocoding(lat, lng):
+def get_reverse_geocoding(lat: str, lng: str) -> dict:
     if not are_valid_inputs(lat, lng):
         print("Invalid Lat/Lng Values")
         return {}

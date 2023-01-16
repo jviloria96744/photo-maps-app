@@ -1,5 +1,9 @@
 import * as iam from "aws-cdk-lib/aws-iam";
 import * as lambda from "aws-cdk-lib/aws-lambda";
+import * as s3 from "aws-cdk-lib/aws-s3";
+import * as sqs from "aws-cdk-lib/aws-sqs";
+import * as secretsmanager from "aws-cdk-lib/aws-secretsmanager";
+import { SqsEventSource } from "aws-cdk-lib/aws-lambda-event-sources";
 import { Stack, Duration } from "aws-cdk-lib";
 import { Construct } from "constructs";
 import * as path from "path";
@@ -10,6 +14,9 @@ export interface ImageProcessorLambdaProps {
   basePath: string;
   imageProcessorSecretName: string;
   imageProcessorSecretKey: string;
+  bucket: s3.Bucket;
+  queue: sqs.Queue;
+  secrets: secretsmanager.ISecret;
 }
 
 export class ImageProcessorLambda extends Construct {
@@ -24,7 +31,11 @@ export class ImageProcessorLambda extends Construct {
       basePath,
       imageProcessorSecretName,
       imageProcessorSecretKey,
+      bucket,
+      queue,
+      secrets,
     } = props;
+
     const pathName = path.resolve(basePath, "lambdas", codeDirectory);
 
     const baseFunction = new lambda.Function(this, `${name}-function`, {
@@ -53,6 +64,15 @@ export class ImageProcessorLambda extends Construct {
         resources: ["*"],
       })
     );
+
+    bucket.grantRead(fnRole);
+    secrets.grantRead(fnRole);
+
+    const sqsEventTrigger = new SqsEventSource(queue, {
+      batchSize: 1,
+    });
+
+    baseFunction.addEventSource(sqsEventTrigger);
 
     this.function = baseFunction;
     this.fnRole = fnRole;

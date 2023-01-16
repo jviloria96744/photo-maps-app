@@ -2,7 +2,7 @@ from io import BytesIO
 import exifread
 
 
-def get_exif_data_from_s3_image(bucket_name, key, s3_client):
+def get_exif_data_from_s3_image(bucket_name: str, key: str, s3_client):
 
     try:
         s3_response_object = s3_client.get_object(Bucket=bucket_name, Key=key)
@@ -13,7 +13,7 @@ def get_exif_data_from_s3_image(bucket_name, key, s3_client):
 
     return get_exif_data(object_content)
 
-def lat_lng_calculator(lat_lng, ref, values):
+def lat_lng_calculator(lat_lng: str, ref: str, values: list[int]) -> float:
     try:
         decimal = sum([float(values[i]) / 60 ** i for i in range(3)])
         
@@ -30,7 +30,7 @@ def lat_lng_calculator(lat_lng, ref, values):
     return decimal
 
 
-def convert_exif_date_to_iso(date_string):
+def convert_exif_date_to_iso(date_string) -> str:
     if type(date_string) is not str:
         date_string = ''
     return date_string.replace(":", "-")

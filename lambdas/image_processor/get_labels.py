@@ -1,4 +1,4 @@
-def label_filter(labels):
+def label_filter(labels: list[dict]) -> list[dict]:
     filtered_labels = [{
         "label_name": label.get("Name"),
         "label_parents": label.get("Parents"),
@@ -8,7 +8,7 @@ def label_filter(labels):
     
     return filtered_labels
 
-def is_landmark(label_object):
+def is_landmark(label_object: dict) -> bool:
     try:
         if label_object["Name"] == 'Landmark':
             return True
@@ -24,7 +24,7 @@ def is_landmark(label_object):
     return False
 
 
-def get_labels_from_s3_image(bucket_name, key, rekognition_client):
+def get_labels_from_s3_image(bucket_name: str, key: str, rekognition_client) -> list[dict]:
     s3_object_options = {
         "Bucket": bucket_name,
         "Name": key
