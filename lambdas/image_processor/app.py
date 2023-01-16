@@ -21,7 +21,8 @@ def get_event_metadata(event):
     }
 
 def handler(event, _):
-    return event
+    print(event)
+    return 1
     # event_metadata = get_event_metadata(event)
 
     # exif_data = get_exif_data_from_s3_image(event_metadata["bucket_name"], event_metadata["key"], s3_client)
