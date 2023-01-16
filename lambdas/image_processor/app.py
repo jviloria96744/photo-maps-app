@@ -1,3 +1,4 @@
+import json
 import boto3
 from get_exif_data import get_exif_data_from_s3_image
 from get_labels import get_labels_from_s3_image
@@ -8,7 +9,8 @@ rekognition_client = boto3.client("rekognition")
 
 def get_event_metadata(event):
     try:
-        event_metadata = event["Records"][0]["body"]["Records"][0]
+        event_metadata = json.loads(event["Records"][0]["body"])
+        event_metadata = event_metadata["Records"][0]
 
         s3_bucket_name = event_metadata["s3"]["bucket"]["name"]
         s3_object_key = event_metadata["s3"]["object"]["key"] 
