@@ -55,6 +55,7 @@ export class ImageProcessorLambda extends Construct {
       environment: {
         IMAGE_PROCESSOR_SECRET_NAME: imageProcessorSecretName,
         IMAGE_PROCESSOR_SECRET_KEY: imageProcessorSecretKey,
+        DDB_TABLE_NAME: dynamoTable.tableName,
       },
     });
 
