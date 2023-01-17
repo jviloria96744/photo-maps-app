@@ -3,6 +3,7 @@ import * as lambda from "aws-cdk-lib/aws-lambda";
 import * as s3 from "aws-cdk-lib/aws-s3";
 import * as sqs from "aws-cdk-lib/aws-sqs";
 import * as secretsmanager from "aws-cdk-lib/aws-secretsmanager";
+import * as dynamodb from "aws-cdk-lib/aws-dynamodb";
 import { SqsEventSource } from "aws-cdk-lib/aws-lambda-event-sources";
 import { Stack, Duration } from "aws-cdk-lib";
 import { Construct } from "constructs";
@@ -17,6 +18,7 @@ export interface ImageProcessorLambdaProps {
   bucket: s3.Bucket;
   queue: sqs.Queue;
   secrets: secretsmanager.ISecret;
+  dynamoTable: dynamodb.Table;
 }
 
 export class ImageProcessorLambda extends Construct {
@@ -34,6 +36,7 @@ export class ImageProcessorLambda extends Construct {
       bucket,
       queue,
       secrets,
+      dynamoTable,
     } = props;
 
     const pathName = path.resolve(basePath, "lambdas", codeDirectory);
@@ -67,6 +70,7 @@ export class ImageProcessorLambda extends Construct {
 
     bucket.grantRead(fnRole);
     secrets.grantRead(fnRole);
+    dynamoTable.grantReadWriteData(fnRole);
 
     const sqsEventTrigger = new SqsEventSource(queue, {
       batchSize: 1,
