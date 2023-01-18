@@ -41,7 +41,7 @@ export class ImageDeleteLambda extends Construct {
       environment: {
         DDB_TABLE_NAME: dynamoTable.tableName,
         LOG_LEVEL: "INFO",
-        POWERTOOLS_SERVICE_NAME: "image_deleter",
+        POWERTOOLS_SERVICE_NAME: name,
       },
       retryAttempts: 0,
     });

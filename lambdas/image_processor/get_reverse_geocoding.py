@@ -2,8 +2,11 @@ import os
 import requests
 from secrets import get_secret
 from dotenv import load_dotenv
+from aws_lambda_powertools import Logger
 
 load_dotenv()
+
+logger = Logger(service=os.getenv("POWERTOOLS_SERVICE_NAME"), level=os.getenv("LOG_LEVEL"))
 
 def are_valid_inputs(lat: str, lng: str) -> bool:
     try:
@@ -18,7 +21,7 @@ def are_valid_inputs(lat: str, lng: str) -> bool:
 
 def get_reverse_geocoding(lat: str, lng: str) -> dict:
     if not are_valid_inputs(lat, lng):
-        print("Invalid Lat/Lng Values")
+        logger.debug("Invalid Lat/Lng Values", extra={"Lat": lat, "Lng": lng})
         return {}
 
     rev_geocoding = {}
@@ -42,7 +45,7 @@ def get_reverse_geocoding(lat: str, lng: str) -> dict:
                 rev_geocoding["city"] = add_part["long_name"]
         
     except Exception as e:
-        print(str(e))
+        logger.debug(str(e))
 
     return rev_geocoding
     

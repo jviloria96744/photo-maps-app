@@ -1,5 +1,8 @@
 import os
 import json
+from aws_lambda_powertools import Logger
+
+logger = Logger(service=os.getenv("POWERTOOLS_SERVICE_NAME"), level=os.getenv("LOG_LEVEL"))
 
 def update_table_with_item(item: dict, ddb_client):
     try:
@@ -22,7 +25,7 @@ def update_table_with_item(item: dict, ddb_client):
             ReturnValues="NONE",
             ReturnConsumedCapacity="NONE")
     except Exception as e:
-        print(str(e))
+        logger.debug(str(e), extra=item)
         raise Exception("Error when writing to dynamodb table")
 
     return response

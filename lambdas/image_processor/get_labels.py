@@ -1,3 +1,8 @@
+import os
+from aws_lambda_powertools import Logger
+
+logger = Logger(service=os.getenv("POWERTOOLS_SERVICE_NAME"), level=os.getenv("LOG_LEVEL"))
+
 def label_filter(labels: list[dict]) -> list[dict]:
     filtered_labels = [{
         "label_name": label.get("Name"),
@@ -37,7 +42,7 @@ def get_labels_from_s3_image(bucket_name: str, key: str, rekognition_client) -> 
         labels = label_filter(rekognition_response.get("Labels", []))
         
     except Exception as e:
-        print(str(e))
+        logger.debug(str(e))
         return []
     
     

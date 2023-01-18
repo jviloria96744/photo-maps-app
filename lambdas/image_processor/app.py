@@ -1,9 +1,14 @@
 import json
+import os
 import boto3
+from aws_lambda_powertools import Logger
+from aws_lambda_powertools.utilities.typing import LambdaContext
 from get_exif_data import get_exif_data_from_s3_image
 from get_labels import get_labels_from_s3_image
 from get_reverse_geocoding import get_reverse_geocoding
 from update_db_table import update_table_with_item
+
+logger = Logger(service=os.getenv("POWERTOOLS_SERVICE_NAME"), level=os.getenv("LOG_LEVEL"))
 
 s3_client = boto3.client('s3')
 rekognition_client = boto3.client("rekognition")
@@ -28,15 +33,14 @@ def get_event_metadata(event):
             "sort_key": f"IMAGE_{photo_id}"
         }
     except Exception as e:
-        print(str(e))
+        logger.debug(str(e), extra=event)
         raise Exception("Error extracting metadata from event object")
         
 
-def handler(event, _):
+@logger.inject_lambda_context(log_event=False)
+def handler(event, context: LambdaContext):
     event_metadata = get_event_metadata(event)
-
-    if not event_metadata:
-        return 1
+    logger.info("Successfully extracted event metadata", extra=event_metadata)
 
     exif_data = get_exif_data_from_s3_image(event_metadata["bucket_name"], event_metadata["key"], s3_client)
 
@@ -56,7 +60,7 @@ def handler(event, _):
         }
     }
 
-    print(db_item)
+    logger.debug("Constructed item to write to Dynamo DB", extra=db_item)
 
     update_table_with_item(db_item, dynamodb_client)
 
