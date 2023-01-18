@@ -20,7 +20,7 @@ def get_event_metadata(event):
         print(event)
         return None
 
-        
+
 def handler(event, _):
     event_metadata = get_event_metadata(event)
     if not event_metadata:
@@ -29,8 +29,12 @@ def handler(event, _):
     response = dynamodb_client.delete_item(
         TableName=os.getenv("DDB_TABLE_NAME"),
         Key={
-            "pk": event_metadata["partition_key"],
-            "sk": event_metadata["sort_key"]
+            "pk": {
+                'S': event_metadata["partition_key"] 
+            },
+            "sk": {
+                'S': event_metadata["sort_key"] 
+            }
         })
     
     return response
