@@ -20,13 +20,14 @@ def get_event_metadata(event):
         raise Exception("Error when retrieving metadata from sqs event object")
 
 def handler(event, _):
-    event_metadata = get_event_metadata(event)
-    response = dynamodb_client.delete_item(
-        TableName=os.getenv("DDB_TABLE_NAME"),
-        Key={
-            "pk": event_metadata["partition_key"],
-            "sk": event_metadata["sort_key"]
-        })
+    print(event)
+    # event_metadata = get_event_metadata(event)
+    # response = dynamodb_client.delete_item(
+    #     TableName=os.getenv("DDB_TABLE_NAME"),
+    #     Key={
+    #         "pk": event_metadata["partition_key"],
+    #         "sk": event_metadata["sort_key"]
+    #     })
     
-    return response
+    return 1
 
