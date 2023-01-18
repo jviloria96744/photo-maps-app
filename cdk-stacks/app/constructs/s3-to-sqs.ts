@@ -16,12 +16,28 @@ export class S3ToSQS extends Construct {
   constructor(parent: Stack, name: string) {
     super(parent, name);
 
+    const deadLetterQueue = new sqs.Queue(
+      parent,
+      `${name}-asset-event-dead-letter-queue`,
+      {
+        retentionPeriod: Duration.days(14),
+      }
+    );
+
     const queue = new sqs.Queue(parent, `${name}-asset-event-queue`, {
       visibilityTimeout: Duration.seconds(15),
+      deadLetterQueue: {
+        queue: deadLetterQueue,
+        maxReceiveCount: 1,
+      },
     });
 
     const deleteQueue = new sqs.Queue(parent, `${name}-asset-delete-queue`, {
       visibilityTimeout: Duration.seconds(15),
+      deadLetterQueue: {
+        queue: deadLetterQueue,
+        maxReceiveCount: 1,
+      },
     });
 
     const bucket = new s3.Bucket(parent, `${name}-asset-bucket`, {

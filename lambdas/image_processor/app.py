@@ -17,6 +17,10 @@ def get_event_metadata(event):
         s3_bucket_name = event_metadata["s3"]["bucket"]["name"]
         s3_object_key = event_metadata["s3"]["object"]["key"]
         user_id, photo_id = s3_object_key.split("/") 
+
+        if not user_id or not photo_id:
+            raise Exception("Key name is not in correct format")
+            
         return {
             "bucket_name": s3_bucket_name,
             "key": s3_object_key,
@@ -25,8 +29,7 @@ def get_event_metadata(event):
         }
     except Exception as e:
         print(str(e))
-        print(event)
-        return None
+        raise Exception("Error extracting metadata from event object")
         
 
 def handler(event, _):
