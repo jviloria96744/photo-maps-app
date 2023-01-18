@@ -3,9 +3,11 @@ import boto3
 from get_exif_data import get_exif_data_from_s3_image
 from get_labels import get_labels_from_s3_image
 from get_reverse_geocoding import get_reverse_geocoding
+from update_db_table import update_table_with_item
 
 s3_client = boto3.client('s3')
 rekognition_client = boto3.client("rekognition")
+dynamodb_client = boto3.client("dynamodb")
 
 def get_event_metadata(event):
     try:
@@ -13,12 +15,13 @@ def get_event_metadata(event):
         event_metadata = event_metadata["Records"][0]
 
         s3_bucket_name = event_metadata["s3"]["bucket"]["name"]
-        s3_object_key = event_metadata["s3"]["object"]["key"] 
+        s3_object_key = event_metadata["s3"]["object"]["key"]
+        user_id, photo_id = s3_object_key.split("/") 
         return {
             "bucket_name": s3_bucket_name,
             "key": s3_object_key,
-            "username": "jviloria", # Logic needed to create these
-            "sort_key": "IMAGE_s3_object_key" # Logic needed to create these
+            "partition_key": user_id,
+            "sort_key": f"IMAGE_{photo_id}"
         }
     except Exception as e:
         print(str(e))
@@ -34,16 +37,22 @@ def handler(event, _):
     label_data = get_labels_from_s3_image(event_metadata["bucket_name"], event_metadata["key"], rekognition_client)
 
     db_item = {
-        "geo_data": {
-            **exif_data,
-            **rev_geocode_data
-        },
-        "image_labels": label_data
+        "pk": event_metadata["partition_key"],
+        "sk": event_metadata["sort_key"],
+        "metadata": {
+            "geo_data": {
+                **exif_data,
+                **rev_geocode_data
+            },
+            "image_labels": label_data        
+        }
     }
 
     print(db_item)
 
-    return db_item
+    update_table_with_item(db_item, dynamodb_client)
+
+    return 1
 
 
 if __name__ == '__main__':
