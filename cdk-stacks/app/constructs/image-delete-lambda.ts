@@ -41,6 +41,7 @@ export class ImageDeleteLambda extends Construct {
       environment: {
         DDB_TABLE_NAME: dynamoTable.tableName,
       },
+      retryAttempts: 0,
     });
 
     const fnRole = baseFunction.role as iam.IRole;

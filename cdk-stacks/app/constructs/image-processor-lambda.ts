@@ -58,6 +58,7 @@ export class ImageProcessorLambda extends Construct {
         IMAGE_PROCESSOR_SECRET_KEY: imageProcessorSecretKey,
         DDB_TABLE_NAME: dynamoTable.tableName,
       },
+      retryAttempts: 0,
     });
 
     const fnRole = baseFunction.role as iam.IRole;
