@@ -52,6 +52,7 @@ export class ImageProcessorLambda extends Construct {
       handler: "app.handler",
       architecture: lambda.Architecture.ARM_64,
       timeout: Duration.seconds(15),
+      memorySize: 512,
       environment: {
         IMAGE_PROCESSOR_SECRET_NAME: imageProcessorSecretName,
         IMAGE_PROCESSOR_SECRET_KEY: imageProcessorSecretKey,
