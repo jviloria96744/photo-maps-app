@@ -25,10 +25,15 @@ def get_event_metadata(event):
         }
     except Exception as e:
         print(str(e))
-        raise Exception("Error when retrieving metadata from sqs event object")
+        print(event)
+        return None
+        
 
 def handler(event, _):
     event_metadata = get_event_metadata(event)
+
+    if not event_metadata:
+        return 1
 
     exif_data = get_exif_data_from_s3_image(event_metadata["bucket_name"], event_metadata["key"], s3_client)
 
