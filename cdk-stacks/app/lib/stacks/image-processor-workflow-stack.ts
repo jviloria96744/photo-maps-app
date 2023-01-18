@@ -3,6 +3,7 @@ import * as secretsmanager from "aws-cdk-lib/aws-secretsmanager";
 import * as dynamodb from "aws-cdk-lib/aws-dynamodb";
 import { Construct } from "constructs";
 import { ImageProcessorLambda } from "../../constructs/image-processor-lambda";
+import { ImageDeleteLambda } from "../../constructs/image-delete-lambda";
 import { S3ToSQS } from "../../constructs/s3-to-sqs";
 
 interface ImageProcessorWorkflowStackProps extends cdk.NestedStackProps {
@@ -12,6 +13,8 @@ interface ImageProcessorWorkflowStackProps extends cdk.NestedStackProps {
 export class ImageProcessorWorkflowStack extends cdk.NestedStack {
   assetBucket: S3ToSQS;
   imageProcessorLambda: ImageProcessorLambda;
+  imageDeleterLambda: ImageDeleteLambda;
+
   constructor(
     scope: Construct,
     id: string,
@@ -50,6 +53,18 @@ export class ImageProcessorWorkflowStack extends cdk.NestedStack {
       }
     );
 
+    const imageDeleteLambda = new ImageDeleteLambda(
+      this,
+      `${id}-delete-lambda`,
+      {
+        basePath,
+        codeDirectory: "image_deleter",
+        deleteQueue: assetBucket.deleteQueue,
+        dynamoTable,
+      }
+    );
+
     this.imageProcessorLambda = imageProcessorLambda;
+    this.imageDeleterLambda = imageDeleteLambda;
   }
 }

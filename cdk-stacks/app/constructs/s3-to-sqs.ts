@@ -11,10 +11,16 @@ import { Construct } from "constructs";
 export class S3ToSQS extends Construct {
   bucket: s3.Bucket;
   queue: sqs.Queue;
+  deleteQueue: sqs.Queue;
+
   constructor(parent: Stack, name: string) {
     super(parent, name);
 
     const queue = new sqs.Queue(parent, `${name}-asset-event-queue`, {
+      visibilityTimeout: Duration.seconds(15),
+    });
+
+    const deleteQueue = new sqs.Queue(parent, `${name}-asset-delete-queue`, {
       visibilityTimeout: Duration.seconds(15),
     });
 
@@ -25,10 +31,18 @@ export class S3ToSQS extends Construct {
     });
 
     const queueNotification = new aws_s3_notifications.SqsDestination(queue);
+    const deleteQueueNotification = new aws_s3_notifications.SqsDestination(
+      deleteQueue
+    );
 
     bucket.addEventNotification(s3.EventType.OBJECT_CREATED, queueNotification);
+    bucket.addEventNotification(
+      s3.EventType.OBJECT_REMOVED,
+      deleteQueueNotification
+    );
 
     this.bucket = bucket;
     this.queue = queue;
+    this.deleteQueue = deleteQueue;
   }
 }
