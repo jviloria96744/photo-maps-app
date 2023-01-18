@@ -40,6 +40,8 @@ export class ImageDeleteLambda extends Construct {
       memorySize: 128,
       environment: {
         DDB_TABLE_NAME: dynamoTable.tableName,
+        LOG_LEVEL: "INFO",
+        POWERTOOLS_SERVICE_NAME: "image_deleter",
       },
       retryAttempts: 0,
     });
