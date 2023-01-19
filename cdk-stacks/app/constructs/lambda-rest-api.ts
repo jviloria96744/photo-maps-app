@@ -43,7 +43,7 @@ export class LambdaApi extends Construct {
       environment: {
         DDB_TABLE_NAME: dynamoTable.tableName,
         LOG_LEVEL: "INFO",
-        POWERTOOLS_SERVICE_NAME: name,
+        POWERTOOLS_SERVICE_NAME: "app_server",
       },
     };
     const lambdaConstruct = new PythonLambda(
@@ -77,6 +77,9 @@ export class LambdaApi extends Construct {
         certificate,
         endpointType: gateway.EndpointType.EDGE,
       },
+      defaultCorsPreflightOptions: {
+        allowOrigins: gateway.Cors.ALL_ORIGINS,
+      },
     });
 
     const userResourceAuthorizer = new gateway.CfnAuthorizer(
@@ -84,7 +87,7 @@ export class LambdaApi extends Construct {
       `${name}-cfn-auth`,
       {
         restApiId: api.restApiId,
-        name: "Anything",
+        name: "request-authorizer",
         type: gateway.AuthorizationType.COGNITO,
         identitySource: "method.request.header.Authorization",
         providerArns: [cognitoUserPool.userPoolArn],
