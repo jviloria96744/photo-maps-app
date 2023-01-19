@@ -28,3 +28,7 @@ These contain some references that were used to handle troublesome parts of this
 - https://aws-cdk.com/cognito-google (Note also the instructions for setting up the google console part of this project for the google identity provider)
 - https://github.com/awesome-cdk/cognito-google-federation-example
 - https://sst.dev/examples/how-to-add-google-login-to-your-cognito-user-pool.html
+
+### API Endpoint
+
+- Must use ID Token from auth object, `event.signInUserSession.idToken.jwtToken`

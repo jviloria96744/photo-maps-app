@@ -4,6 +4,7 @@ import * as gateway from "aws-cdk-lib/aws-apigateway";
 import * as dynamodb from "aws-cdk-lib/aws-dynamodb";
 import * as acm from "aws-cdk-lib/aws-certificatemanager";
 import * as route53 from "aws-cdk-lib/aws-route53";
+import * as targets from "aws-cdk-lib/aws-route53-targets";
 import * as s3 from "aws-cdk-lib/aws-s3";
 import * as cognito from "aws-cdk-lib/aws-cognito";
 import { LambdaRestApi } from "aws-cdk-lib/aws-apigateway";
@@ -59,11 +60,13 @@ export class LambdaApi extends Construct {
       domainName: domainName,
     });
 
+    const apiDomain = `api.${subDomain}.${domainName}`;
+
     const certificate = new acm.DnsValidatedCertificate(
       this,
       `${name}-certificate`,
       {
-        domainName: `api.${subDomain}.${domainName}`,
+        domainName: apiDomain,
         hostedZone: zone,
         region: "us-east-1", // Cloudfront only checks this region for certificates.
       }
@@ -73,13 +76,19 @@ export class LambdaApi extends Construct {
       handler: lambdaConstruct.function,
       proxy: false,
       domainName: {
-        domainName: `api.${subDomain}.${domainName}`,
+        domainName: apiDomain,
         certificate,
         endpointType: gateway.EndpointType.EDGE,
       },
       defaultCorsPreflightOptions: {
         allowOrigins: gateway.Cors.ALL_ORIGINS,
       },
+    });
+
+    new route53.ARecord(this, `${name}-alias-record`, {
+      recordName: apiDomain,
+      target: route53.RecordTarget.fromAlias(new targets.ApiGateway(api)),
+      zone,
     });
 
     const userResourceAuthorizer = new gateway.CfnAuthorizer(
