@@ -110,6 +110,7 @@ export class ImageProcessorWorkflowStack extends cdk.NestedStack {
 
     imageDeleter.function.addEventSource(imageDeleterEventTrigger);
 
+    this.assetBucket = assetBucket;
     this.imageProcessorLambda = imageProcessor.function;
     this.imageProcessorRole = imageProcessor.fnRole;
     this.imageDeleterLambda = imageDeleter.function;
