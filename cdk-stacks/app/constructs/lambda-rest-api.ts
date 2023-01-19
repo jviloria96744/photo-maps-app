@@ -16,6 +16,7 @@ export interface LambdaApiProps {
   dynamoTable: dynamodb.Table;
   assetBucket: s3.Bucket;
   domainName: string;
+  subDomain: string;
   cognitoUserPool: cognito.UserPool;
 }
 
@@ -31,6 +32,7 @@ export class LambdaApi extends Construct {
       basePath,
       dynamoTable,
       domainName,
+      subDomain,
       assetBucket,
       cognitoUserPool,
     } = props;
@@ -46,7 +48,7 @@ export class LambdaApi extends Construct {
     };
     const lambdaConstruct = new PythonLambda(
       parent,
-      name,
+      `${name}-lambda`,
       lambdaConstructProps
     );
 
@@ -61,7 +63,7 @@ export class LambdaApi extends Construct {
       this,
       `${name}-certificate`,
       {
-        domainName: `api.${domainName}`,
+        domainName: `api.${subDomain}.${domainName}`,
         hostedZone: zone,
         region: "us-east-1", // Cloudfront only checks this region for certificates.
       }
@@ -71,9 +73,9 @@ export class LambdaApi extends Construct {
       handler: lambdaConstruct.function,
       proxy: false,
       domainName: {
-        domainName: domainName,
+        domainName: `api.${subDomain}.${domainName}`,
         certificate,
-        endpointType: gateway.EndpointType.REGIONAL,
+        endpointType: gateway.EndpointType.EDGE,
       },
     });
 

@@ -5,8 +5,6 @@ import * as dynamodb from "aws-cdk-lib/aws-dynamodb";
 import * as lambda from "aws-cdk-lib/aws-lambda";
 import { SqsEventSource } from "aws-cdk-lib/aws-lambda-event-sources";
 import { Construct } from "constructs";
-// import { ImageProcessorLambda } from "../../constructs/image-processor-lambda";
-// import { ImageDeleteLambda } from "../../constructs/image-delete-lambda";
 import { S3ToSQS } from "../../constructs/s3-to-sqs";
 import {
   PythonLambda,
@@ -84,21 +82,6 @@ export class ImageProcessorWorkflowStack extends cdk.NestedStack {
 
     imageProcessor.function.addEventSource(imageProcessorEventTrigger);
 
-    // const imageProcessorLambda = new ImageProcessorLambda(
-    //   this,
-    //   `${id}-lambda`,
-    //   {
-    //     basePath,
-    //     codeDirectory: "image_processor",
-    //     imageProcessorSecretName,
-    //     imageProcessorSecretKey,
-    //     bucket: assetBucket.bucket,
-    //     queue: assetBucket.queue,
-    //     secrets: lambdaSecrets,
-    //     dynamoTable,
-    //   }
-    // );
-
     const imageDeleterProps: PythonLambdaProps = {
       codeDirectory: "image_deleter",
       basePath,
@@ -126,17 +109,6 @@ export class ImageProcessorWorkflowStack extends cdk.NestedStack {
     );
 
     imageDeleter.function.addEventSource(imageDeleterEventTrigger);
-
-    // const imageDeleteLambda = new ImageDeleteLambda(
-    //   this,
-    //   `${id}-delete-lambda`,
-    //   {
-    //     basePath,
-    //     codeDirectory: "image_deleter",
-    //     deleteQueue: assetBucket.deleteQueue,
-    //     dynamoTable,
-    //   }
-    // );
 
     this.imageProcessorLambda = imageProcessor.function;
     this.imageProcessorRole = imageProcessor.fnRole;
