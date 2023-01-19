@@ -94,44 +94,73 @@ export class LambdaApi extends Construct {
       }
     );
 
-    const resources = [
-      ["user", "GET"], // Get User Information
-      ["user", "POST"], // Create New User
-      ["user", "PUT"], // Update User's Information, i.e. preferences
-      ["user", "DELETE"], // Delete User's Account
-      ["photos", "GET"], // Get All Photos By User
-      ["photos", "DELETE"], // Delete photo from user account
-      ["photo", "POST"], // Generate pre-signed URL for photo upload
-    ];
-
-    resources.forEach(([resourceName, methodName]) => {
-      this.addResourceToApi(
-        api,
-        resourceName,
-        methodName,
-        userResourceAuthorizer,
-        lambdaConstruct.function
-      );
-    });
+    this.addResourcesToApi(
+      api,
+      userResourceAuthorizer,
+      lambdaConstruct.function
+    );
 
     this.function = lambdaConstruct.function;
     this.api = api;
   }
 
-  private addResourceToApi(
-    api: gateway.LambdaRestApi,
-    resourceName: string,
+  private addResourcesToApi(
+    api: gateway.RestApi,
+    userResourceAuthorizer: gateway.CfnAuthorizer,
+    baseFunction: lambda.Function
+  ): void {
+    const resources = [
+      {
+        resourceName: "user",
+        // GET Get User Information
+        // POST Create New User
+        // PUT Update User's Information, i.e. preferences
+        // DELETE Delete User's Account
+        methods: ["GET", "POST", "PUT", "DELETE"],
+      },
+      {
+        resourceName: "photos",
+        // GET Get All Photos By User
+        // DELETE Delete photo from user account
+        methods: ["GET", "DELETE"],
+      },
+      {
+        resourceName: "photo",
+        // POST Generate pre-signed URL for photo upload
+        methods: ["POST"],
+      },
+    ];
+
+    resources.forEach((resource) => {
+      const { resourceName, methods } = resource;
+      const addedResource = api.root.addResource(resourceName);
+
+      methods.forEach((method) => {
+        this.addMethodsToApiResource(
+          addedResource,
+          method,
+          userResourceAuthorizer,
+          baseFunction
+        );
+      });
+    });
+  }
+
+  private addMethodsToApiResource(
+    resource: gateway.Resource,
     methodName: string,
     userResourceAuthorizer: gateway.CfnAuthorizer,
     baseFunction: lambda.Function
   ): void {
-    api.root
-      .addResource(resourceName)
-      .addMethod(methodName, new gateway.LambdaIntegration(baseFunction), {
+    resource.addMethod(
+      methodName,
+      new gateway.LambdaIntegration(baseFunction),
+      {
         authorizationType: gateway.AuthorizationType.COGNITO,
         authorizer: {
           authorizerId: userResourceAuthorizer.ref,
         },
-      });
+      }
+    );
   }
 }
