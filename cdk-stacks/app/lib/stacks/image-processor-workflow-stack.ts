@@ -1,10 +1,17 @@
 import * as cdk from "aws-cdk-lib";
+import * as iam from "aws-cdk-lib/aws-iam";
 import * as secretsmanager from "aws-cdk-lib/aws-secretsmanager";
 import * as dynamodb from "aws-cdk-lib/aws-dynamodb";
+import * as lambda from "aws-cdk-lib/aws-lambda";
+import { SqsEventSource } from "aws-cdk-lib/aws-lambda-event-sources";
 import { Construct } from "constructs";
-import { ImageProcessorLambda } from "../../constructs/image-processor-lambda";
-import { ImageDeleteLambda } from "../../constructs/image-delete-lambda";
+// import { ImageProcessorLambda } from "../../constructs/image-processor-lambda";
+// import { ImageDeleteLambda } from "../../constructs/image-delete-lambda";
 import { S3ToSQS } from "../../constructs/s3-to-sqs";
+import {
+  PythonLambda,
+  PythonLambdaProps,
+} from "../../constructs/python-lambda";
 
 interface ImageProcessorWorkflowStackProps extends cdk.NestedStackProps {
   dynamoTable: dynamodb.Table;
@@ -12,8 +19,10 @@ interface ImageProcessorWorkflowStackProps extends cdk.NestedStackProps {
 
 export class ImageProcessorWorkflowStack extends cdk.NestedStack {
   assetBucket: S3ToSQS;
-  imageProcessorLambda: ImageProcessorLambda;
-  imageDeleterLambda: ImageDeleteLambda;
+  imageProcessorLambda: lambda.Function;
+  imageProcessorRole: iam.IRole;
+  imageDeleterLambda: lambda.Function;
+  imageDeleterRole: iam.IRole;
 
   constructor(
     scope: Construct,
@@ -38,33 +47,100 @@ export class ImageProcessorWorkflowStack extends cdk.NestedStack {
       imageProcessorSecretName
     );
 
-    const imageProcessorLambda = new ImageProcessorLambda(
+    const imageProcessorProps: PythonLambdaProps = {
+      codeDirectory: "image_processor",
+      basePath,
+      duration: 15,
+      memorySize: 512,
+      environment: {
+        IMAGE_PROCESSOR_SECRET_NAME: imageProcessorSecretName,
+        IMAGE_PROCESSOR_SECRET_KEY: imageProcessorSecretKey,
+        DDB_TABLE_NAME: dynamoTable.tableName,
+        LOG_LEVEL: "INFO",
+        POWERTOOLS_SERVICE_NAME: "image_processor",
+      },
+    };
+    const imageProcessor = new PythonLambda(
       this,
       `${id}-lambda`,
-      {
-        basePath,
-        codeDirectory: "image_processor",
-        imageProcessorSecretName,
-        imageProcessorSecretKey,
-        bucket: assetBucket.bucket,
-        queue: assetBucket.queue,
-        secrets: lambdaSecrets,
-        dynamoTable,
-      }
+      imageProcessorProps
     );
 
-    const imageDeleteLambda = new ImageDeleteLambda(
+    imageProcessor.fnRole.addToPrincipalPolicy(
+      new iam.PolicyStatement({
+        effect: iam.Effect.ALLOW,
+        actions: ["rekognition:DetectLabels"],
+        resources: ["*"],
+      })
+    );
+
+    assetBucket.bucket.grantRead(imageProcessor.fnRole);
+    lambdaSecrets.grantRead(imageProcessor.fnRole);
+    dynamoTable.grantReadWriteData(imageProcessor.fnRole);
+
+    const imageProcessorEventTrigger = new SqsEventSource(assetBucket.queue, {
+      batchSize: 1,
+    });
+
+    imageProcessor.function.addEventSource(imageProcessorEventTrigger);
+
+    // const imageProcessorLambda = new ImageProcessorLambda(
+    //   this,
+    //   `${id}-lambda`,
+    //   {
+    //     basePath,
+    //     codeDirectory: "image_processor",
+    //     imageProcessorSecretName,
+    //     imageProcessorSecretKey,
+    //     bucket: assetBucket.bucket,
+    //     queue: assetBucket.queue,
+    //     secrets: lambdaSecrets,
+    //     dynamoTable,
+    //   }
+    // );
+
+    const imageDeleterProps: PythonLambdaProps = {
+      codeDirectory: "image_deleter",
+      basePath,
+      duration: 15,
+      environment: {
+        DDB_TABLE_NAME: dynamoTable.tableName,
+        LOG_LEVEL: "INFO",
+        POWERTOOLS_SERVICE_NAME: "image_deleter",
+      },
+    };
+
+    const imageDeleter = new PythonLambda(
       this,
       `${id}-delete-lambda`,
+      imageDeleterProps
+    );
+
+    dynamoTable.grantReadWriteData(imageDeleter.fnRole);
+
+    const imageDeleterEventTrigger = new SqsEventSource(
+      assetBucket.deleteQueue,
       {
-        basePath,
-        codeDirectory: "image_deleter",
-        deleteQueue: assetBucket.deleteQueue,
-        dynamoTable,
+        batchSize: 1,
       }
     );
 
-    this.imageProcessorLambda = imageProcessorLambda;
-    this.imageDeleterLambda = imageDeleteLambda;
+    imageDeleter.function.addEventSource(imageDeleterEventTrigger);
+
+    // const imageDeleteLambda = new ImageDeleteLambda(
+    //   this,
+    //   `${id}-delete-lambda`,
+    //   {
+    //     basePath,
+    //     codeDirectory: "image_deleter",
+    //     deleteQueue: assetBucket.deleteQueue,
+    //     dynamoTable,
+    //   }
+    // );
+
+    this.imageProcessorLambda = imageProcessor.function;
+    this.imageProcessorRole = imageProcessor.fnRole;
+    this.imageDeleterLambda = imageDeleter.function;
+    this.imageDeleterRole = imageDeleter.fnRole;
   }
 }
