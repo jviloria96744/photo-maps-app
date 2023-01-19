@@ -3,10 +3,9 @@ import * as lambda from "aws-cdk-lib/aws-lambda";
 import * as sqs from "aws-cdk-lib/aws-sqs";
 import * as dynamodb from "aws-cdk-lib/aws-dynamodb";
 import { SqsEventSource } from "aws-cdk-lib/aws-lambda-event-sources";
-import { Stack, Duration } from "aws-cdk-lib";
+import { Stack } from "aws-cdk-lib";
 import { Construct } from "constructs";
-import * as path from "path";
-import { lambdaBuildCommands } from "../config";
+import { PythonLambda, PythonLambdaProps } from "./python-lambda";
 
 export interface ImageDeleteLambdaProps {
   codeDirectory: string;
@@ -24,39 +23,31 @@ export class ImageDeleteLambda extends Construct {
 
     const { codeDirectory, basePath, deleteQueue, dynamoTable } = props;
 
-    const pathName = path.resolve(basePath, "lambdas", codeDirectory);
-
-    const baseFunction = new lambda.Function(this, `${name}-function`, {
-      code: lambda.Code.fromAsset(pathName, {
-        bundling: {
-          image: lambda.Runtime.PYTHON_3_9.bundlingImage,
-          command: lambdaBuildCommands,
-        },
-      }),
-      runtime: lambda.Runtime.PYTHON_3_9,
-      handler: "app.handler",
-      architecture: lambda.Architecture.ARM_64,
-      timeout: Duration.seconds(15),
-      memorySize: 128,
+    const lambdaConstructProps: PythonLambdaProps = {
+      codeDirectory,
+      basePath,
+      duration: 15,
       environment: {
         DDB_TABLE_NAME: dynamoTable.tableName,
         LOG_LEVEL: "INFO",
         POWERTOOLS_SERVICE_NAME: name,
       },
-      retryAttempts: 0,
-    });
+    };
+    const lambdaConstruct = new PythonLambda(
+      parent,
+      name,
+      lambdaConstructProps
+    );
 
-    const fnRole = baseFunction.role as iam.IRole;
-
-    dynamoTable.grantReadWriteData(fnRole);
+    dynamoTable.grantReadWriteData(lambdaConstruct.fnRole);
 
     const sqsEventTrigger = new SqsEventSource(deleteQueue, {
       batchSize: 1,
     });
 
-    baseFunction.addEventSource(sqsEventTrigger);
+    lambdaConstruct.function.addEventSource(sqsEventTrigger);
 
-    this.function = baseFunction;
-    this.fnRole = fnRole;
+    this.function = lambdaConstruct.function;
+    this.fnRole = lambdaConstruct.fnRole;
   }
 }

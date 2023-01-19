@@ -5,10 +5,9 @@ import * as sqs from "aws-cdk-lib/aws-sqs";
 import * as secretsmanager from "aws-cdk-lib/aws-secretsmanager";
 import * as dynamodb from "aws-cdk-lib/aws-dynamodb";
 import { SqsEventSource } from "aws-cdk-lib/aws-lambda-event-sources";
-import { Stack, Duration } from "aws-cdk-lib";
+import { Stack } from "aws-cdk-lib";
 import { Construct } from "constructs";
-import * as path from "path";
-import { lambdaBuildCommands } from "../config";
+import { PythonLambda, PythonLambdaProps } from "./python-lambda";
 
 export interface ImageProcessorLambdaProps {
   codeDirectory: string;
@@ -39,19 +38,10 @@ export class ImageProcessorLambda extends Construct {
       dynamoTable,
     } = props;
 
-    const pathName = path.resolve(basePath, "lambdas", codeDirectory);
-
-    const baseFunction = new lambda.Function(this, `${name}-function`, {
-      code: lambda.Code.fromAsset(pathName, {
-        bundling: {
-          image: lambda.Runtime.PYTHON_3_9.bundlingImage,
-          command: lambdaBuildCommands,
-        },
-      }),
-      runtime: lambda.Runtime.PYTHON_3_9,
-      handler: "app.handler",
-      architecture: lambda.Architecture.ARM_64,
-      timeout: Duration.seconds(15),
+    const lambdaConstructProps: PythonLambdaProps = {
+      codeDirectory,
+      basePath,
+      duration: 15,
       memorySize: 512,
       environment: {
         IMAGE_PROCESSOR_SECRET_NAME: imageProcessorSecretName,
@@ -60,12 +50,14 @@ export class ImageProcessorLambda extends Construct {
         LOG_LEVEL: "INFO",
         POWERTOOLS_SERVICE_NAME: name,
       },
-      retryAttempts: 0,
-    });
+    };
+    const lambdaConstruct = new PythonLambda(
+      parent,
+      name,
+      lambdaConstructProps
+    );
 
-    const fnRole = baseFunction.role as iam.IRole;
-
-    fnRole.addToPrincipalPolicy(
+    lambdaConstruct.fnRole.addToPrincipalPolicy(
       new iam.PolicyStatement({
         effect: iam.Effect.ALLOW,
         actions: ["rekognition:DetectLabels"],
@@ -73,17 +65,17 @@ export class ImageProcessorLambda extends Construct {
       })
     );
 
-    bucket.grantRead(fnRole);
-    secrets.grantRead(fnRole);
-    dynamoTable.grantReadWriteData(fnRole);
+    bucket.grantRead(lambdaConstruct.fnRole);
+    secrets.grantRead(lambdaConstruct.fnRole);
+    dynamoTable.grantReadWriteData(lambdaConstruct.fnRole);
 
     const sqsEventTrigger = new SqsEventSource(queue, {
       batchSize: 1,
     });
 
-    baseFunction.addEventSource(sqsEventTrigger);
+    lambdaConstruct.function.addEventSource(sqsEventTrigger);
 
-    this.function = baseFunction;
-    this.fnRole = fnRole;
+    this.function = lambdaConstruct.function;
+    this.fnRole = lambdaConstruct.fnRole;
   }
 }
