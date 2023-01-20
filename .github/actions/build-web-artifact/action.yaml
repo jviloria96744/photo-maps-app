@@ -12,10 +12,7 @@ runs:
     - uses: actions/setup-node@v3
       with:
         node-version: 16.17.0
-    - name: Delete Existing Artifact
-      uses: geekyeggo/delete-artifact@v2
-        with:
-            name: ${{ inputs.directory }}-artifact
+        cache: "npm"
     - name: Build Deployment Artifact
       run: cd ${{ inputs.directory }} && npm install && npm run build
       shell: bash
@@ -25,3 +22,4 @@ runs:
         name: ${{ inputs.directory }}-artifact
         path: ./${{ inputs.directory }}/dist/
         if-no-files-found: error
+        retention-days: 1
