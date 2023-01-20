@@ -55,7 +55,7 @@ jobs:
         with:
           name: "client-web-artifact"
   build-admin-portal:
-    needs: changes-detector
+    needs: change-detector
     if: ${{ needs.diff-detector.outputs.admin-portal == 'true' || needs.admin_portal_artifact.outputs.exists == 'false'}}
     name: Create Admin Portal Artifact
     runs-on: ubuntu-latest
@@ -66,7 +66,7 @@ jobs:
         with:
           directory: "admin-portal"
   build-client-web:
-    needs: changes-detector
+    needs: change-detector
     if: ${{ needs.diff-detector.outputs.web-client == 'true' || needs.web_client_artifact.outputs.exists == 'false'}}
     name: Create Web Client Artifact
     runs-on: ubuntu-latest
@@ -77,7 +77,7 @@ jobs:
         with:
           directory: "client-web"
   test-image-processor-lambda:
-    needs: changes-detector
+    needs: change-detector
     if: ${{ needs.diff-detector.outputs.image-processor == 'true' }}
     name: Run Image Processor Unit Tests
     runs-on: ubuntu-latest
