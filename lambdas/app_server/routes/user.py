@@ -5,5 +5,5 @@ router = Router()
 
 @router.get("/user")
 def get_user():
-    logger.info("Current Event", extra=router.current_event)
+    logger.info("Current Event", extra=router.current_event.json_body)
     return { "Hello": "World"}

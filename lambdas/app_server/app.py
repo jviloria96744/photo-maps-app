@@ -14,6 +14,5 @@ for router in routers:
 @logger.inject_lambda_context(correlation_id_path=correlation_paths.API_GATEWAY_REST)
 @event_source(data_class=APIGatewayProxyEvent)
 def handler(event: APIGatewayProxyEvent, context: LambdaContext) -> dict:
-    logger.info("Transformed Event?", extra=event)
     return app.resolve(event, context)
 
