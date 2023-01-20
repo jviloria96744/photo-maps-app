@@ -19,7 +19,44 @@ on:
       - "client-web/**"
       - "lambdas/**"
 jobs:
+  change-detector:
+    name: Detect File Changes And Artifact Existence
+    runs-on: ubuntu-latest
+    outputs:
+      web-client: ${{ steps.filter.outputs.web-client }}
+      admin-portal: ${{ steps.filter.outputs.admin-portal }}
+      image-processor: ${{ steps.filter.outputs.image-processor }}
+      app-server: ${{ steps.filter.outputs.app-server }}
+    steps:
+      - uses: actions/checkout@v3
+        with:
+        fetch-depth: 2
+      - uses: dorny/paths-filter@v2
+        id: filter
+        with:
+          filters: |
+            web-client:
+              - 'client-web/**'
+            admin-portal:
+              - 'admin-portal/**'
+            image-processor:
+              - 'lambdas/image_processor/**'
+              - 'lambdas/image_deleter/**'
+            app-server:
+              - 'lambdas/app_server/**'
+      - uses: xSAVIKx/artifact-exists-action@v0
+        name: Check if Admin Portal Artifact Exists
+        id: admin_portal_artifact
+        with:
+          name: "admin-portal-artifact"
+      - uses: xSAVIKx/artifact-exists-action@v0
+        name: Check if Web Client Artifact Exists
+        id: web_client_artifact
+        with:
+          name: "client-web-artifact"
   build-admin-portal:
+    needs: changes-detector
+    if: ${{ needs.diff-detector.outputs.admin-portal == 'true' || needs.admin_portal_artifact.outputs.exists == 'false'}}
     name: Create Admin Portal Artifact
     runs-on: ubuntu-latest
     steps:
@@ -29,6 +66,8 @@ jobs:
         with:
           directory: "admin-portal"
   build-client-web:
+    needs: changes-detector
+    if: ${{ needs.diff-detector.outputs.web-client == 'true' || needs.web_client_artifact.outputs.exists == 'false'}}
     name: Create Web Client Artifact
     runs-on: ubuntu-latest
     steps:
@@ -38,6 +77,8 @@ jobs:
         with:
           directory: "client-web"
   test-image-processor-lambda:
+    needs: changes-detector
+    if: ${{ needs.diff-detector.outputs.image-processor == 'true' }}
     name: Run Image Processor Unit Tests
     runs-on: ubuntu-latest
     permissions:
@@ -65,27 +106,27 @@ jobs:
       id-token: write
     steps:
       - uses: actions/checkout@v3
-      - name: Configure AWS CLI and Credentials
-        uses: ./.github/actions/configure-aws-cli
-      - uses: actions/setup-node@v3
-        with:
-          node-version: 16.17.0
-      - uses: actions/setup-python@v4
-        with:
-          python-version: "3.9.16"
-      - name: Download Admin Portal Artifact
-        uses: actions/download-artifact@v3
-        with:
-          name: admin-portal-artifact
-          path: ./admin-portal/dist/
-      - name: Download Web Client Artifact
-        uses: actions/download-artifact@v3
-        with:
-          name: client-web-artifact
-          path: ./client-web/dist/
-      - name: Install CDK
-        run: npm install -g aws-cdk
-      - name: Install Dependencies
-        run: cd cdk-stacks/app && npm install
-      - name: Deploy Stack
-        run: cd cdk-stacks/app && cdk deploy --require-approval "never"
+      # - name: Configure AWS CLI and Credentials
+      #   uses: ./.github/actions/configure-aws-cli
+      # - uses: actions/setup-node@v3
+      #   with:
+      #     node-version: 16.17.0
+      # - uses: actions/setup-python@v4
+      #   with:
+      #     python-version: "3.9.16"
+      # - name: Download Admin Portal Artifact
+      #   uses: actions/download-artifact@v3
+      #   with:
+      #     name: admin-portal-artifact
+      #     path: ./admin-portal/dist/
+      # - name: Download Web Client Artifact
+      #   uses: actions/download-artifact@v3
+      #   with:
+      #     name: client-web-artifact
+      #     path: ./client-web/dist/
+      # - name: Install CDK
+      #   run: npm install -g aws-cdk
+      # - name: Install Dependencies
+      #   run: cd cdk-stacks/app && npm install
+      # - name: Deploy Stack
+      #   run: cd cdk-stacks/app && cdk deploy --require-approval "never"
