@@ -45,8 +45,6 @@ jobs:
             app-server:
               - 'lambdas/app_server/**'
   build-admin-portal:
-    needs: change-detector
-    # if: ${{ needs.diff-detector.outputs.admin-portal == 'true' || needs.diff-detector.steps.admin_portal_artifact.outputs.exists == 'false'}}
     name: Create Admin Portal Artifact
     runs-on: ubuntu-latest
     steps:
@@ -56,8 +54,6 @@ jobs:
         with:
           directory: "admin-portal"
   build-client-web:
-    needs: change-detector
-    # if: ${{ needs.diff-detector.outputs.web-client == 'true' || needs.web_client_artifact.outputs.exists == 'false'}}
     name: Create Web Client Artifact
     runs-on: ubuntu-latest
     steps:
