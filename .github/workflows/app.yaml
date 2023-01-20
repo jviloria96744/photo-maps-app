@@ -110,27 +110,27 @@ jobs:
       id-token: write
     steps:
       - uses: actions/checkout@v3
-      # - name: Configure AWS CLI and Credentials
-      #   uses: ./.github/actions/configure-aws-cli
-      # - uses: actions/setup-node@v3
-      #   with:
-      #     node-version: 16.17.0
-      # - uses: actions/setup-python@v4
-      #   with:
-      #     python-version: "3.9.16"
-      # - name: Download Admin Portal Artifact
-      #   uses: actions/download-artifact@v3
-      #   with:
-      #     name: admin-portal-artifact
-      #     path: ./admin-portal/dist/
-      # - name: Download Web Client Artifact
-      #   uses: actions/download-artifact@v3
-      #   with:
-      #     name: client-web-artifact
-      #     path: ./client-web/dist/
-      # - name: Install CDK
-      #   run: npm install -g aws-cdk
-      # - name: Install Dependencies
-      #   run: cd cdk-stacks/app && npm install
-      # - name: Deploy Stack
-      #   run: cd cdk-stacks/app && cdk deploy --require-approval "never"
+      - name: Configure AWS CLI and Credentials
+        uses: ./.github/actions/configure-aws-cli
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16.17.0
+      - uses: actions/setup-python@v4
+        with:
+          python-version: "3.9.16"
+      - name: Download Admin Portal Artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: admin-portal-artifact
+          path: ./admin-portal/dist/
+      - name: Download Web Client Artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: client-web-artifact
+          path: ./client-web/dist/
+      - name: Install CDK
+        run: npm install -g aws-cdk
+      - name: Install Dependencies
+        run: cd cdk-stacks/app && npm install
+      - name: Deploy Stack
+        run: cd cdk-stacks/app && cdk deploy --require-approval "never"
