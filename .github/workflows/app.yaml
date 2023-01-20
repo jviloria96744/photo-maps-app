@@ -64,7 +64,7 @@ jobs:
           directory: "client-web"
   test-image-processor-lambda:
     needs: change-detector
-    # if: ${{ needs.diff-detector.outputs.image-processor == 'true' }}
+    if: ${{ needs.diff-detector.outputs.image-processor == 'true' }}
     name: Run Image Processor Unit Tests
     runs-on: ubuntu-latest
     permissions:

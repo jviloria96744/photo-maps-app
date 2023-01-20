@@ -14,13 +14,13 @@ runs:
         node-version: 16.17.0
         cache: "npm"
         cache-dependency-path: ${{ inputs.directory }}/package-lock.json
-    # - name: Cache dependencies
-    #   uses: actions/cache@v2
-    #   with:
-    #     path: |
-    #       ${{ inputs.directory }}/node_modules
-    #     key: ${{ format('{0}-{1}', runner.os, hashFiles(format('{0}/package-lock.json', inputs.directory)) ) }}
-    #     # key: ${{ runner.os }}-${{ hashFiles('${{ inputs.directory }}/package-lock.json') }}
+    - name: Cache dependencies
+      uses: actions/cache@v2
+      with:
+        path: |
+          ${{ inputs.directory }}/node_modules
+        key: ${{ format('{0}-{1}', runner.os, hashFiles(format('{0}/package-lock.json', inputs.directory)) ) }}
+        # key: ${{ runner.os }}-${{ hashFiles('${{ inputs.directory }}/package-lock.json') }}
     - name: Build Deployment Artifact
       run: npm install && npm run build
       shell: bash
