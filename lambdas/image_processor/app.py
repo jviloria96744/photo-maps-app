@@ -1,18 +1,15 @@
 import json
-import os
 import boto3
-from aws_lambda_powertools import Logger
 from aws_lambda_powertools.utilities.typing import LambdaContext
-from get_exif_data import get_exif_data_from_s3_image
-from get_labels import get_labels_from_s3_image
-from get_reverse_geocoding import get_reverse_geocoding
-from update_db_table import update_table_with_item
-
-logger = Logger(service=os.getenv("POWERTOOLS_SERVICE_NAME"), level=os.getenv("LOG_LEVEL"))
+from image.get_exif_data import get_exif_data_from_s3_image
+from image.get_labels import get_labels_from_s3_image
+from image.get_reverse_geocoding import get_reverse_geocoding
+from utils.db import update_table_with_item
+from utils.logger import logger
 
 s3_client = boto3.client('s3')
 rekognition_client = boto3.client("rekognition")
-dynamodb_client = boto3.client("dynamodb")
+dynamodb_resource = boto3.resource("dynamodb")
 
 def get_event_metadata(event):
     try:
@@ -34,9 +31,9 @@ def get_event_metadata(event):
             "partition_key": user_id,
             "sort_key": f"IMAGE_{photo_id}"
         }
-    except Exception as e:
-        logger.debug(str(e), extra=event)
-        raise Exception("Error extracting metadata from event object")
+    except Exception:
+        logger.exception("Error extracting metadata from event object")
+        raise
         
 
 @logger.inject_lambda_context(log_event=False)
@@ -65,7 +62,7 @@ def handler(event, context: LambdaContext):
 
     logger.debug("Constructed item to write to Dynamo DB", extra=db_item)
 
-    update_table_with_item(db_item, dynamodb_client)
+    update_table_with_item(db_item, dynamodb_resource)
 
     return 1
 

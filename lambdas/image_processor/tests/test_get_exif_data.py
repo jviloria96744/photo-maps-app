@@ -1,5 +1,5 @@
 import pytest
-import get_exif_data
+import image.get_exif_data as get_exif_data
 
 @pytest.mark.parametrize("lat_lng, ref, values, expected", [
     ("Lat", "N", [41, 53, 2379/100], 41.889941666666665),

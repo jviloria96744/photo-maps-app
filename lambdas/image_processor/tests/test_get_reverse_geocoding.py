@@ -1,5 +1,5 @@
 import pytest
-import get_reverse_geocoding
+import image.get_reverse_geocoding as get_reverse_geocoding
 
 @pytest.mark.parametrize("key, expected", [
     ("country_code", "IT"),

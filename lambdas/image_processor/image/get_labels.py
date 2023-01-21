@@ -1,14 +1,11 @@
-import os
-from aws_lambda_powertools import Logger
-
-logger = Logger(service=os.getenv("POWERTOOLS_SERVICE_NAME"), level=os.getenv("LOG_LEVEL"))
+from utils.logger import logger
 
 def label_filter(labels: list[dict]) -> list[dict]:
     filtered_labels = [{
         "label_name": label.get("Name", ""),
-        "label_parents": label.get("Parents", ""),
-        "label_aliases": label.get("Aliases", ""),
-        "label_categories": label.get("Categories", "")
+        "label_parents": label.get("Parents", []),
+        "label_aliases": label.get("Aliases", []),
+        "label_categories": label.get("Categories", [])
     } for label in labels if label["Confidence"] > 90 or is_landmark(label)]
     
     return filtered_labels
@@ -41,8 +38,8 @@ def get_labels_from_s3_image(bucket_name: str, key: str, rekognition_client) -> 
             Image={'S3Object': s3_object_options})
         labels = label_filter(rekognition_response.get("Labels", []))
         
-    except Exception as e:
-        logger.debug(str(e))
+    except Exception:
+        logger.exception("Warning: Unable to get labels from uploaded image")
         return []
     
     

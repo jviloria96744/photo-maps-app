@@ -1,12 +1,11 @@
 import os
 import requests
-from secrets import get_secret
+from utils.secrets import get_secret
 from dotenv import load_dotenv
-from aws_lambda_powertools import Logger
+from utils.logger import logger
 
 load_dotenv()
 
-logger = Logger(service=os.getenv("POWERTOOLS_SERVICE_NAME"), level=os.getenv("LOG_LEVEL"))
 
 def are_valid_inputs(lat: str, lng: str) -> bool:
     try:
@@ -44,8 +43,8 @@ def get_reverse_geocoding(lat: str, lng: str) -> dict:
             if "locality" in add_part["types"]:
                 rev_geocoding["city"] = add_part["long_name"]
         
-    except Exception as e:
-        logger.debug(str(e))
+    except Exception:
+        logger.exception("Warning: Reverse Geocoding Unsuccessful")
 
     return rev_geocoding
     

@@ -1,3 +1,4 @@
+import os
 import boto3
 from botocore.exceptions import ClientError
 import json
@@ -5,8 +6,7 @@ import json
 
 def get_secret(secret_name, secret_key):
 
-    #secret_name = "sandbox/photo-maps-app/secrets"
-    region_name = "us-west-2"
+    region_name = os.getenv("AWS_REGION")
 
     # Create a Secrets Manager client
     session = boto3.session.Session()

@@ -1,9 +1,6 @@
 from io import BytesIO
-import os
 import exifread
-from aws_lambda_powertools import Logger
-
-logger = Logger(service=os.getenv("POWERTOOLS_SERVICE_NAME"), level=os.getenv("LOG_LEVEL"))
+from utils.logger import logger
 
 
 def get_exif_data_from_s3_image(bucket_name: str, key: str, s3_client):
@@ -11,9 +8,9 @@ def get_exif_data_from_s3_image(bucket_name: str, key: str, s3_client):
     try:
         s3_response_object = s3_client.get_object(Bucket=bucket_name, Key=key)
         object_content = s3_response_object['Body'].read()
-    except Exception as e:
-        logger.debug(str(e))
-        raise Exception("Error retrieving file from S3")
+    except Exception:
+        logger.exception("Error retrieving file from S3")
+        raise
 
     return get_exif_data(object_content)
 
@@ -27,9 +24,9 @@ def lat_lng_calculator(lat_lng: str, ref: str, values: list[int]) -> float:
         if (lat_lng == "Lat" and ref == "S") or (lat_lng == "Lng" and ref == "W"):
             decimal = -1 * decimal
 
-    except Exception as e:
-        logger.debug(str(e))
-        raise Exception("Error converting lat/lng to decimal values")
+    except Exception:
+        logger.exception("Error converting lat/lng to decimal values")
+        raise
         
     return decimal
 
@@ -65,8 +62,8 @@ def get_exif_data(image):
         }
 
     except Exception as e:
-        logger.debug(str(e))
-        raise Exception("Error extracting exif data from image")
+        logger.exception("Error extracting exif data from image")
+        raise
 
     return exif_dict
 
