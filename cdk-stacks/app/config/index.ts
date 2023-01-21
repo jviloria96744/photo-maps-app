@@ -42,8 +42,13 @@ export const webClientCallbackUrls: string[] = [
   `https://${subDomain}.${domainName}/`,
 ];
 
+const removeTests = "rm -rf /asset-output/tests";
+const removeDevRequirements = "rm -f requirements_dev.txt";
+const removeEventsDirectory = "rm -rf /asset-output/events";
+const removeStatements = `${removeTests} && ${removeDevRequirements} && ${removeEventsDirectory}`;
+
 export const lambdaBuildCommands = [
   "bash",
   "-c",
-  "pip install -r requirements.txt -t /asset-output && cp -au . /asset-output && rm -rf /asset-output/tests && rm -f requirements_dev.txt",
+  `pip install -r requirements.txt -t /asset-output && cp -au . /asset-output && ${removeStatements}`,
 ];

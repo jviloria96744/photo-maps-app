@@ -7,7 +7,6 @@ from utils.logger import logger
 
 app = APIGatewayRestResolver()
 for router in routers:
-    logger.info("Using __init__.py")
     app.include_router(router)
 
 
