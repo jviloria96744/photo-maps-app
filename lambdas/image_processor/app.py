@@ -21,6 +21,7 @@ def get_event_metadata(event):
 
         s3_bucket_name = event_metadata["s3"]["bucket"]["name"]
         s3_object_key = event_metadata["s3"]["object"]["key"]
+        datetime_created = event_metadata["eventTime"]
         user_id, photo_id = s3_object_key.split("/") 
 
         if not user_id or not photo_id:
@@ -29,6 +30,7 @@ def get_event_metadata(event):
         return {
             "bucket_name": s3_bucket_name,
             "key": s3_object_key,
+            "datetime_created": datetime_created,
             "partition_key": user_id,
             "sort_key": f"IMAGE_{photo_id}"
         }
@@ -51,6 +53,7 @@ def handler(event, context: LambdaContext):
     db_item = {
         "pk": event_metadata["partition_key"],
         "sk": event_metadata["sort_key"],
+        "datetime_created": event_metadata["datetime_created"],
         "metadata": {
             "geo_data": {
                 **exif_data,

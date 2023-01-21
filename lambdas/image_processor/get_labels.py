@@ -5,10 +5,10 @@ logger = Logger(service=os.getenv("POWERTOOLS_SERVICE_NAME"), level=os.getenv("L
 
 def label_filter(labels: list[dict]) -> list[dict]:
     filtered_labels = [{
-        "label_name": label.get("Name"),
-        "label_parents": label.get("Parents"),
-        "label_aliases": label.get("Aliases"),
-        "label_categories": label.get("Categories")
+        "label_name": label.get("Name", ""),
+        "label_parents": label.get("Parents", ""),
+        "label_aliases": label.get("Aliases", ""),
+        "label_categories": label.get("Categories", "")
     } for label in labels if label["Confidence"] > 90 or is_landmark(label)]
     
     return filtered_labels
