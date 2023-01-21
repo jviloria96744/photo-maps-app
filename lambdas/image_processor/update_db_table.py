@@ -38,25 +38,26 @@ def update_table_with_item(item: dict, ddb_client):
 
 
 def create_attribute_image_geo(item):
+    image_geo_data = item["metadata"]["geo_data"]
     return {
         'M': {
             "image_date": {
-                'S': item["metadata"]["geo_data"].get("date", '')
+                'S': image_geo_data.get("date", '')
             },
             "lat": {
-                'S': item["metadata"]["geo_data"]["lat"]
+                'S': image_geo_data["lat"]
             },
             "lng": {
-                'S': item["metadata"]["geo_data"]["lng"]
+                'S': image_geo_data["lng"]
             },
             "country": {
-                'S': item["metadata"]["geodata"].get("country", '')
+                'S': image_geo_data.get("country", '')
             },
             "country_code": {
-                'S': item["metadata"]["geodata"].get("country_code", '')
+                'S': image_geo_data.get("country_code", '')
             },
             "city": {
-                'S': item["metadata"]["geodata"].get("city", '')
+                'S': image_geo_data.get("city", '')
             }
         }
     }
