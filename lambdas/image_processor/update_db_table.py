@@ -31,8 +31,8 @@ def update_table_with_item(item: dict, ddb_client):
             ReturnValues="NONE",
             ReturnConsumedCapacity="NONE")
     except Exception as e:
-        logger.info(str(e), extra=item)
-        raise Exception("Error when writing to dynamodb table")
+        logger.exception("Error when writing to dynamodb table", extra=item)
+        raise Exception("Error when writing to dynamodb table") from e
 
     return response
 
@@ -76,6 +76,8 @@ def create_attribute_image_labels(item):
             label_object[label_key] = {
                 'S': label.get(label_key)
             }
-        label_list.append(label_object)
+        label_list.append({
+            'M': label_object
+        })
     
     return label_list
