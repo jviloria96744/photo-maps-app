@@ -1,49 +1,23 @@
-import os
-import json
 import boto3
-from utils.logger import logger
-
-ddb_client = boto3.client("dynamo_db")
-TABLE_NAME = os.getenv("DDB_TABLE_NAME")
-
-def delete_item_from_dynamodb(partition_key, sort_key):
-    response = ddb_client.delete_item(
-        TableName=TABLE_NAME,
-        Key={
-            "pk": {
-                'S': partition_key
-            },
-            "sk": {
-                'S': sort_key 
-            }
-        })
-
-    logger.info("Deleted image data from DynamoDB", extra=response)
-    
-    return response
+from utils.config import Config
 
 
-def update_table_with_item(item: dict):
-    try:
-        if not TABLE_NAME:
+class DB:
+    def __init__(self, table_name: str, db_client):
+        self.table_name = table_name
+        self.db_client = db_client
+        if not self.table_name:
             raise Exception("Table Name is Missing")
-        response = ddb_client.put_item(
-            TableName=TABLE_NAME,
-            Item={
-                "pk": {
-                    'S': item["pk"]
-                },
-                "sk": {
-                    'S': item["sk"]
-                },
-                "metadata": {
-                    'S': json.dumps(item["metadata"])
-                }
-            },
+        self.table = db_client.Table(table_name)
+
+    def put_item(self, item):
+        response = self.table.put_item(
+            Item=item,
             ReturnValues="NONE",
             ReturnConsumedCapacity="NONE")
-    except Exception as e:
-        logger.debug(str(e), extra=item)
-        raise Exception("Error when writing to dynamodb table")
 
-    return response
+        return response
+
+
+app_db = DB(Config.DDB_TABLE_NAME, boto3.resource("dynamo_db"))
+

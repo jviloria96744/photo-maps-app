@@ -1,5 +1,4 @@
 from utils.logger import logger
-from utils.db import DB
 
 
 def update_table_with_item(item: dict, db_table):
@@ -12,6 +11,8 @@ def update_table_with_item(item: dict, db_table):
             "attribute_image_geo": create_attribute_image_geo(item["metadata"]["geo_data"]), # On image creation, updated date is equal to created date,
             "attribute_image_labels": item["metadata"]["image_labels"]
         }
+
+        logger.debug("DB Item", extra=item_to_upload)
 
         response = db_table.put_item(item_to_upload)
     except Exception:

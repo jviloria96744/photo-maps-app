@@ -63,7 +63,7 @@ def handler(event, context: LambdaContext):
 
     logger.debug("Constructed item to write to Dynamo DB", extra=db_item)
 
-    response = image.update_table_with_item(db_item, db.table)
+    response = image.update_table_with_item(db_item, db)
 
     return response
 
