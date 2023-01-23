@@ -5,9 +5,6 @@ from utils.utilities import get_iso_timestamp, get_user_data_from_event
 
 router = Router()
 
-@router.get("/user")
-def get_user():
-    return { "Hello": "World"}
 
 @router.post("/user")
 def post_user():

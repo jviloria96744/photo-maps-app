@@ -120,12 +120,15 @@ export class LambdaApi extends Construct {
   ): void {
     const resources = [
       {
+        resourceName: "ping",
+        methods: ["GET"],
+      },
+      {
         resourceName: "user",
-        // GET Get User Information
         // POST Create New User
         // PUT Update User's Information, i.e. preferences
         // DELETE Delete User's Account
-        methods: ["GET", "POST", "PUT", "DELETE"],
+        methods: ["POST", "PUT", "DELETE"],
       },
       {
         resourceName: "photos",
