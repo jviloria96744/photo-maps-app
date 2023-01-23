@@ -30,12 +30,12 @@ class DB:
             UpdateExpression="""
                 SET 
                     username=:username,
-                    date_created=if_not_exists(date_created, :last_login_date) 
-                    date_updated=:last_login_date
+                    datetime_created=if_not_exists(datetime_created, :datetime_updated), 
+                    datetime_updated=:datetime_updated
             """,
             ExpressionAttributeValues={
                 ':username': item["username"],
-                ':last_login_date': item["lastLoginDate"]
+                ':datetime_updated': item["datetime_updated"]
             }
 
         )
