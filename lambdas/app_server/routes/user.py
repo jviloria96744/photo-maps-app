@@ -11,10 +11,11 @@ def get_user():
 
 @router.post("/user")
 def post_user():
-    logger.info("Event", extra={
-        "event": router.current_event,
-    })
+    logger.info("Event", extra=router.current_event)
     epoch_timestamp = router.current_event["requestContext"]["requestTimeEpoch"]
+    logger.info("Timestamp", extra={
+        "timestamp": epoch_timestamp
+    })
     user_id, username = get_user_data_from_event(router.current_event)
     user_item = {
         "pk": user_id,
