@@ -42,6 +42,18 @@ class DB:
 
         return response
 
+    def delete_item(self, item):
+        response = self.table.delete_item(
+            Key={
+                "pk": item["pk"],
+                "sk": item["sk"]
+            },
+            ReturnValues="NONE",
+            ReturnConsumedCapacity="NONE"
+        )
+
+        return response
+
 
 ddb_resource: DynamoDBServiceResource = boto3.resource("dynamodb")
 app_db = DB(Config.DDB_TABLE_NAME, ddb_resource)

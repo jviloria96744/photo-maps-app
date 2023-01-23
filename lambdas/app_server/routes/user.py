@@ -21,6 +21,18 @@ def post_user():
         "datetime_updated": get_iso_timestamp(epoch_timestamp)
     }
 
-    logger.info("User Logged In", extra=user_item)
+    logger.info("User Logged In", extra={
+        "user_item": user_item
+    })
+
     response = app_db.post_user_item(user_item)
+    return response
+
+
+@router.delete("/user")
+def delete_user():
+    user_item = router.current_event.json_body
+    logger.info("Deleting User", extra={"user_item": user_item})
+
+    response = app_db.delete_item(user_item)
     return response
