@@ -40,6 +40,6 @@ class DB:
         return response
 
 
-ddb_resource: DynamoDBServiceResource = boto3.resource("dynamo_db")
+ddb_resource: DynamoDBServiceResource = boto3.resource("dynamodb")
 app_db = DB(Config.DDB_TABLE_NAME, ddb_resource)
 
