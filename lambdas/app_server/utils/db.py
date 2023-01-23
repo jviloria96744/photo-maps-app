@@ -19,7 +19,7 @@ class DB:
 
         return response
 
-    def update_user_item(self, item):
+    def post_user_item(self, item):
         response = self.table.update_item(
             Key={
                 "pk": item["pk"],
@@ -28,11 +28,14 @@ class DB:
             ReturnValues="ALL_NEW",
             ReturnConsumedCapacity="NONE",
             UpdateExpression="""
-                SET username=:username, last_login=:last_login
+                SET 
+                    username=:username,
+                    date_created=if_not_exists(date_created, :last_login_date) 
+                    date_updated=:last_login_date
             """,
             ExpressionAttributeValues={
                 ':username': item["username"],
-                ':last_login': item["lastLoginDate"]
+                ':last_login_date': item["lastLoginDate"]
             }
 
         )
