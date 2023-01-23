@@ -31,7 +31,11 @@ def post_user():
 
 @router.delete("/user")
 def delete_user():
-    user_item = router.current_event.json_body
+    user_id, _ = get_user_data_from_event(router.current_event)
+    user_item = {
+        "pk": user_id,
+        "sk": f"USER_{user_id}"
+    }
     logger.info("Deleting User", extra={"user_item": user_item})
 
     response = app_db.delete_item(user_item)
