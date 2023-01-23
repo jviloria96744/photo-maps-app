@@ -11,11 +11,8 @@ def get_user():
 
 @router.post("/user")
 def post_user():
-    logger.info("Event", extra=router.current_event)
+    logger.debug("Event", extra=router.current_event)
     epoch_timestamp = router.current_event["requestContext"]["requestTimeEpoch"]
-    logger.info("Timestamp", extra={
-        "timestamp": epoch_timestamp
-    })
     user_id, username = get_user_data_from_event(router.current_event)
     user_item = {
         "pk": user_id,
@@ -23,5 +20,7 @@ def post_user():
         "username": username,
         "datetime_updated": get_iso_timestamp(epoch_timestamp)
     }
+
+    logger.info("User Logged In", extra=user_item)
     response = app_db.post_user_item(user_item)
     return response
