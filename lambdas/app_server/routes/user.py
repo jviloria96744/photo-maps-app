@@ -9,5 +9,8 @@ def get_user():
 
 @router.post("/user")
 def post_user():
-    logger.info("Event", router.current_event)
-    return {"Test": "Post"}
+    logger.info("Event", extra={
+        "json_body": router.current_event.json_body,
+        "body": router.current_event.body
+    })
+    return router.current_event
