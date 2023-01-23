@@ -1,12 +1,12 @@
-import os
 import boto3
 from botocore.exceptions import ClientError
 import json
+from utils.config import Config
 
 
-def get_secret(secret_name, secret_key):
+def get_secret(secret_name: str, secret_key: str):
 
-    region_name = os.getenv("AWS_REGION")
+    region_name = Config.AWS_REGION
 
     # Create a Secrets Manager client
     session = boto3.session.Session()

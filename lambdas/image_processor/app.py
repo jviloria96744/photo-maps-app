@@ -1,15 +1,16 @@
 import json
 import boto3
 from aws_lambda_powertools.utilities.typing import LambdaContext
-from image.get_exif_data import get_exif_data_from_s3_image
-from image.get_labels import get_labels_from_s3_image
-from image.get_reverse_geocoding import get_reverse_geocoding
-from utils.db import update_table_with_item
+import image
+from utils.db import DB
 from utils.logger import logger
+from utils.config import Config
 
 s3_client = boto3.client('s3')
 rekognition_client = boto3.client("rekognition")
 dynamodb_resource = boto3.resource("dynamodb")
+
+db = DB(Config.DDB_TABLE_NAME, dynamodb_resource)
 
 def get_event_metadata(event):
     try:
@@ -41,11 +42,11 @@ def handler(event, context: LambdaContext):
     event_metadata = get_event_metadata(event)
     logger.info("Successfully extracted event metadata", extra=event_metadata)
 
-    exif_data = get_exif_data_from_s3_image(event_metadata["bucket_name"], event_metadata["key"], s3_client)
+    exif_data = image.get_exif_data_from_s3_image(event_metadata["bucket_name"], event_metadata["key"], s3_client)
 
-    rev_geocode_data = get_reverse_geocoding(exif_data["lat"], exif_data["lng"])
+    rev_geocode_data = image.get_reverse_geocoding_from_lat_lng(exif_data["lat"], exif_data["lng"])
 
-    label_data = get_labels_from_s3_image(event_metadata["bucket_name"], event_metadata["key"], rekognition_client)
+    label_data = image.get_labels_from_s3_image(event_metadata["bucket_name"], event_metadata["key"], rekognition_client)
 
     db_item = {
         "pk": event_metadata["partition_key"],
@@ -62,9 +63,9 @@ def handler(event, context: LambdaContext):
 
     logger.debug("Constructed item to write to Dynamo DB", extra=db_item)
 
-    update_table_with_item(db_item, dynamodb_resource)
+    response = image.update_table_with_item(db_item, db.table)
 
-    return 1
+    return response
 
 
 if __name__ == '__main__':

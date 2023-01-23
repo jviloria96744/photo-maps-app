@@ -1,5 +1,5 @@
 import pytest
-import image.get_reverse_geocoding as get_reverse_geocoding
+from image import get_reverse_geocoding_from_lat_lng
 
 @pytest.mark.parametrize("key, expected", [
     ("country_code", "IT"),
@@ -8,7 +8,7 @@ import image.get_reverse_geocoding as get_reverse_geocoding
 ])
 def test_get_reverse_geocoding_valid(key, expected):
     lat, lng = 41.88994166666665, 12.492922222222221
-    rev_geocode_data = get_reverse_geocoding.get_reverse_geocoding(lat, lng)
+    rev_geocode_data = get_reverse_geocoding_from_lat_lng(lat, lng)
 
     assert rev_geocode_data[key] == expected
 
@@ -22,6 +22,6 @@ def test_get_reverse_geocoding_valid(key, expected):
     (41.88994166666665, "abc", {})
 ])
 def test_get_reverse_geocoding_invalid(lat, lng, expected):
-    get_reverse_geocoding.get_reverse_geocoding(lat, lng)
+    get_reverse_geocoding_from_lat_lng(lat, lng)
 
-    assert get_reverse_geocoding.get_reverse_geocoding(lat, lng) == expected
+    assert get_reverse_geocoding_from_lat_lng(lat, lng) == expected

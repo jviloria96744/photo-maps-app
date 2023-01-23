@@ -1,10 +1,7 @@
-import os
 import requests
 from utils.secrets import get_secret
-from dotenv import load_dotenv
 from utils.logger import logger
-
-load_dotenv()
+from utils.config import Config
 
 
 def are_valid_inputs(lat: str, lng: str) -> bool:
@@ -18,7 +15,7 @@ def are_valid_inputs(lat: str, lng: str) -> bool:
 
     return True
 
-def get_reverse_geocoding(lat: str, lng: str) -> dict:
+def get_reverse_geocoding_from_lat_lng(lat: str, lng: str) -> dict:
     if not are_valid_inputs(lat, lng):
         logger.debug("Invalid Lat/Lng Values", extra={"Lat": lat, "Lng": lng})
         return {}
@@ -28,7 +25,7 @@ def get_reverse_geocoding(lat: str, lng: str) -> dict:
     try:
         base_url = "https://maps.googleapis.com/maps/api/geocode/json"
         latlng = f"?latlng={lat},{lng}"
-        api_key = get_secret(os.getenv("IMAGE_PROCESSOR_SECRET_NAME"), os.getenv("IMAGE_PROCESSOR_SECRET_KEY"))
+        api_key = get_secret(Config.IMAGE_PROCESSOR_SECRET_NAME, Config.IMAGE_PROCESSOR_SECRET_KEY)
         key = f"&key={api_key}"
         
         url = "".join((base_url, latlng, key))
@@ -50,5 +47,5 @@ def get_reverse_geocoding(lat: str, lng: str) -> dict:
     
 
 if __name__ == '__main__':
-    print(get_reverse_geocoding(41.88994166666665, 12.492922222222221))
-    print(get_reverse_geocoding(191.88994166666665, 12.492922222222221))
+    print(get_reverse_geocoding_from_lat_lng(41.88994166666665, 12.492922222222221))
+    print(get_reverse_geocoding_from_lat_lng(191.88994166666665, 12.492922222222221))
