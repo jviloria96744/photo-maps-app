@@ -1,5 +1,6 @@
 from aws_lambda_powertools.event_handler.api_gateway import Router
 from utils.logger import logger
+from utils.db import app_db
 
 router = Router()
 
@@ -11,6 +12,6 @@ def get_user():
 def post_user():
     logger.info("Event", extra={
         "json_body": router.current_event.json_body,
-        "body": router.current_event.body
     })
-    return router.current_event
+    response = app_db.update_user_item(router.current_event.json_body)
+    return response

@@ -19,6 +19,26 @@ class DB:
 
         return response
 
+    def update_user_item(self, item):
+        response = self.table.update_item(
+            Key={
+                "pk": item["pk"],
+                "sk": item["sk"]
+            },
+            ReturnValues="ALL_NEW",
+            ReturnConsumedCapacity="NONE",
+            UpdateExpression="""
+                SET username=:username, last_login=:last_login
+            """,
+            ExpressionAttributeValues={
+                ':username': item["username"],
+                ':last_login': item["lastLoginDate"]
+            }
+
+        )
+
+        return response
+
 
 ddb_resource: DynamoDBServiceResource = boto3.resource("dynamo_db")
 app_db = DB(Config.DDB_TABLE_NAME, ddb_resource)
