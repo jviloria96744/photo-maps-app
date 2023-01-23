@@ -25,7 +25,7 @@ def post_user():
         })
 
         response = app_db.post_user_item(user_item)
-        if response["ResponseMetadata"]["HTTPStatusCode"] == 200 and False:
+        if response["ResponseMetadata"]["HTTPStatusCode"] == 200:
             logger.info("User Login Successful")
             return response["Attributes"]
         else:
@@ -49,7 +49,7 @@ def delete_user():
         logger.info("Deleting User", extra={"user_item": user_item})
 
         response = app_db.delete_item(user_item)
-        if response["ResponseMetadata"]["HTTPStatusCode"] == 200 and False:
+        if response["ResponseMetadata"]["HTTPStatusCode"] == 200:
             logger.info("User Delete Successful")
             return user_item
         else:
