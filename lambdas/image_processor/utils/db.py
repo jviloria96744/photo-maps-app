@@ -13,18 +13,3 @@ class DB:
             ReturnConsumedCapacity="NONE")
 
         return response
-
-
-if __name__ == '__main__':
-    import boto3
-
-    ddb_client = boto3.resource("dynamodb")
-    db = DB('AppStack-dbtabledbtableddbtableBF58CEDE-WK4YX473H2VS', ddb_client)
-
-    test_item = {
-        'pk': "test_pk",
-        "sk": "test_sk",
-        "test_attribute": "test_attr"
-    }
-
-    db.put_item(test_item)

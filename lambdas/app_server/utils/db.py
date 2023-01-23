@@ -1,9 +1,10 @@
 import boto3
 from utils.config import Config
+from mypy_boto3_dynamodb.service_resource import DynamoDBServiceResource
 
 
 class DB:
-    def __init__(self, table_name: str, db_client):
+    def __init__(self, table_name: str, db_client: DynamoDBServiceResource):
         self.table_name = table_name
         self.db_client = db_client
         if not self.table_name:
@@ -19,5 +20,6 @@ class DB:
         return response
 
 
-app_db = DB(Config.DDB_TABLE_NAME, boto3.resource("dynamo_db"))
+ddb_resource: DynamoDBServiceResource = boto3.resource("dynamo_db")
+app_db = DB(Config.DDB_TABLE_NAME, ddb_resource)
 
