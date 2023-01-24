@@ -15,10 +15,10 @@ runs:
         cache: "pip"
         cache-dependency-path: "**/requirements_dev.txt"
     - name: Install Dependencies
-      working-directory: ${{ inputs.directory }}
+      working-directory: lambdas/${{ inputs.directory }}
       run: pip install -r requirements_dev.txt
       shell: bash
     - name: Run Tests
-      working-directory: ${{ inputs.directory }}
+      working-directory: lambdas/${{ inputs.directory }}
       run: python -m pytest tests/
       shell: bash

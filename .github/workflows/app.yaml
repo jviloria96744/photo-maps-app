@@ -23,6 +23,7 @@ jobs:
     name: Detect File Changes And Artifact Existence
     runs-on: ubuntu-latest
     outputs:
+      pipeline: ${{ steps.filter.outputs.pipeline }}
       web-client: ${{ steps.filter.outputs.web-client }}
       admin-portal: ${{ steps.filter.outputs.admin-portal }}
       image-processor: ${{ steps.filter.outputs.image-processor }}
@@ -35,6 +36,8 @@ jobs:
         id: filter
         with:
           filters: |
+            pipeline:
+              - '.github/**'
             web-client:
               - 'client-web/**'
             admin-portal:
@@ -63,7 +66,7 @@ jobs:
           directory: "client-web"
   test-image-processor-lambda:
     needs: change-detector
-    # if: ${{ needs.change-detector.outputs.image-processor == 'true' }}
+    if: ${{ needs.change-detector.outputs.image-processor == 'true' || needs.change-detector.outputs.pipeline == 'true'}}
     name: Run Image Processor Unit Tests
     runs-on: ubuntu-latest
     permissions:
@@ -89,7 +92,7 @@ jobs:
       #   run: cd lambdas/image_processor && python -m pytest tests/
   test-app-server-lambda:
     needs: change-detector
-    if: ${{ needs.change-detector.outputs.app-server == 'true' }}
+    if: ${{ needs.change-detector.outputs.app-server == 'true' || needs.change-detector.outputs.pipeline == 'true'}}
     name: Run App Server Unit Tests
     runs-on: ubuntu-latest
     steps:
