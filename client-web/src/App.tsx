@@ -1,16 +1,11 @@
-import LoginButton from "./components/LoginButton";
-import LogoutButton from "./components/LogoutButton";
-import { useAuth } from "./hooks/use-auth";
+import AppContainer from "./components/base/layout/AppContainer";
+import UserMenu from "./components/UserMenu";
 
 function App() {
-  const auth = useAuth();
-  console.log(auth.user);
-
   return (
-    <div>
-      <LoginButton />
-      <LogoutButton />
-    </div>
+    <AppContainer>
+      <UserMenu />
+    </AppContainer>
   );
 }
 

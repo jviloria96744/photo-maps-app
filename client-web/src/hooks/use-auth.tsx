@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useContext } from "react";
 import { Auth, CognitoHostedUIIdentityProvider } from "@aws-amplify/auth";
 import { AuthContext } from "../context/AuthContext";
-import { User } from "../models/user";
+import { postUser, deleteUser } from "../api/base-endpoints";
+import { User, UserResponse } from "../models/user";
 import { ENV } from "../config/environment";
 
 export function ProvideAuth({ children }: React.PropsWithChildren) {
@@ -18,11 +19,14 @@ function useProvideAuth() {
   useEffect(() => {
     if (!user) {
       Auth.currentAuthenticatedUser()
-        .then((userObject) => {
-          const { signInUserSession } = userObject;
-          const user = {
-            username: userObject.username,
-            id: signInUserSession.idToken.payload.sub,
+        .then(async () => {
+          const userData: UserResponse = await postUser();
+
+          const user: User = {
+            username: userData.username,
+            id: userData.pk,
+            lastLoginDate: userData.datetime_updated,
+            userCreatedDate: userData.datetime_created,
           };
 
           setIsSignedIn(true);
@@ -46,11 +50,21 @@ function useProvideAuth() {
       setUser(null);
     });
 
+  const signOutAndDelete = async () => {
+    deleteUser().then(() => {
+      Auth.signOut().then(() => {
+        setIsSignedIn(false);
+        setUser(null);
+      });
+    });
+  };
+
   return {
     user,
     isSignedIn,
     signIn,
     signOut,
+    signOutAndDelete,
   };
 }
 

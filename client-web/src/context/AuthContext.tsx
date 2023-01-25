@@ -6,6 +6,7 @@ interface IAuthContext {
   isSignedIn?: boolean;
   signIn: () => Promise<void>;
   signOut: () => Promise<void>;
+  signOutAndDelete: () => Promise<void>;
 }
 
 export const AuthContext = createContext<IAuthContext>({
@@ -13,4 +14,5 @@ export const AuthContext = createContext<IAuthContext>({
   isSignedIn: false,
   signIn: async () => {},
   signOut: async () => {},
+  signOutAndDelete: async () => {},
 });
