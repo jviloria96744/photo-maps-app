@@ -1,11 +1,12 @@
 from aws_lambda_powertools.logging import correlation_paths
-from aws_lambda_powertools.event_handler import APIGatewayRestResolver
+from aws_lambda_powertools.event_handler import APIGatewayRestResolver, CORSConfig
 from aws_lambda_powertools.utilities.data_classes import APIGatewayProxyEvent
 from aws_lambda_powertools.utilities.typing import LambdaContext
 from routes import routers
 from utils.logger import logger
 
-app = APIGatewayRestResolver()
+cors_config = CORSConfig(allow_origin="*")
+app = APIGatewayRestResolver(cors=cors_config)
 for router in routers:
     app.include_router(router)
 
