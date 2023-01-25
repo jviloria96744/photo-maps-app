@@ -14,7 +14,7 @@ def get_iso_timestamp(epoch_milliseconds: int) -> str:
 def get_user_data_from_event(event: dict) -> list[str]:
     try:
         cognito_object = event["requestContext"]["authorizer"]["claims"]
-        user_id = cognito_object["cognito:username"]
+        user_id = cognito_object["sub"]
         username = cognito_object["email"]
 
         return user_id, username

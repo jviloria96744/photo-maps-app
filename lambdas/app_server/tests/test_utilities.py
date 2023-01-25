@@ -21,7 +21,7 @@ def user_post_event():
         "requestContext": {
             "authorizer": {
                 "claims": {
-                    "cognito:username": "test_user_id",
+                    "sub": "test_user_id",
                     "email": "test_username"
                 }
             }
