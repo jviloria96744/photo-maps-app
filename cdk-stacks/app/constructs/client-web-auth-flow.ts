@@ -84,6 +84,7 @@ export class WebClientAuthFlow extends Construct {
             cognito.OAuthScope.PROFILE,
           ],
           callbackUrls: webClientCallbackUrls,
+          logoutUrls: webClientCallbackUrls,
         },
       }
     );
