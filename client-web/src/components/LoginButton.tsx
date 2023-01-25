@@ -1,15 +1,13 @@
-import { Auth } from "aws-amplify";
 import { Icon, IconButton, Tooltip } from "@chakra-ui/react";
 import { MdAccountCircle } from "react-icons/md";
-import { CognitoHostedUIIdentityProvider } from "@aws-amplify/auth";
+import { useAuth } from "../hooks/use-auth";
 
 const LoginButton = () => {
   const tooltipLabel = "Click to Login";
+  const auth = useAuth();
 
   const handleLoginClick = async () => {
-    await Auth.federatedSignIn({
-      provider: CognitoHostedUIIdentityProvider.Google,
-    });
+    await auth.signIn();
   };
 
   return (
