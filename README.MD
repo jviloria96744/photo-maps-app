@@ -32,3 +32,7 @@ These contain some references that were used to handle troublesome parts of this
 ### API Endpoint
 
 - Must use ID Token from auth object, `event.signInUserSession.idToken.jwtToken`
+
+### Web Client Authentication
+
+`useAuth` hook reference, https://dev.to/kwhitejr/useauth-aws-amplify-auth-react-hooks-easy-auth-management-2hon
