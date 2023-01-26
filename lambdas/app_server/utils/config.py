@@ -10,3 +10,4 @@ class Config:
     LOG_LEVEL: str = os.getenv("LOG_LEVEL")
     DDB_TABLE_NAME: str = os.getenv("DDB_TABLE_NAME")
     AWS_REGION: str = os.getenv("AWS_REGION")
+    ASSET_BUCKET_NAME: str = os.getenv("ASSET_BUCKET_NAME")

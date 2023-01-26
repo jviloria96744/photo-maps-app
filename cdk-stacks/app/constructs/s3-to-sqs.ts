@@ -44,6 +44,12 @@ export class S3ToSQS extends Construct {
       removalPolicy: RemovalPolicy.RETAIN,
       publicReadAccess: false,
       blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
+      cors: [
+        {
+          allowedMethods: [s3.HttpMethods.POST],
+          allowedOrigins: ["*"],
+        },
+      ],
     });
 
     const queueNotification = new aws_s3_notifications.SqsDestination(queue);
