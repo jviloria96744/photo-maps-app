@@ -45,6 +45,7 @@ export class LambdaApi extends Construct {
         DDB_TABLE_NAME: dynamoTable.tableName,
         LOG_LEVEL: "INFO",
         POWERTOOLS_SERVICE_NAME: "app_server",
+        ASSET_BUCKET_NAME: assetBucket.bucketName,
       },
     };
     const lambdaConstruct = new PythonLambda(
