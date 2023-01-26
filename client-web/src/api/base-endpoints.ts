@@ -5,10 +5,19 @@ export function getPing() {
   return getCall("/ping/");
 }
 
+// User Endpoints
 export function postUser() {
   return postCall("/user");
 }
 
 export function deleteUser() {
   return deleteCall("/user");
+}
+
+// Photo Endpoint
+export function getPreSignedPost(body: {
+  asset_uuid: string;
+  asset_extension: string;
+}) {
+  return postCall("photo", body);
 }

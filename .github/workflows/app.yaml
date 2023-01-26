@@ -132,7 +132,7 @@ jobs:
         run: npm install -g aws-cdk
       - name: Install Dependencies
         working-directory: cdk-stacks/app
-        run: npm install
+        run: npm ci
       - name: Deploy Stack
         working-directory: cdk-stacks/app
         run: cdk deploy --require-approval "never"

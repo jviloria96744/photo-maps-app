@@ -10,6 +10,8 @@ interface IconButtonProps {
   IconComponent: IconType;
   boxSize?: string;
   ariaLabel: string;
+  clickHandler?: () => void;
+  photoUploadRef?: React.MutableRefObject<HTMLInputElement | null>;
 }
 
 const IconButton = ({
@@ -17,12 +19,14 @@ const IconButton = ({
   IconComponent,
   boxSize,
   ariaLabel,
+  clickHandler,
 }: IconButtonProps) => {
   if (tooltipLabel) {
     return (
       <Tooltip label={tooltipLabel}>
         <ChakraIconButton
           aria-label={tooltipLabel}
+          onClick={clickHandler}
           icon={
             <Icon
               as={IconComponent}
