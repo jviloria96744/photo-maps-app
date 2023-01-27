@@ -37,7 +37,9 @@ def get_photos_by_user():
 
         response = app_db.get_photos_by_user(user_id)
 
-        return response
+        if response["ResponseMetadata"]["HTTPStatusCode"] != 200:
+            raise
+        return response["Items"]
     except Exception:
         logger.exception("Error Fetching Photos")
         return Response(
