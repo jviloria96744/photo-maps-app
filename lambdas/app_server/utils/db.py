@@ -47,10 +47,13 @@ class DB:
     def get_photos_by_user(self, user_id):
         response = self.db_client.query(
             TableName=self.table_name,
-            KeyConditionExpression="pk=:user_id and begins_with(sk, 'IMAGE')",
+            KeyConditionExpression="pk=:user_id and begins_with(sk, :image_prefix)",
             ExpressionAttributeValues={
                 ":user_id": {
                     'S': user_id
+                },
+                ":image_prefix": {
+                    'S': 'IMAGE'
                 }
             }
         )
