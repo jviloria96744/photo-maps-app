@@ -5,12 +5,14 @@ import { AdminSiteStack } from "./stacks/admin-site-stack";
 import { WebClientStack } from "./stacks/web-client-stack";
 import { ImageProcessorWorkflowStack } from "./stacks/image-processor-workflow-stack";
 import { AppApiStack } from "./stacks/app-api-stack";
+import { WebSocketStack } from "./stacks/websocket-stack";
 
 export class AppStack extends cdk.Stack {
   adminSiteStack: AdminSiteStack;
   webClientStack: WebClientStack;
   imageProcessorWorkflowStack: ImageProcessorWorkflowStack;
   appApiStack: AppApiStack;
+  websocketStack: WebSocketStack;
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
 
@@ -34,9 +36,12 @@ export class AppStack extends cdk.Stack {
       cognitoUserPool: webClientStack.webClientAuthFlow.userPool,
     });
 
+    const websocketStack = new WebSocketStack(this, "websocket");
+
     this.adminSiteStack = adminSiteStack;
     this.webClientStack = webClientStack;
     this.imageProcessorWorkflowStack = imageProcessorWorkflowStack;
     this.appApiStack = appApiStack;
+    this.websocketStack = websocketStack;
   }
 }
