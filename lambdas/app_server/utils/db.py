@@ -1,4 +1,5 @@
 import boto3
+from boto3.dynamodb.conditions import Key
 from utils.config import Config
 from mypy_boto3_dynamodb.service_resource import DynamoDBServiceResource
 
@@ -41,6 +42,20 @@ class DB:
         )
 
         return response
+
+    def get_photos_by_user(self, user_id):
+        response = self.db_client.query(
+            TableName=self.table_name,
+            KeyConditionExpression="pk=:user_id and begins_with(sk, 'IMAGE')",
+            ExpressionAttributeValues={
+                ":user_id": {
+                    'S': user_id
+                }
+            }
+        )
+
+        return response
+        
 
     def delete_item(self, item):
         response = self.table.delete_item(
