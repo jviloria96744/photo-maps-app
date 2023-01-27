@@ -1,4 +1,5 @@
 import boto3
+from boto3.dynamodb.conditions import Key
 from utils.config import Config
 from mypy_boto3_dynamodb.service_resource import DynamoDBServiceResource
 from mypy_boto3_dynamodb.client import DynamoDBClient
@@ -45,17 +46,8 @@ class DB:
         return response
 
     def get_photos_by_user(self, user_id):
-        response = self.db_client.query(
-            TableName=self.table_name,
-            KeyConditionExpression="pk=:user_id and begins_with(sk, :image_prefix)",
-            ExpressionAttributeValues={
-                ":user_id": {
-                    'S': user_id
-                },
-                ":image_prefix": {
-                    'S': 'IMAGE'
-                }
-            }
+        response = self.table.query(
+            KeyConditionExpression=Key("pk").eq(user_id) & Key("sk").begins_with("IMAGE")
         )
 
         return response
