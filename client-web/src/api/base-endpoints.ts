@@ -14,10 +14,14 @@ export function deleteUser() {
   return deleteCall("/user");
 }
 
-// Photo Endpoint
+// Photo(s) Endpoint
 export function getPreSignedPost(body: {
   asset_uuid: string;
   asset_extension: string;
 }) {
-  return postCall("photo", body);
+  return postCall("/photo", body);
+}
+
+export function getPhotosByUser() {
+  return getCall("/photos");
 }

@@ -9,3 +9,33 @@ export interface PresignedPostResponse {
   url: string;
   fields: PresignedPostResponseFields;
 }
+
+export interface ImageGeo {
+  city?: string;
+  country?: string;
+  country_code?: string;
+  image_date?: string;
+  lat: string;
+  lng: string;
+}
+
+export interface ImageLabel {
+  label_aliases?: {
+    Name: string;
+  }[];
+  label_categories?: {
+    Name: string;
+  }[];
+  label_parents?: {
+    Name: string;
+  }[];
+  label_name: string;
+}
+export interface PhotoObject {
+  attribute_image_geo: ImageGeo;
+  attribute_image_labels?: ImageLabel[];
+  datetime_created: string;
+  datetime_updated: string;
+  pk: string;
+  sk: string;
+}

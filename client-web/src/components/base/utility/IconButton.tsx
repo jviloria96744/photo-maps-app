@@ -27,10 +27,11 @@ const IconButton = ({
         <ChakraIconButton
           aria-label={tooltipLabel}
           onClick={clickHandler}
+          variant="outline"
           icon={
             <Icon
               as={IconComponent}
-              boxSize={boxSize ?? "10"}
+              boxSize={boxSize ?? "25"}
               focusable={true}
             />
           }
