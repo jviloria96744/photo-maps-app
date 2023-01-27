@@ -1,16 +1,17 @@
 import boto3
-from boto3.dynamodb.conditions import Key
 from utils.config import Config
 from mypy_boto3_dynamodb.service_resource import DynamoDBServiceResource
+from mypy_boto3_dynamodb.client import DynamoDBClient
 
 
 class DB:
-    def __init__(self, table_name: str, db_client: DynamoDBServiceResource):
+    def __init__(self, table_name: str, db_resource: DynamoDBServiceResource, db_client: DynamoDBClient):
         self.table_name = table_name
+        self.db_resource = db_resource
         self.db_client = db_client
         if not self.table_name:
             raise Exception("Table Name is Missing")
-        self.table = db_client.Table(table_name)
+        self.table = db_resource.Table(table_name)
 
     def put_item(self, item):
         response = self.table.put_item(
@@ -70,6 +71,7 @@ class DB:
         return response
 
 
+ddb_client = boto3.client("dynamodb")
 ddb_resource: DynamoDBServiceResource = boto3.resource("dynamodb")
-app_db = DB(Config.DDB_TABLE_NAME, ddb_resource)
+app_db = DB(Config.DDB_TABLE_NAME, ddb_resource, ddb_client)
 
