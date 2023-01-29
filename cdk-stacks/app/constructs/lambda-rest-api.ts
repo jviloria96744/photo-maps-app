@@ -63,15 +63,20 @@ export class LambdaApi extends Construct {
 
     const apiDomain = `api.${subDomain}.${domainName}`;
 
-    const certificate = new acm.DnsValidatedCertificate(
-      this,
-      `${name}-certificate`,
-      {
-        domainName: apiDomain,
-        hostedZone: zone,
-        region: "us-east-1", // Cloudfront only checks this region for certificates.
-      }
-    );
+    const certificate = new acm.Certificate(this, `${name}-certificate`, {
+      domainName: apiDomain,
+      validation: acm.CertificateValidation.fromDns(zone),
+    });
+
+    // const certificate = new acm.DnsValidatedCertificate(
+    //   this,
+    //   `${name}-certificate`,
+    //   {
+    //     domainName: apiDomain,
+    //     hostedZone: zone,
+    //     region: "us-east-1", // Cloudfront only checks this region for certificates.
+    //   }
+    // );
 
     const api = new LambdaRestApi(this, `${name}-lambda-api`, {
       handler: lambdaConstruct.function,

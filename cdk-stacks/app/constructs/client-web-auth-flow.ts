@@ -1,11 +1,12 @@
 import * as cognito from "aws-cdk-lib/aws-cognito";
 import { CfnOutput, Stack, RemovalPolicy, Duration } from "aws-cdk-lib";
+import * as secretsmanager from "aws-cdk-lib/aws-secretsmanager";
 import { Construct } from "constructs";
 import { webClientCallbackUrls } from "../config";
 
 interface WebClientAuthFlowProps {
   googleClientId: string;
-  googleClientSecret: string;
+  googleClientSecretName: string;
 }
 
 export class WebClientAuthFlow extends Construct {
@@ -18,7 +19,7 @@ export class WebClientAuthFlow extends Construct {
   constructor(parent: Stack, name: string, props: WebClientAuthFlowProps) {
     super(parent, name);
 
-    const { googleClientId, googleClientSecret } = props;
+    const { googleClientId, googleClientSecretName } = props;
 
     const userPool = new cognito.UserPool(this, `${name}-user-pool`, {
       removalPolicy: RemovalPolicy.DESTROY,
@@ -30,11 +31,18 @@ export class WebClientAuthFlow extends Construct {
       },
     });
 
+    const googleClientSecret = secretsmanager.Secret.fromSecretNameV2(
+      this,
+      `${name}-secret`,
+      googleClientSecretName
+    );
+
     const userPoolIdentityProviderGoogle =
       new cognito.UserPoolIdentityProviderGoogle(this, `${name}-google-idp`, {
         userPool,
         clientId: googleClientId,
-        clientSecret: googleClientSecret,
+        // clientSecret: googleClientSecret,
+        clientSecretValue: googleClientSecret.secretValue,
         scopes: ["profile", "email", "openid"],
         attributeMapping: {
           email: cognito.ProviderAttribute.GOOGLE_EMAIL,

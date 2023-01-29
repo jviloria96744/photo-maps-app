@@ -73,15 +73,19 @@ export class StaticSite extends Construct {
     new CfnOutput(this, "Bucket", { value: siteBucket.bucketName });
 
     // TLS certificate
-    const certificate = new acm.DnsValidatedCertificate(
-      this,
-      `${name}-certificate`,
-      {
-        domainName: siteDomain,
-        hostedZone: zone,
-        region: "us-east-1", // Cloudfront only checks this region for certificates.
-      }
-    );
+    const certificate = new acm.Certificate(this, `${name}-certificate`, {
+      domainName: siteDomain,
+      validation: acm.CertificateValidation.fromDns(zone),
+    });
+    // const certificate = new acm.DnsValidatedCertificate(
+    //   this,
+    //   `${name}-certificate`,
+    //   {
+    //     domainName: siteDomain,
+    //     hostedZone: zone,
+    //     region: "us-east-1", // Cloudfront only checks this region for certificates.
+    //   }
+    // );
     new CfnOutput(this, "Certificate", { value: certificate.certificateArn });
 
     // CloudFront distribution
