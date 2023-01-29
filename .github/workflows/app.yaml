@@ -11,7 +11,6 @@ on:
   push:
     branches:
       - main
-      - upgrade-aws-cdk-lib
     paths:
       - "cdk-stacks/app/**"
       - ".github/**"
