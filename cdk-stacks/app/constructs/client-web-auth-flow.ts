@@ -1,6 +1,6 @@
 import * as cognito from "aws-cdk-lib/aws-cognito";
 import { CfnOutput, Stack, RemovalPolicy, Duration } from "aws-cdk-lib";
-import * as secretsmanager from "aws-cdk-lib/aws-secretsmanager";
+// import * as secretsmanager from "aws-cdk-lib/aws-secretsmanager";
 import { Construct } from "constructs";
 import { webClientCallbackUrls } from "../config";
 
@@ -31,17 +31,18 @@ export class WebClientAuthFlow extends Construct {
       },
     });
 
-    const googleClientSecret = secretsmanager.Secret.fromSecretNameV2(
-      this,
-      `${name}-secret`,
-      googleClientSecretName
-    );
+    // const googleClientSecret = secretsmanager.Secret.fromSecretNameV2(
+    //   this,
+    //   `${name}-secret`,
+    //   googleClientSecretName
+    // );
 
     const userPoolIdentityProviderGoogle =
       new cognito.UserPoolIdentityProviderGoogle(this, `${name}-google-idp`, {
         userPool,
         clientId: googleClientId,
-        clientSecretValue: googleClientSecret.secretValue,
+        clientSecret: googleClientSecretName,
+        // clientSecretValue: googleClientSecretName,
         scopes: ["profile", "email", "openid"],
         attributeMapping: {
           email: cognito.ProviderAttribute.GOOGLE_EMAIL,
