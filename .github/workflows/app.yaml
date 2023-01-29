@@ -4,13 +4,14 @@ env:
   AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
   AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
   GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
-  GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
+  GOOGLE_CLIENT_SECRET_NAME: ${{ secrets.GOOGLE_CLIENT_SECRET_NAME }}
   IMAGE_PROCESSOR_SECRET_NAME: ${{ secrets.IMAGE_PROCESSOR_SECRET_NAME }}
   IMAGE_PROCESSOR_SECRET_KEY: ${{ secrets.IMAGE_PROCESSOR_SECRET_KEY }}
 on:
   push:
     branches:
       - main
+      - upgrade-aws-cdk-lib
     paths:
       - "cdk-stacks/app/**"
       - ".github/**"
@@ -133,6 +134,11 @@ jobs:
       - name: Install Dependencies
         working-directory: cdk-stacks/app
         run: npm ci
+      - name: Test Synth Step
+        if: github.ref != 'refs/heads/main'
+        working-directory: cdk-stacks/app
+        run: cdk synth
       - name: Deploy Stack
+        if: github.ref == 'refs/heads/main'
         working-directory: cdk-stacks/app
         run: cdk deploy --require-approval "never"

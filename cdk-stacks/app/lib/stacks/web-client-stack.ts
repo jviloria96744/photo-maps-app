@@ -11,15 +11,15 @@ export class WebClientStack extends cdk.NestedStack {
     super(scope, id, props);
 
     const googleClientId = process.env.GOOGLE_CLIENT_ID || "client_id";
-    const googleClientSecret =
-      process.env.GOOGLE_CLIENT_SECRET || "client_secret";
+    const googleClientSecretName =
+      process.env.GOOGLE_CLIENT_SECRET_NAME || "client_secret";
 
     const webClientProps = createStaticSiteProps("client-web");
     const webClient = new StaticSite(this, `${id}-static-site`, webClientProps);
 
     const webClientAuthFlow = new WebClientAuthFlow(this, `${id}-auth-flow`, {
       googleClientId,
-      googleClientSecret,
+      googleClientSecretName,
     });
 
     this.webClient = webClient;
