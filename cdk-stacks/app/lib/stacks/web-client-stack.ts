@@ -12,7 +12,7 @@ export class WebClientStack extends cdk.NestedStack {
 
     const googleClientId = process.env.GOOGLE_CLIENT_ID || "client_id";
     const googleClientSecretName =
-      process.env.GOOGLE_CLIENT_SECRET_NAME || "client_secret";
+      process.env.GOOGLE_CLIENT_SECRET_MANAGER_NAME || "client_secret";
 
     const webClientProps = createStaticSiteProps("client-web");
     const webClient = new StaticSite(this, `${id}-static-site`, webClientProps);
