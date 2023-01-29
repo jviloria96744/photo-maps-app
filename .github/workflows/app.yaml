@@ -12,7 +12,7 @@ on:
     branches:
       - main
     paths:
-      - "cdk-stacks/app/**"
+      - "cdk-stacks/**"
       - ".github/**"
       - "admin-portal/**"
       - "client-web/**"
