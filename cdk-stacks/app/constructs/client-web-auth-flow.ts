@@ -41,7 +41,6 @@ export class WebClientAuthFlow extends Construct {
       new cognito.UserPoolIdentityProviderGoogle(this, `${name}-google-idp`, {
         userPool,
         clientId: googleClientId,
-        // clientSecret: googleClientSecret,
         clientSecretValue: googleClientSecret.secretValue,
         scopes: ["profile", "email", "openid"],
         attributeMapping: {
