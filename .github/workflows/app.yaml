@@ -139,10 +139,10 @@ jobs:
           node-version: 16.17.0
       - name: Download Admin Portal Artifact
         working-directory: admin-portal
-        run: aws s3 sync s3://$ARTIFACT_BUCKET/admin-portal/ dist/ && cd dist && ls
+        run: aws s3 sync s3://$ARTIFACT_BUCKET/admin-portal/ dist/
       - name: Download Web Client Artifact
         working-directory: client-web
-        run: aws s3 sync s3://$ARTIFACT_BUCKET/client-web/ dist/ && cd dist && ls
+        run: aws s3 sync s3://$ARTIFACT_BUCKET/client-web/ dist/
       - name: Install CDK
         run: npm install -g aws-cdk
       - name: Install Dependencies
@@ -151,8 +151,8 @@ jobs:
       - name: Test Synth Step
         if: github.ref != 'refs/heads/main'
         working-directory: cdk-stacks/app
-        run: cdk synth
+        run: cdk synth --all
       - name: Deploy Stack
         if: github.ref == 'refs/heads/main'
         working-directory: cdk-stacks/app
-        run: cdk deploy --require-approval "never"
+        run: cdk deploy --require-approval "never" --all
