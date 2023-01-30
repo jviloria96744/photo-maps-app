@@ -29,23 +29,19 @@ export class CertificateStack extends cdk.Stack {
 
     const adminPortalCertificate = new acm.Certificate(
       this,
-      `${id}-AdminPortal-Cert`,
+      `${id}-AdminPortal`,
       {
         domainName: `${adminPortalSubDomain}.${domainName}`,
         validation: acm.CertificateValidation.fromDns(zone),
       }
     );
 
-    const webClientCertificate = new acm.Certificate(
-      this,
-      `${id}-WebClient-Cert`,
-      {
-        domainName: `${webClientSubDomain}.${domainName}`,
-        validation: acm.CertificateValidation.fromDns(zone),
-      }
-    );
+    const webClientCertificate = new acm.Certificate(this, `${id}-WebClient`, {
+      domainName: `${webClientSubDomain}.${domainName}`,
+      validation: acm.CertificateValidation.fromDns(zone),
+    });
 
-    const restApiCertificate = new acm.Certificate(this, `${id}-RestApi-Cert`, {
+    const restApiCertificate = new acm.Certificate(this, `${id}-RestApi`, {
       domainName: `${apiSubDomain}.${domainName}`,
       validation: acm.CertificateValidation.fromDns(zone),
     });

@@ -10,7 +10,7 @@ const app = new cdk.App();
 const { domainName, adminPortalSubDomain, webClientSubDomain, apiSubDomain } =
   CONFIG;
 
-const certStack = new CertificateStack(app, "App", {
+const certStack = new CertificateStack(app, "Certificate", {
   env: {
     account: process.env.CDK_DEFAULT_ACCOUNT,
     region: "us-east-1",
