@@ -9,7 +9,7 @@ interface CertificateStackProps extends cdk.StackProps {
   webClientSubDomain: string;
   apiSubDomain: string;
 }
-export class CertificateStack extends cdk.NestedStack {
+export class CertificateStack extends cdk.Stack {
   adminPortalCertificate: acm.Certificate;
   webClientCertificate: acm.Certificate;
   restApiCertificate: acm.Certificate;
