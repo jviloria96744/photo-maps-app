@@ -52,3 +52,17 @@ export const lambdaBuildCommands = [
   "-c",
   `pip install -r requirements.txt -t /asset-output && cp -au . /asset-output && ${removeStatements}`,
 ];
+
+interface IConfig {
+  domainName: string;
+  adminPortalSubDomain: string;
+  webClientSubDomain: string;
+  apiSubDomain: string;
+}
+
+export const CONFIG: IConfig = {
+  domainName: "jviloria.com",
+  adminPortalSubDomain: "admin-portal.photo-maps-app",
+  webClientSubDomain: "photo-maps-app",
+  apiSubDomain: "api",
+};
