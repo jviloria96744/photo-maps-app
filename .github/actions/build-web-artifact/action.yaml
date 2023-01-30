@@ -28,5 +28,5 @@ runs:
       shell: bash
     - name: Archive Build Artifact
       working-directory: ${{ inputs.directory }}
-      run: aws s3 sync dist/ s3://${{ inputs.artifact_bucket}}/${{ inputs.directory }} -- delete
+      run: aws s3 sync dist/ s3://${{ inputs.artifact_bucket}}/${{ inputs.directory }} --delete
       shell: bash
