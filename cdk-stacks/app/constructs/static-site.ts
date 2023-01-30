@@ -5,17 +5,15 @@ import * as cloudfront from "aws-cdk-lib/aws-cloudfront";
 import * as s3deploy from "aws-cdk-lib/aws-s3-deployment";
 import * as targets from "aws-cdk-lib/aws-route53-targets";
 import * as cloudfront_origins from "aws-cdk-lib/aws-cloudfront-origins";
-import { CfnOutput, Duration, RemovalPolicy, Stack } from "aws-cdk-lib";
+import { Duration, RemovalPolicy, Stack } from "aws-cdk-lib";
 import * as iam from "aws-cdk-lib/aws-iam";
 import { Construct } from "constructs";
-import * as path from "path";
 
 export interface StaticSiteProps {
-  domainName: string;
-  siteSubDomain: string;
-  siteDirectory: string;
-  siteBuildDirectory: string;
-  basePath: string;
+  siteDomain: string;
+  pathName: string;
+  certificate: acm.Certificate;
+  hostedZone: route53.IHostedZone;
 }
 
 /**
@@ -28,31 +26,18 @@ export class StaticSite extends Construct {
   constructor(parent: Stack, name: string, props: StaticSiteProps) {
     super(parent, name);
 
-    const {
-      domainName,
-      siteSubDomain,
-      siteBuildDirectory,
-      siteDirectory,
-      basePath,
-    } = props;
+    const { siteDomain, pathName, certificate, hostedZone } = props;
 
-    const zone = route53.HostedZone.fromLookup(this, `${name}-zone`, {
-      domainName: domainName,
-    });
-
-    const siteDomain = siteSubDomain + "." + domainName;
     const cloudfrontOAI = new cloudfront.OriginAccessIdentity(
       this,
-      "cloudfront-OAI",
+      "CloudfrontOAI",
       {
         comment: `OAI for ${name}`,
       }
     );
 
-    new CfnOutput(this, "Site", { value: "https://" + siteDomain });
-
     // Content bucket
-    const siteBucket = new s3.Bucket(this, `${name}-bucket`, {
+    const siteBucket = new s3.Bucket(this, "Bucket", {
       publicReadAccess: false,
       blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
       removalPolicy: RemovalPolicy.DESTROY,
@@ -70,72 +55,49 @@ export class StaticSite extends Construct {
         ],
       })
     );
-    new CfnOutput(this, "Bucket", { value: siteBucket.bucketName });
-
-    // TLS certificate
-    const certificate = new acm.DnsValidatedCertificate(
-      this,
-      `${name}-certificate`,
-      {
-        domainName: siteDomain,
-        hostedZone: zone,
-        region: "us-east-1", // Cloudfront only checks this region for certificates.
-      }
-    );
-
-    new CfnOutput(this, "Certificate", { value: certificate.certificateArn });
 
     // CloudFront distribution
-    const distribution = new cloudfront.Distribution(
-      this,
-      `${name}-distribution`,
-      {
-        certificate: certificate,
-        defaultRootObject: "index.html",
-        domainNames: [siteDomain],
-        minimumProtocolVersion: cloudfront.SecurityPolicyProtocol.TLS_V1_2_2021,
-        errorResponses: [
-          {
-            httpStatus: 403,
-            responseHttpStatus: 403,
-            responsePagePath: "/index.html",
-            ttl: Duration.minutes(30),
-          },
-          {
-            httpStatus: 404,
-            responseHttpStatus: 404,
-            responsePagePath: "/index.html",
-            ttl: Duration.minutes(30),
-          },
-        ],
-        defaultBehavior: {
-          origin: new cloudfront_origins.S3Origin(siteBucket, {
-            originAccessIdentity: cloudfrontOAI,
-          }),
-          compress: true,
-          allowedMethods: cloudfront.AllowedMethods.ALLOW_GET_HEAD_OPTIONS,
-          viewerProtocolPolicy:
-            cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
+    const distribution = new cloudfront.Distribution(this, "CFDistribution", {
+      certificate: certificate,
+      defaultRootObject: "index.html",
+      domainNames: [siteDomain],
+      minimumProtocolVersion: cloudfront.SecurityPolicyProtocol.TLS_V1_2_2021,
+      errorResponses: [
+        {
+          httpStatus: 403,
+          responseHttpStatus: 403,
+          responsePagePath: "/index.html",
+          ttl: Duration.minutes(30),
         },
-      }
-    );
-
-    new CfnOutput(this, "DistributionId", {
-      value: distribution.distributionId,
+        {
+          httpStatus: 404,
+          responseHttpStatus: 404,
+          responsePagePath: "/index.html",
+          ttl: Duration.minutes(30),
+        },
+      ],
+      defaultBehavior: {
+        origin: new cloudfront_origins.S3Origin(siteBucket, {
+          originAccessIdentity: cloudfrontOAI,
+        }),
+        compress: true,
+        allowedMethods: cloudfront.AllowedMethods.ALLOW_GET_HEAD_OPTIONS,
+        viewerProtocolPolicy: cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
+      },
     });
 
     // Route53 alias record for the CloudFront distribution
-    new route53.ARecord(this, `${name}-alias-record`, {
+    new route53.ARecord(this, "AliasRecord", {
       recordName: siteDomain,
       target: route53.RecordTarget.fromAlias(
         new targets.CloudFrontTarget(distribution)
       ),
-      zone,
+      zone: hostedZone,
     });
 
-    const pathName = path.resolve(basePath, siteDirectory, siteBuildDirectory);
+    // const pathName = path.resolve(basePath, siteDirectory, siteBuildDirectory);
     // Deploy site contents to S3 bucket and invalidate cache
-    new s3deploy.BucketDeployment(this, `${name}-deploy-with-validation`, {
+    new s3deploy.BucketDeployment(this, "DeployWithValidation", {
       sources: [s3deploy.Source.asset(pathName)],
       destinationBucket: siteBucket,
       distribution,

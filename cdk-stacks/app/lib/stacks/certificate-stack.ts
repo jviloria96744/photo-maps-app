@@ -13,6 +13,7 @@ export class CertificateStack extends cdk.Stack {
   adminPortalCertificate: acm.Certificate;
   webClientCertificate: acm.Certificate;
   restApiCertificate: acm.Certificate;
+  hostedZone: route53.IHostedZone;
   constructor(scope: Construct, id: string, props: CertificateStackProps) {
     super(scope, id, props);
 
@@ -49,5 +50,6 @@ export class CertificateStack extends cdk.Stack {
     this.adminPortalCertificate = adminPortalCertificate;
     this.webClientCertificate = webClientCertificate;
     this.restApiCertificate = restApiCertificate;
+    this.hostedZone = zone;
   }
 }

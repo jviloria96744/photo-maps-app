@@ -1,5 +1,5 @@
 import * as cognito from "aws-cdk-lib/aws-cognito";
-import { CfnOutput, Stack, RemovalPolicy, Duration } from "aws-cdk-lib";
+import { Stack, RemovalPolicy, Duration } from "aws-cdk-lib";
 import { Construct } from "constructs";
 import { adminSiteCallbackUrls } from "../config";
 
@@ -12,7 +12,7 @@ export class AdminAuthFlow extends Construct {
   constructor(parent: Stack, name: string) {
     super(parent, name);
 
-    const userPool = new cognito.UserPool(this, `${name}-user-pool`, {
+    const userPool = new cognito.UserPool(this, "UserPool", {
       selfSignUpEnabled: false,
       signInAliases: {
         email: true,
@@ -36,7 +36,7 @@ export class AdminAuthFlow extends Construct {
 
     const resourceServer = new cognito.UserPoolResourceServer(
       this,
-      `${name}-user-pool-resource-server`,
+      "UserPoolResourceServer",
       {
         scopes: [adminScope],
         userPool,
@@ -44,45 +44,33 @@ export class AdminAuthFlow extends Construct {
       }
     );
 
-    new CfnOutput(this, `${name}-user-pool-id`, {
-      value: userPool.userPoolId,
+    const userPoolClient = new cognito.UserPoolClient(this, "UserPoolClient", {
+      userPool,
+      accessTokenValidity: Duration.minutes(60),
+      idTokenValidity: Duration.minutes(60),
+      generateSecret: false,
+      refreshTokenValidity: Duration.days(1),
+      enableTokenRevocation: true,
+      preventUserExistenceErrors: true,
+      authFlows: {
+        userPassword: true,
+      },
+      oAuth: {
+        flows: {
+          authorizationCodeGrant: true,
+        },
+        scopes: [
+          cognito.OAuthScope.OPENID,
+          cognito.OAuthScope.resourceServer(resourceServer, adminScope),
+        ],
+        callbackUrls: adminSiteCallbackUrls,
+      },
     });
-
-    const userPoolClient = new cognito.UserPoolClient(
-      this,
-      `${name}-user-pool-client`,
-      {
-        userPool,
-        accessTokenValidity: Duration.minutes(60),
-        idTokenValidity: Duration.minutes(60),
-        generateSecret: false,
-        refreshTokenValidity: Duration.days(1),
-        enableTokenRevocation: true,
-        preventUserExistenceErrors: true,
-        authFlows: {
-          userPassword: true,
-        },
-        oAuth: {
-          flows: {
-            authorizationCodeGrant: true,
-          },
-          scopes: [
-            cognito.OAuthScope.OPENID,
-            cognito.OAuthScope.resourceServer(resourceServer, adminScope),
-          ],
-          callbackUrls: adminSiteCallbackUrls,
-        },
-      }
-    );
 
     userPool.addDomain("admin-site-domain", {
       cognitoDomain: {
         domainPrefix: "auth-admin-portal",
       },
-    });
-
-    new CfnOutput(this, `${name}-user-pool-client-id`, {
-      value: userPoolClient.userPoolClientId,
     });
 
     this.userPool = userPool;

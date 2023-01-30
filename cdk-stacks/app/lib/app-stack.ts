@@ -1,25 +1,49 @@
 import * as cdk from "aws-cdk-lib";
+import * as acm from "aws-cdk-lib/aws-certificatemanager";
+import * as route53 from "aws-cdk-lib/aws-route53";
 import { Construct } from "constructs";
 import { DynamoDBTable } from "../constructs/dynamo-db-table";
-// import { AdminSiteStack } from "./stacks/admin-site-stack";
+import { AdminSiteStack } from "./stacks/admin-site-stack";
 // import { WebClientStack } from "./stacks/web-client-stack";
 // import { ImageProcessorWorkflowStack } from "./stacks/image-processor-workflow-stack";
 // import { AppApiStack } from "./stacks/app-api-stack";
 // import { WebSocketStack } from "./stacks/websocket-stack";
+import * as path from "path";
+import { CONFIG } from "../config";
+
+interface AppStackProps extends cdk.StackProps {
+  certificates: {
+    adminPortalCertificate: acm.Certificate;
+    webClientCertificate: acm.Certificate;
+    restApiCertificate: acm.Certificate;
+    hostedZone: route53.IHostedZone;
+  };
+}
 
 export class AppStack extends cdk.Stack {
   dynamoDb: DynamoDBTable;
-  // adminSiteStack: AdminSiteStack;
+  adminSiteStack: AdminSiteStack;
   // webClientStack: WebClientStack;
   // imageProcessorWorkflowStack: ImageProcessorWorkflowStack;
   // appApiStack: AppApiStack;
   // websocketStack: WebSocketStack;
-  constructor(scope: Construct, id: string, props?: cdk.StackProps) {
+  constructor(scope: Construct, id: string, props: AppStackProps) {
     super(scope, id, props);
+
+    const { certificates } = props;
 
     const dynamoDB = new DynamoDBTable(this, "DynamoDB");
 
-    // const adminSiteStack = new AdminSiteStack(this, "admin-site");
+    const adminSiteStack = new AdminSiteStack(this, "AdminPortal", {
+      siteDomain: `${CONFIG.adminPortalSubDomain}.${CONFIG.domainName}`,
+      pathName: path.resolve(
+        CONFIG.environment.basePath,
+        CONFIG.adminPortal.siteDirectory,
+        CONFIG.adminPortal.siteBuildDirectory
+      ),
+      certificate: certificates.adminPortalCertificate,
+      hostedZone: certificates.hostedZone,
+    });
 
     // const webClientStack = new WebClientStack(this, "web-client");
 
@@ -40,7 +64,7 @@ export class AppStack extends cdk.Stack {
     // const websocketStack = new WebSocketStack(this, "websocket");
 
     this.dynamoDb = dynamoDB;
-    // this.adminSiteStack = adminSiteStack;
+    this.adminSiteStack = adminSiteStack;
     // this.webClientStack = webClientStack;
     // this.imageProcessorWorkflowStack = imageProcessorWorkflowStack;
     // this.appApiStack = appApiStack;

@@ -8,28 +8,28 @@ export const siteBuildDirectory = "dist";
 
 type SiteName = "admin-portal" | "client-web";
 
-export const createStaticSiteProps = (siteName: SiteName): StaticSiteProps => {
-  switch (siteName) {
-    case "admin-portal":
-      return {
-        basePath,
-        domainName,
-        siteSubDomain: `${siteName}.${subDomain}`,
-        siteBuildDirectory,
-        siteDirectory: siteName,
-      };
-    case "client-web":
-      return {
-        basePath,
-        domainName,
-        siteSubDomain: subDomain,
-        siteBuildDirectory,
-        siteDirectory: siteName,
-      };
-    default:
-      throw "siteName is not correct";
-  }
-};
+// export const createStaticSiteProps = (siteName: SiteName): StaticSiteProps => {
+//   switch (siteName) {
+//     case "admin-portal":
+//       return {
+//         basePath,
+//         domainName,
+//         siteSubDomain: `${siteName}.${subDomain}`,
+//         siteBuildDirectory,
+//         siteDirectory: siteName,
+//       };
+//     case "client-web":
+//       return {
+//         basePath,
+//         domainName,
+//         siteSubDomain: subDomain,
+//         siteBuildDirectory,
+//         siteDirectory: siteName,
+//       };
+//     default:
+//       throw "siteName is not correct";
+//   }
+// };
 
 export const adminSiteCallbackUrls: string[] = [
   "http://localhost:5173/",
@@ -58,6 +58,13 @@ interface IConfig {
   adminPortalSubDomain: string;
   webClientSubDomain: string;
   apiSubDomain: string;
+  environment: {
+    basePath: string;
+  };
+  adminPortal: {
+    siteDirectory: string;
+    siteBuildDirectory: string;
+  };
 }
 
 export const CONFIG: IConfig = {
@@ -65,4 +72,11 @@ export const CONFIG: IConfig = {
   adminPortalSubDomain: "admin-portal.photo-maps-app",
   webClientSubDomain: "photo-maps-app",
   apiSubDomain: "api.photo-maps-app",
+  environment: {
+    basePath: process.env.GITHUB_WORKSPACE || "",
+  },
+  adminPortal: {
+    siteDirectory: "admin-portal",
+    siteBuildDirectory: "dist",
+  },
 };
