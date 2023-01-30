@@ -113,6 +113,7 @@ jobs:
           directory: "app_server"
   deploy:
     name: Build/Deploy Application Infrastructure
+    timeout-minutes: 10
     runs-on: ubuntu-latest
     needs:
       [
@@ -136,8 +137,6 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: 16.17.0
-          cache: "npm"
-          cache-dependency-path: cdk-stacks/app/package-lock.json
       - name: Download Admin Portal Artifact
         working-directory: admin-portal
         run: aws s3 sync s3://$ARTIFACT_BUCKET/admin-portal/ dist/ && cd dist && ls
