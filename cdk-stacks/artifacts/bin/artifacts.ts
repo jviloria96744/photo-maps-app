@@ -4,7 +4,7 @@ import * as cdk from "aws-cdk-lib";
 import { ArtifactsStack } from "../lib/artifacts-stack";
 
 const app = new cdk.App();
-new ArtifactsStack(app, "ArtifactsStack", {
+new ArtifactsStack(app, "Artifacts", {
   env: {
     account: process.env.CDK_DEFAULT_ACCOUNT,
     region: process.env.CDK_DEFAULT_REGION,

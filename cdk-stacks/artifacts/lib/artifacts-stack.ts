@@ -8,7 +8,7 @@ export class ArtifactsStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
 
-    const bucket = new s3.Bucket(this, `${id}-artifact-bucket`, {
+    const bucket = new s3.Bucket(this, `${id}-Bucket`, {
       removalPolicy: RemovalPolicy.RETAIN,
       publicReadAccess: false,
       blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,

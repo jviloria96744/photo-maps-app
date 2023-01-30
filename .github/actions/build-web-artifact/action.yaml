@@ -5,6 +5,10 @@ inputs:
     description: "Directory of React Project, will also be used to create artifact name"
     required: true
     default: ""
+  artifact_bucket:
+    description: "Bucket to save production build in, used as a cache, build will be pulled from here if no changes to code directory"
+    required: true
+    default: ""
 
 runs:
   using: "composite"
@@ -23,9 +27,6 @@ runs:
       run: npm run build
       shell: bash
     - name: Archive Build Artifact
-      uses: actions/upload-artifact@v3
-      with:
-        name: ${{ inputs.directory }}-artifact
-        path: ./${{ inputs.directory }}/dist/
-        if-no-files-found: error
-        retention-days: 1
+      working-directory: ${{ inputs.directory }}
+      run: aws s3 sync dist/ s3://${{ inputs.artifact_bucket}}/${{ inputs.directory }} -- delete
+      shell: bash
