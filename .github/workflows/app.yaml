@@ -51,6 +51,10 @@ jobs:
     if: ${{ needs.change-detector.outputs.admin-portal == 'true' || needs.change-detector.outputs.pipeline == 'true'}}
     name: Create Admin Portal Artifact
     runs-on: ubuntu-latest
+    permissions:
+      actions: write
+      contents: read
+      id-token: write
     steps:
       - uses: actions/checkout@v3
       - name: Configure AWS CLI and Credentials
@@ -65,6 +69,10 @@ jobs:
     if: ${{ needs.change-detector.outputs.web-client == 'true' || needs.change-detector.outputs.pipeline == 'true'}}
     name: Create Web Client Artifact
     runs-on: ubuntu-latest
+    permissions:
+      actions: write
+      contents: read
+      id-token: write
     steps:
       - uses: actions/checkout@v3
       - name: Configure AWS CLI and Credentials
