@@ -64,5 +64,5 @@ export const CONFIG: IConfig = {
   domainName: "jviloria.com",
   adminPortalSubDomain: "admin-portal.photo-maps-app",
   webClientSubDomain: "photo-maps-app",
-  apiSubDomain: "api",
+  apiSubDomain: "api.photo-maps-app",
 };
