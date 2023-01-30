@@ -7,7 +7,7 @@ export class DynamoDBTable extends Construct {
   constructor(parent: Stack, name: string) {
     super(parent, name);
 
-    const table = new dynamodb.Table(this, `${name}-ddb-table`, {
+    const table = new dynamodb.Table(this, "Table", {
       billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
       partitionKey: {
         name: "pk",

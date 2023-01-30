@@ -1,6 +1,6 @@
 import * as cdk from "aws-cdk-lib";
 import { Construct } from "constructs";
-// import { DynamoDBTable } from "../constructs/dynamo-db-table";
+import { DynamoDBTable } from "../constructs/dynamo-db-table";
 // import { AdminSiteStack } from "./stacks/admin-site-stack";
 // import { WebClientStack } from "./stacks/web-client-stack";
 // import { ImageProcessorWorkflowStack } from "./stacks/image-processor-workflow-stack";
@@ -8,6 +8,7 @@ import { Construct } from "constructs";
 // import { WebSocketStack } from "./stacks/websocket-stack";
 
 export class AppStack extends cdk.Stack {
+  dynamoDb: DynamoDBTable;
   // adminSiteStack: AdminSiteStack;
   // webClientStack: WebClientStack;
   // imageProcessorWorkflowStack: ImageProcessorWorkflowStack;
@@ -16,7 +17,7 @@ export class AppStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
 
-    // const dynamoDB = new DynamoDBTable(this, "db-table");
+    const dynamoDB = new DynamoDBTable(this, "DynamoDB");
 
     // const adminSiteStack = new AdminSiteStack(this, "admin-site");
 
@@ -38,6 +39,7 @@ export class AppStack extends cdk.Stack {
 
     // const websocketStack = new WebSocketStack(this, "websocket");
 
+    this.dynamoDb = dynamoDB;
     // this.adminSiteStack = adminSiteStack;
     // this.webClientStack = webClientStack;
     // this.imageProcessorWorkflowStack = imageProcessorWorkflowStack;
