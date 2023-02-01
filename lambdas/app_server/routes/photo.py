@@ -16,7 +16,7 @@ def get_presigned_post():
         
         user_id, _ = get_user_data_from_event(router.current_event)
         
-        object_key = f"{user_id}/{asset_uuid}.{asset_extension}"
+        object_key = f"{user_id}/images/{asset_uuid}.{asset_extension}"
         
         presigned_post_object = asset_bucket.create_presigned_url(object_key)
 
