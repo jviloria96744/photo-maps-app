@@ -10,15 +10,17 @@ import * as cognito from "aws-cdk-lib/aws-cognito";
 import { LambdaRestApi } from "aws-cdk-lib/aws-apigateway";
 import { Construct } from "constructs";
 import { PythonLambda, PythonLambdaProps } from "./python-lambda";
+import { IConfig } from "../config";
+import * as path from "path";
 
 export interface LambdaApiProps {
-  codeDirectory: string;
-  basePath: string;
+  Config: IConfig;
+  apiDomain: string;
   dynamoTable: dynamodb.Table;
   assetBucket: s3.Bucket;
-  domainName: string;
-  subDomain: string;
   cognitoUserPool: cognito.UserPool;
+  certificate: acm.Certificate;
+  hostedZone: route53.IHostedZone;
 }
 
 export class LambdaApi extends Construct {
@@ -29,72 +31,62 @@ export class LambdaApi extends Construct {
     super(parent, name);
 
     const {
-      codeDirectory,
-      basePath,
+      Config,
+      apiDomain,
       dynamoTable,
-      domainName,
-      subDomain,
       assetBucket,
       cognitoUserPool,
+      certificate,
+      hostedZone,
     } = props;
 
     const lambdaConstructProps: PythonLambdaProps = {
-      codeDirectory,
-      basePath,
+      pathName: path.resolve(
+        Config.environment.basePath,
+        "lambdas",
+        Config.pythonLambdas.appServer.codeDirectory
+      ),
       environment: {
         DDB_TABLE_NAME: dynamoTable.tableName,
-        LOG_LEVEL: "INFO",
-        POWERTOOLS_SERVICE_NAME: "app_server",
+        LOG_LEVEL: Config.pythonLambdas.appServer.logLevel,
+        POWERTOOLS_SERVICE_NAME: Config.pythonLambdas.appServer.codeDirectory,
         ASSET_BUCKET_NAME: assetBucket.bucketName,
       },
+      lambdaBuildCommands: Config.pythonLambdas.buildCommands,
     };
+
     const lambdaConstruct = new PythonLambda(
       parent,
-      `${name}-lambda`,
+      "Function",
       lambdaConstructProps
     );
 
     dynamoTable.grantReadWriteData(lambdaConstruct.fnRole);
     assetBucket.grantReadWrite(lambdaConstruct.fnRole);
 
-    const zone = route53.HostedZone.fromLookup(this, `${name}-zone`, {
-      domainName: domainName,
-    });
-
-    const apiDomain = `api.${subDomain}.${domainName}`;
-
-    const certificate = new acm.DnsValidatedCertificate(
-      this,
-      `${name}-certificate`,
-      {
-        domainName: apiDomain,
-        hostedZone: zone,
-        region: "us-east-1", // Cloudfront only checks this region for certificates.
-      }
-    );
-
-    const api = new LambdaRestApi(this, `${name}-lambda-api`, {
+    const api = new LambdaRestApi(this, "Gateway", {
       handler: lambdaConstruct.function,
       proxy: false,
       domainName: {
         domainName: apiDomain,
         certificate,
         endpointType: gateway.EndpointType.EDGE,
+        basePath: "resources",
       },
       defaultCorsPreflightOptions: {
         allowOrigins: gateway.Cors.ALL_ORIGINS,
       },
     });
 
-    new route53.ARecord(this, `${name}-alias-record`, {
+    new route53.ARecord(this, "AliasRecord", {
       recordName: apiDomain,
       target: route53.RecordTarget.fromAlias(new targets.ApiGateway(api)),
-      zone,
+      zone: hostedZone,
     });
 
     const userResourceAuthorizer = new gateway.CfnAuthorizer(
       this,
-      `${name}-cfn-auth`,
+      "GatewayAuth",
       {
         restApiId: api.restApiId,
         name: "request-authorizer",

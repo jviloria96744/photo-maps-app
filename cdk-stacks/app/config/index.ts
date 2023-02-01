@@ -1,4 +1,4 @@
-import { ImageProcessorLambda, ImageLambda } from "./interfaces";
+import { ImageProcessorLambda, ImageLambda, AppLambda } from "./interfaces";
 
 export enum DOMAIN_NAMES {
   TLD_NAME = "jviloria.com",
@@ -45,6 +45,7 @@ export interface IConfig {
   pythonLambdas: {
     imageProcessor: ImageProcessorLambda;
     imageDeleter: ImageLambda;
+    appServer: AppLambda;
     buildCommands: string[];
   };
 }
@@ -82,6 +83,10 @@ export const CONFIG: IConfig = {
       batchSize: 1,
       maxConcurrency: 50,
       duration: 15,
+      logLevel: LOG_LEVELS.INFO,
+    },
+    appServer: {
+      codeDirectory: "app_server",
       logLevel: LOG_LEVELS.INFO,
     },
     buildCommands: [

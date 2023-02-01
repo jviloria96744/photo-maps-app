@@ -6,7 +6,7 @@ import { DynamoDBTable } from "../constructs/dynamo-db-table";
 import { AdminSiteStack } from "./stacks/admin-site-stack";
 import { WebClientStack } from "./stacks/web-client-stack";
 import { ImageProcessorWorkflowStack } from "./stacks/image-processor-workflow-stack";
-// import { AppApiStack } from "./stacks/app-api-stack";
+import { AppApiStack } from "./stacks/app-api-stack";
 // import { WebSocketStack } from "./stacks/websocket-stack";
 import * as path from "path";
 import {
@@ -30,7 +30,7 @@ export class AppStack extends cdk.Stack {
   adminSiteStack: AdminSiteStack;
   webClientStack: WebClientStack;
   imageProcessorWorkflowStack: ImageProcessorWorkflowStack;
-  // appApiStack: AppApiStack;
+  appApiStack: AppApiStack;
   // websocketStack: WebSocketStack;
   constructor(scope: Construct, id: string, props: AppStackProps) {
     super(scope, id, props);
@@ -74,11 +74,15 @@ export class AppStack extends cdk.Stack {
       }
     );
 
-    // const appApiStack = new AppApiStack(this, "app-server", {
-    //   dynamoTable: dynamoDB.table,
-    //   assetBucket: imageProcessorWorkflowStack.assetBucket.bucket,
-    //   cognitoUserPool: webClientStack.webClientAuthFlow.userPool,
-    // });
+    const appApiStack = new AppApiStack(this, "Server", {
+      dynamoTable: dynamoDB.table,
+      assetBucket: imageProcessorWorkflowStack.assetBucket.bucket,
+      cognitoUserPool: webClientStack.webClientAuthFlow.userPool,
+      Config: CONFIG,
+      apiDomain: `${DOMAIN_NAMES.API_SUBDOMAIN}.${DOMAIN_NAMES.TLD_NAME}`,
+      certificate: certificates.restApiCertificate,
+      hostedZone: certificates.hostedZone,
+    });
 
     // const websocketStack = new WebSocketStack(this, "websocket");
 
@@ -86,7 +90,7 @@ export class AppStack extends cdk.Stack {
     this.adminSiteStack = adminSiteStack;
     this.webClientStack = webClientStack;
     this.imageProcessorWorkflowStack = imageProcessorWorkflowStack;
-    // this.appApiStack = appApiStack;
+    this.appApiStack = appApiStack;
     // this.websocketStack = websocketStack;
   }
 }

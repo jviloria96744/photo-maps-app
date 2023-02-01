@@ -2,33 +2,46 @@ import * as cdk from "aws-cdk-lib";
 import * as dynamodb from "aws-cdk-lib/aws-dynamodb";
 import * as s3 from "aws-cdk-lib/aws-s3";
 import * as cognito from "aws-cdk-lib/aws-cognito";
+import * as acm from "aws-cdk-lib/aws-certificatemanager";
+import * as route53 from "aws-cdk-lib/aws-route53";
 import { Construct } from "constructs";
 import { LambdaApi, LambdaApiProps } from "../../constructs/lambda-rest-api";
-import { domainName, subDomain } from "../../config";
+import { IConfig } from "../../config";
 
 interface AppApiStackProps extends cdk.StackProps {
   dynamoTable: dynamodb.Table;
   assetBucket: s3.Bucket;
   cognitoUserPool: cognito.UserPool;
+  Config: IConfig;
+  certificate: acm.Certificate;
+  hostedZone: route53.IHostedZone;
+  apiDomain: string;
 }
 export class AppApiStack extends cdk.NestedStack {
   lambdaApi: LambdaApi;
   constructor(scope: Construct, id: string, props: AppApiStackProps) {
     super(scope, id, props);
 
-    const { dynamoTable, assetBucket, cognitoUserPool } = props;
-    const basePath = process.env.GITHUB_WORKSPACE || "";
-
-    const lambdaApiProps: LambdaApiProps = {
-      codeDirectory: "app_server",
-      basePath,
+    const {
       dynamoTable,
       assetBucket,
-      domainName,
-      subDomain,
       cognitoUserPool,
+      Config,
+      apiDomain,
+      certificate,
+      hostedZone,
+    } = props;
+
+    const lambdaApiProps: LambdaApiProps = {
+      Config,
+      apiDomain,
+      dynamoTable,
+      assetBucket,
+      cognitoUserPool,
+      certificate,
+      hostedZone,
     };
-    const lambdaApi = new LambdaApi(this, `${id}-lambdaapi`, lambdaApiProps);
+    const lambdaApi = new LambdaApi(this, "LambdaAPI", lambdaApiProps);
 
     this.lambdaApi = lambdaApi;
   }
