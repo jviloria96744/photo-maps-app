@@ -4,12 +4,17 @@ import * as route53 from "aws-cdk-lib/aws-route53";
 import { Construct } from "constructs";
 import { DynamoDBTable } from "../constructs/dynamo-db-table";
 import { AdminSiteStack } from "./stacks/admin-site-stack";
-// import { WebClientStack } from "./stacks/web-client-stack";
+import { WebClientStack } from "./stacks/web-client-stack";
 // import { ImageProcessorWorkflowStack } from "./stacks/image-processor-workflow-stack";
 // import { AppApiStack } from "./stacks/app-api-stack";
 // import { WebSocketStack } from "./stacks/websocket-stack";
 import * as path from "path";
-import { CONFIG, DOMAIN_NAMES, BUILD_DIRECTORIES } from "../config";
+import {
+  CONFIG,
+  DOMAIN_NAMES,
+  BUILD_DIRECTORIES,
+  OAUTH_GOOGLE_KEYS,
+} from "../config";
 
 interface AppStackProps extends cdk.StackProps {
   certificates: {
@@ -23,7 +28,7 @@ interface AppStackProps extends cdk.StackProps {
 export class AppStack extends cdk.Stack {
   dynamoDb: DynamoDBTable;
   adminSiteStack: AdminSiteStack;
-  // webClientStack: WebClientStack;
+  webClientStack: WebClientStack;
   // imageProcessorWorkflowStack: ImageProcessorWorkflowStack;
   // appApiStack: AppApiStack;
   // websocketStack: WebSocketStack;
@@ -46,7 +51,19 @@ export class AppStack extends cdk.Stack {
       authCallbackUrls: CONFIG.adminPortal.callbackUrls,
     });
 
-    // const webClientStack = new WebClientStack(this, "web-client");
+    const webClientStack = new WebClientStack(this, "WebClient", {
+      siteDomain: `${DOMAIN_NAMES.WEBCLIENT_SUBDOMAIN}.${DOMAIN_NAMES.TLD_NAME}`,
+      pathName: path.resolve(
+        CONFIG.environment.basePath,
+        BUILD_DIRECTORIES.WEB_CLIENT,
+        BUILD_DIRECTORIES.STATIC_SITE_BUILD
+      ),
+      certificate: certificates.webClientCertificate,
+      hostedZone: certificates.hostedZone,
+      authCallbackUrls: CONFIG.webClient.callbackUrls,
+      clientIdKey: OAUTH_GOOGLE_KEYS.CLIENT_ID_KEY,
+      clientSecretKey: OAUTH_GOOGLE_KEYS.CLIENT_SECRET_KEY,
+    });
 
     // const imageProcessorWorkflowStack = new ImageProcessorWorkflowStack(
     //   this,
@@ -66,7 +83,7 @@ export class AppStack extends cdk.Stack {
 
     this.dynamoDb = dynamoDB;
     this.adminSiteStack = adminSiteStack;
-    // this.webClientStack = webClientStack;
+    this.webClientStack = webClientStack;
     // this.imageProcessorWorkflowStack = imageProcessorWorkflowStack;
     // this.appApiStack = appApiStack;
     // this.websocketStack = websocketStack;

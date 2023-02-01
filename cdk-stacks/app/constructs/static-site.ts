@@ -95,7 +95,6 @@ export class StaticSite extends Construct {
       zone: hostedZone,
     });
 
-    // const pathName = path.resolve(basePath, siteDirectory, siteBuildDirectory);
     // Deploy site contents to S3 bucket and invalidate cache
     new s3deploy.BucketDeployment(this, "DeployWithValidation", {
       sources: [s3deploy.Source.asset(pathName)],

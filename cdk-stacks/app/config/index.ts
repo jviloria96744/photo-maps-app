@@ -11,6 +11,11 @@ export enum BUILD_DIRECTORIES {
   WEB_CLIENT = "client-web",
 }
 
+export enum OAUTH_GOOGLE_KEYS {
+  CLIENT_ID_KEY = "/oauth/google-client-id",
+  CLIENT_SECRET_KEY = "sandbox/idp_google",
+}
+
 // export const webClientCallbackUrls: string[] = [
 //   "http://localhost:5173/",
 //   "http://localhost:3000/",

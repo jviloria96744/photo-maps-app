@@ -1,12 +1,11 @@
 import * as cognito from "aws-cdk-lib/aws-cognito";
-import { CfnOutput, Stack, RemovalPolicy, Duration } from "aws-cdk-lib";
-// import * as secretsmanager from "aws-cdk-lib/aws-secretsmanager";
+import { Stack, RemovalPolicy, Duration, SecretValue } from "aws-cdk-lib";
 import { Construct } from "constructs";
-import { webClientCallbackUrls } from "../config";
 
 interface WebClientAuthFlowProps {
   googleClientId: string;
-  googleClientSecretName: string;
+  googleClientSecretValue: SecretValue;
+  callbackUrls: string[];
 }
 
 export class WebClientAuthFlow extends Construct {
@@ -19,30 +18,23 @@ export class WebClientAuthFlow extends Construct {
   constructor(parent: Stack, name: string, props: WebClientAuthFlowProps) {
     super(parent, name);
 
-    const { googleClientId, googleClientSecretName } = props;
+    const { googleClientId, googleClientSecretValue, callbackUrls } = props;
 
-    const userPool = new cognito.UserPool(this, `${name}-user-pool`, {
+    const userPool = new cognito.UserPool(this, "UserPool", {
       removalPolicy: RemovalPolicy.DESTROY,
     });
 
-    userPool.addDomain(`${name}-domain`, {
+    userPool.addDomain("Domain", {
       cognitoDomain: {
-        domainPrefix: name,
+        domainPrefix: "client-web",
       },
     });
 
-    // const googleClientSecret = secretsmanager.Secret.fromSecretNameV2(
-    //   this,
-    //   `${name}-secret`,
-    //   googleClientSecretName
-    // );
-
     const userPoolIdentityProviderGoogle =
-      new cognito.UserPoolIdentityProviderGoogle(this, `${name}-google-idp`, {
+      new cognito.UserPoolIdentityProviderGoogle(this, "GoogleIdp", {
         userPool,
         clientId: googleClientId,
-        clientSecret: googleClientSecretName,
-        // clientSecretValue: googleClientSecretName,
+        clientSecretValue: googleClientSecretValue,
         scopes: ["profile", "email", "openid"],
         attributeMapping: {
           email: cognito.ProviderAttribute.GOOGLE_EMAIL,
@@ -56,7 +48,7 @@ export class WebClientAuthFlow extends Construct {
 
     const resourceServer = new cognito.UserPoolResourceServer(
       this,
-      `${name}-user-pool-resource-server`,
+      "UserPoolResourceServer",
       {
         scopes: [adminScope],
         userPool,
@@ -64,41 +56,29 @@ export class WebClientAuthFlow extends Construct {
       }
     );
 
-    new CfnOutput(this, `${name}-user-pool-id`, {
-      value: userPool.userPoolId,
-    });
-
-    const userPoolClient = new cognito.UserPoolClient(
-      this,
-      `${name}-user-pool-client`,
-      {
-        userPool,
-        accessTokenValidity: Duration.minutes(60),
-        idTokenValidity: Duration.minutes(60),
-        generateSecret: false,
-        refreshTokenValidity: Duration.days(1),
-        enableTokenRevocation: true,
-        supportedIdentityProviders: [
-          cognito.UserPoolClientIdentityProvider.GOOGLE,
-        ],
-        oAuth: {
-          flows: {
-            authorizationCodeGrant: true,
-          },
-          scopes: [
-            cognito.OAuthScope.OPENID,
-            cognito.OAuthScope.resourceServer(resourceServer, adminScope),
-            cognito.OAuthScope.EMAIL,
-            cognito.OAuthScope.PROFILE,
-          ],
-          callbackUrls: webClientCallbackUrls,
-          logoutUrls: webClientCallbackUrls,
+    const userPoolClient = new cognito.UserPoolClient(this, "UserPoolClient", {
+      userPool,
+      accessTokenValidity: Duration.minutes(60),
+      idTokenValidity: Duration.minutes(60),
+      generateSecret: false,
+      refreshTokenValidity: Duration.days(1),
+      enableTokenRevocation: true,
+      supportedIdentityProviders: [
+        cognito.UserPoolClientIdentityProvider.GOOGLE,
+      ],
+      oAuth: {
+        flows: {
+          authorizationCodeGrant: true,
         },
-      }
-    );
-
-    new CfnOutput(this, `${name}-user-pool-client-id`, {
-      value: userPoolClient.userPoolClientId,
+        scopes: [
+          cognito.OAuthScope.OPENID,
+          cognito.OAuthScope.resourceServer(resourceServer, adminScope),
+          cognito.OAuthScope.EMAIL,
+          cognito.OAuthScope.PROFILE,
+        ],
+        callbackUrls: callbackUrls,
+        logoutUrls: callbackUrls,
+      },
     });
 
     this.userPool = userPool;
