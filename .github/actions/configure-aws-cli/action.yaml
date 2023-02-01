@@ -1,4 +1,14 @@
 name: "Configure AWS cli using OIDC Provider"
+description: Configure AWS CLI using role created by CDK process specifically for Github Actions deployments
+inputs:
+  account_id:
+    description: AWS Account ID to use when assuming deployment role
+    required: true
+    default: ""
+  default_region:
+    description: Default region to run CLI commands against
+    required: true
+    default: "us-west-2"
 
 runs:
   using: "composite"
@@ -6,5 +16,5 @@ runs:
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v1-node16
       with:
-        role-to-assume: arn:aws:iam::${{ env.AWS_ACCOUNT_ID }}:role/GitHubDeployRole
-        aws-region: ${{ env.AWS_DEFAULT_REGION }}
+        role-to-assume: arn:aws:iam::${{ inputs.account_id }}:role/GitHubDeployRole
+        aws-region: ${{ inputs.default_region }}

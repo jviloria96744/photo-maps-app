@@ -7,7 +7,7 @@ import { AdminSiteStack } from "./stacks/admin-site-stack";
 import { WebClientStack } from "./stacks/web-client-stack";
 import { ImageProcessorWorkflowStack } from "./stacks/image-processor-workflow-stack";
 import { AppApiStack } from "./stacks/app-api-stack";
-// import { WebSocketStack } from "./stacks/websocket-stack";
+import { WebSocketStack } from "./stacks/websocket-stack";
 import * as path from "path";
 import {
   CONFIG,
@@ -31,7 +31,7 @@ export class AppStack extends cdk.Stack {
   webClientStack: WebClientStack;
   imageProcessorWorkflowStack: ImageProcessorWorkflowStack;
   appApiStack: AppApiStack;
-  // websocketStack: WebSocketStack;
+  websocketStack: WebSocketStack;
   constructor(scope: Construct, id: string, props: AppStackProps) {
     super(scope, id, props);
 
@@ -84,13 +84,13 @@ export class AppStack extends cdk.Stack {
       hostedZone: certificates.hostedZone,
     });
 
-    // const websocketStack = new WebSocketStack(this, "websocket");
+    const websocketStack = new WebSocketStack(this, "websocket");
 
     this.dynamoDb = dynamoDB;
     this.adminSiteStack = adminSiteStack;
     this.webClientStack = webClientStack;
     this.imageProcessorWorkflowStack = imageProcessorWorkflowStack;
     this.appApiStack = appApiStack;
-    // this.websocketStack = websocketStack;
+    this.websocketStack = websocketStack;
   }
 }
