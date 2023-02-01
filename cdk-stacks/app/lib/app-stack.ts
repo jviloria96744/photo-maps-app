@@ -5,7 +5,7 @@ import { Construct } from "constructs";
 import { DynamoDBTable } from "../constructs/dynamo-db-table";
 import { AdminSiteStack } from "./stacks/admin-site-stack";
 import { WebClientStack } from "./stacks/web-client-stack";
-// import { ImageProcessorWorkflowStack } from "./stacks/image-processor-workflow-stack";
+import { ImageProcessorWorkflowStack } from "./stacks/image-processor-workflow-stack";
 // import { AppApiStack } from "./stacks/app-api-stack";
 // import { WebSocketStack } from "./stacks/websocket-stack";
 import * as path from "path";
@@ -29,7 +29,7 @@ export class AppStack extends cdk.Stack {
   dynamoDb: DynamoDBTable;
   adminSiteStack: AdminSiteStack;
   webClientStack: WebClientStack;
-  // imageProcessorWorkflowStack: ImageProcessorWorkflowStack;
+  imageProcessorWorkflowStack: ImageProcessorWorkflowStack;
   // appApiStack: AppApiStack;
   // websocketStack: WebSocketStack;
   constructor(scope: Construct, id: string, props: AppStackProps) {
@@ -65,13 +65,14 @@ export class AppStack extends cdk.Stack {
       clientSecretKey: OAUTH_GOOGLE_KEYS.CLIENT_SECRET_KEY,
     });
 
-    // const imageProcessorWorkflowStack = new ImageProcessorWorkflowStack(
-    //   this,
-    //   "image-processor",
-    //   {
-    //     dynamoTable: dynamoDB.table,
-    //   }
-    // );
+    const imageProcessorWorkflowStack = new ImageProcessorWorkflowStack(
+      this,
+      "ImageProcessor",
+      {
+        dynamoTable: dynamoDB.table,
+        Config: CONFIG,
+      }
+    );
 
     // const appApiStack = new AppApiStack(this, "app-server", {
     //   dynamoTable: dynamoDB.table,
@@ -84,7 +85,7 @@ export class AppStack extends cdk.Stack {
     this.dynamoDb = dynamoDB;
     this.adminSiteStack = adminSiteStack;
     this.webClientStack = webClientStack;
-    // this.imageProcessorWorkflowStack = imageProcessorWorkflowStack;
+    this.imageProcessorWorkflowStack = imageProcessorWorkflowStack;
     // this.appApiStack = appApiStack;
     // this.websocketStack = websocketStack;
   }

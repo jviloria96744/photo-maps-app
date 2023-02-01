@@ -10,9 +10,12 @@ import {
   PythonLambda,
   PythonLambdaProps,
 } from "../../constructs/python-lambda";
+import { IConfig } from "../../config";
+import * as path from "path";
 
 interface ImageProcessorWorkflowStackProps extends cdk.NestedStackProps {
   dynamoTable: dynamodb.Table;
+  Config: IConfig;
 }
 
 export class ImageProcessorWorkflowStack extends cdk.NestedStack {
@@ -29,38 +32,38 @@ export class ImageProcessorWorkflowStack extends cdk.NestedStack {
   ) {
     super(scope, id, props);
 
-    const { dynamoTable } = props;
+    const { dynamoTable, Config } = props;
 
-    const assetBucket = new S3ToSQS(this, `${id}-asset`);
-
-    const basePath = process.env.GITHUB_WORKSPACE || "";
-    const imageProcessorSecretName =
-      process.env.IMAGE_PROCESSOR_SECRET_NAME || "";
-    const imageProcessorSecretKey =
-      process.env.IMAGE_PROCESSOR_SECRET_KEY || "";
+    const assetBucket = new S3ToSQS(this, "Assets");
 
     const lambdaSecrets = secretsmanager.Secret.fromSecretNameV2(
       this,
-      `${id}-secret`,
-      imageProcessorSecretName
+      "Secret",
+      Config.pythonLambdas.imageProcessor.imageProcessorSecretName
     );
 
     const imageProcessorProps: PythonLambdaProps = {
-      codeDirectory: "image_processor",
-      basePath,
-      duration: 15,
-      memorySize: 512,
+      pathName: this.createPathName(
+        Config.environment.basePath,
+        Config.pythonLambdas.imageProcessor.codeDirectory
+      ),
+      duration: Config.pythonLambdas.imageProcessor.duration,
+      memorySize: Config.pythonLambdas.imageProcessor.memorySize,
       environment: {
-        IMAGE_PROCESSOR_SECRET_NAME: imageProcessorSecretName,
-        IMAGE_PROCESSOR_SECRET_KEY: imageProcessorSecretKey,
+        IMAGE_PROCESSOR_SECRET_NAME:
+          Config.pythonLambdas.imageProcessor.imageProcessorSecretName,
+        IMAGE_PROCESSOR_SECRET_KEY:
+          Config.pythonLambdas.imageProcessor.imageProcessorSecretKey,
         DDB_TABLE_NAME: dynamoTable.tableName,
-        LOG_LEVEL: "INFO",
-        POWERTOOLS_SERVICE_NAME: "image_processor",
+        LOG_LEVEL: Config.pythonLambdas.imageProcessor.logLevel,
+        POWERTOOLS_SERVICE_NAME:
+          Config.pythonLambdas.imageProcessor.codeDirectory,
       },
+      lambdaBuildCommands: Config.pythonLambdas.buildCommands,
     };
     const imageProcessor = new PythonLambda(
       this,
-      `${id}-lambda`,
+      "ProcessorLambda",
       imageProcessorProps
     );
 
@@ -77,25 +80,30 @@ export class ImageProcessorWorkflowStack extends cdk.NestedStack {
     dynamoTable.grantReadWriteData(imageProcessor.fnRole);
 
     const imageProcessorEventTrigger = new SqsEventSource(assetBucket.queue, {
-      batchSize: 1,
+      batchSize: Config.pythonLambdas.imageProcessor.batchSize,
+      maxConcurrency: Config.pythonLambdas.imageProcessor.maxConcurrency,
     });
 
     imageProcessor.function.addEventSource(imageProcessorEventTrigger);
 
     const imageDeleterProps: PythonLambdaProps = {
-      codeDirectory: "image_deleter",
-      basePath,
-      duration: 15,
+      pathName: this.createPathName(
+        Config.environment.basePath,
+        Config.pythonLambdas.imageDeleter.codeDirectory
+      ),
+      duration: Config.pythonLambdas.imageDeleter.duration,
       environment: {
         DDB_TABLE_NAME: dynamoTable.tableName,
-        LOG_LEVEL: "INFO",
-        POWERTOOLS_SERVICE_NAME: "image_deleter",
+        LOG_LEVEL: Config.pythonLambdas.imageDeleter.logLevel,
+        POWERTOOLS_SERVICE_NAME:
+          Config.pythonLambdas.imageDeleter.codeDirectory,
       },
+      lambdaBuildCommands: Config.pythonLambdas.buildCommands,
     };
 
     const imageDeleter = new PythonLambda(
       this,
-      `${id}-delete-lambda`,
+      "DeleterLambda",
       imageDeleterProps
     );
 
@@ -104,7 +112,8 @@ export class ImageProcessorWorkflowStack extends cdk.NestedStack {
     const imageDeleterEventTrigger = new SqsEventSource(
       assetBucket.deleteQueue,
       {
-        batchSize: 1,
+        batchSize: Config.pythonLambdas.imageDeleter.batchSize,
+        maxConcurrency: Config.pythonLambdas.imageDeleter.maxConcurrency,
       }
     );
 
@@ -115,5 +124,9 @@ export class ImageProcessorWorkflowStack extends cdk.NestedStack {
     this.imageProcessorRole = imageProcessor.fnRole;
     this.imageDeleterLambda = imageDeleter.function;
     this.imageDeleterRole = imageDeleter.fnRole;
+  }
+
+  private createPathName(basePath: string, codeDirectory: string): string {
+    return path.resolve(basePath, "lambdas", codeDirectory);
   }
 }

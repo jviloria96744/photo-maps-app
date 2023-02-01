@@ -2,20 +2,18 @@ import { Stack, Duration } from "aws-cdk-lib";
 import * as lambda from "aws-cdk-lib/aws-lambda";
 import * as iam from "aws-cdk-lib/aws-iam";
 import { Construct } from "constructs";
-import * as path from "path";
-import { lambdaBuildCommands } from "../config";
 
 export type LambdaEnvironmentType = {
   [key: string]: string;
 };
 
 export interface PythonLambdaProps {
-  codeDirectory: string;
-  basePath: string;
+  pathName: string;
   duration?: number;
   memorySize?: number;
   environment: LambdaEnvironmentType;
   retryAttempts?: number;
+  lambdaBuildCommands: string[];
 }
 
 export class PythonLambda extends Construct {
@@ -25,16 +23,15 @@ export class PythonLambda extends Construct {
     super(parent, name);
 
     const {
-      codeDirectory,
-      basePath,
+      pathName,
       duration,
       memorySize,
       environment,
       retryAttempts,
+      lambdaBuildCommands,
     } = props;
-    const pathName = path.resolve(basePath, "lambdas", codeDirectory);
 
-    const baseFunction = new lambda.Function(this, `${name}-function`, {
+    const baseFunction = new lambda.Function(this, "Function", {
       code: lambda.Code.fromAsset(pathName, {
         bundling: {
           image: lambda.Runtime.PYTHON_3_9.bundlingImage,

@@ -1,3 +1,5 @@
+import { ImageProcessorLambda, ImageLambda } from "./interfaces";
+
 export enum DOMAIN_NAMES {
   TLD_NAME = "jviloria.com",
   WEBCLIENT_SUBDOMAIN = "photo-maps-app",
@@ -16,24 +18,21 @@ export enum OAUTH_GOOGLE_KEYS {
   CLIENT_SECRET_KEY = "sandbox/idp_google",
 }
 
-// export const webClientCallbackUrls: string[] = [
-//   "http://localhost:5173/",
-//   "http://localhost:3000/",
-//   `https://${subDomain}.${domainName}/`,
-// ];
+enum LOG_LEVELS {
+  INFO = "INFO",
+}
+
+enum IMAGE_PROCESSOR_SECRETS {
+  KEY = "REVERSE_GEOCODE_API_KEY",
+  NAME = "sandbox/photo-maps-app/secrets",
+}
 
 const removeTests = "rm -rf /asset-output/tests";
 const removeDevRequirements = "rm -f requirements_dev.txt";
 const removeEventsDirectory = "rm -rf /asset-output/events";
 const removeStatements = `${removeTests} && ${removeDevRequirements} && ${removeEventsDirectory}`;
 
-// export const lambdaBuildCommands = [
-//   "bash",
-//   "-c",
-//   `pip install -r requirements.txt -t /asset-output && cp -au . /asset-output && ${removeStatements}`,
-// ];
-
-interface IConfig {
+export interface IConfig {
   environment: {
     basePath: string;
   };
@@ -44,6 +43,8 @@ interface IConfig {
     callbackUrls: string[];
   };
   pythonLambdas: {
+    imageProcessor: ImageProcessorLambda;
+    imageDeleter: ImageLambda;
     buildCommands: string[];
   };
 }
@@ -66,6 +67,23 @@ export const CONFIG: IConfig = {
     ],
   },
   pythonLambdas: {
+    imageProcessor: {
+      codeDirectory: "image_processor",
+      imageProcessorSecretName: IMAGE_PROCESSOR_SECRETS.NAME,
+      imageProcessorSecretKey: IMAGE_PROCESSOR_SECRETS.KEY,
+      duration: 15,
+      memorySize: 512,
+      batchSize: 1,
+      maxConcurrency: 300,
+      logLevel: LOG_LEVELS.INFO,
+    },
+    imageDeleter: {
+      codeDirectory: "image_deleter",
+      batchSize: 1,
+      maxConcurrency: 50,
+      duration: 15,
+      logLevel: LOG_LEVELS.INFO,
+    },
     buildCommands: [
       "bash",
       "-c",

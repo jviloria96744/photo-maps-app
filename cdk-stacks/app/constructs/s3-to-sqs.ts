@@ -16,15 +16,11 @@ export class S3ToSQS extends Construct {
   constructor(parent: Stack, name: string) {
     super(parent, name);
 
-    const deadLetterQueue = new sqs.Queue(
-      parent,
-      `${name}-asset-event-dead-letter-queue`,
-      {
-        retentionPeriod: Duration.days(14),
-      }
-    );
+    const deadLetterQueue = new sqs.Queue(parent, "DeadLetterQueue", {
+      retentionPeriod: Duration.days(14),
+    });
 
-    const queue = new sqs.Queue(parent, `${name}-asset-event-queue`, {
+    const queue = new sqs.Queue(parent, "EventQueue", {
       visibilityTimeout: Duration.seconds(15),
       deadLetterQueue: {
         queue: deadLetterQueue,
@@ -32,7 +28,7 @@ export class S3ToSQS extends Construct {
       },
     });
 
-    const deleteQueue = new sqs.Queue(parent, `${name}-asset-delete-queue`, {
+    const deleteQueue = new sqs.Queue(parent, "DeleteQueue", {
       visibilityTimeout: Duration.seconds(15),
       deadLetterQueue: {
         queue: deadLetterQueue,
@@ -40,7 +36,7 @@ export class S3ToSQS extends Construct {
       },
     });
 
-    const bucket = new s3.Bucket(parent, `${name}-asset-bucket`, {
+    const bucket = new s3.Bucket(parent, "Bucket", {
       removalPolicy: RemovalPolicy.RETAIN,
       publicReadAccess: false,
       blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
