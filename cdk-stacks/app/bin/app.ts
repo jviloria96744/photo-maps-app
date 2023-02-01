@@ -3,12 +3,9 @@ import "source-map-support/register";
 import * as cdk from "aws-cdk-lib";
 import { AppStack } from "../lib/app-stack";
 import { CertificateStack } from "../lib/stacks/certificate-stack";
-import { CONFIG } from "../config";
+import { DOMAIN_NAMES } from "../config";
 
 const app = new cdk.App();
-
-const { domainName, adminPortalSubDomain, webClientSubDomain, apiSubDomain } =
-  CONFIG;
 
 const certStack = new CertificateStack(app, "Certificate", {
   env: {
@@ -16,10 +13,10 @@ const certStack = new CertificateStack(app, "Certificate", {
     region: "us-east-1",
   },
   crossRegionReferences: true,
-  domainName,
-  adminPortalSubDomain,
-  webClientSubDomain,
-  apiSubDomain,
+  domainName: DOMAIN_NAMES.TLD_NAME,
+  adminPortalSubDomain: DOMAIN_NAMES.ADMIN_PORTAL_SUBDOMAIN,
+  webClientSubDomain: DOMAIN_NAMES.WEBCLIENT_SUBDOMAIN,
+  apiSubDomain: DOMAIN_NAMES.WEBCLIENT_SUBDOMAIN,
 });
 
 const appStack = new AppStack(app, "App", {
