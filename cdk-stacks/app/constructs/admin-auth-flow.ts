@@ -1,7 +1,10 @@
 import * as cognito from "aws-cdk-lib/aws-cognito";
 import { Stack, RemovalPolicy, Duration } from "aws-cdk-lib";
 import { Construct } from "constructs";
-import { adminSiteCallbackUrls } from "../config";
+
+interface AdminAuthFlowProps {
+  authCallbackUrls: string[];
+}
 
 export class AdminAuthFlow extends Construct {
   userPool: cognito.UserPool;
@@ -9,7 +12,7 @@ export class AdminAuthFlow extends Construct {
   resourceServer: cognito.UserPoolResourceServer;
   userPoolClient: cognito.UserPoolClient;
 
-  constructor(parent: Stack, name: string) {
+  constructor(parent: Stack, name: string, props: AdminAuthFlowProps) {
     super(parent, name);
 
     const userPool = new cognito.UserPool(this, "UserPool", {
@@ -63,7 +66,7 @@ export class AdminAuthFlow extends Construct {
           cognito.OAuthScope.OPENID,
           cognito.OAuthScope.resourceServer(resourceServer, adminScope),
         ],
-        callbackUrls: adminSiteCallbackUrls,
+        callbackUrls: props.authCallbackUrls,
       },
     });
 

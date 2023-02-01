@@ -10,6 +10,7 @@ interface AdminSiteStackProps extends cdk.NestedStackProps {
   pathName: string;
   certificate: acm.Certificate;
   hostedZone: route53.IHostedZone;
+  authCallbackUrls: string[];
 }
 
 export class AdminSiteStack extends cdk.NestedStack {
@@ -20,7 +21,9 @@ export class AdminSiteStack extends cdk.NestedStack {
 
     const adminSite = new StaticSite(this, id, props);
 
-    const adminAuthFlow = new AdminAuthFlow(this, `${id}-Auth`);
+    const adminAuthFlow = new AdminAuthFlow(this, `${id}-Auth`, {
+      authCallbackUrls: props.authCallbackUrls,
+    });
 
     this.adminSite = adminSite;
     this.adminAuthFlow = adminAuthFlow;

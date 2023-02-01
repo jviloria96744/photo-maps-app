@@ -9,7 +9,7 @@ import { AdminSiteStack } from "./stacks/admin-site-stack";
 // import { AppApiStack } from "./stacks/app-api-stack";
 // import { WebSocketStack } from "./stacks/websocket-stack";
 import * as path from "path";
-import { CONFIG } from "../config";
+import { CONFIG, DOMAIN_NAMES, BUILD_DIRECTORIES } from "../config";
 
 interface AppStackProps extends cdk.StackProps {
   certificates: {
@@ -35,14 +35,15 @@ export class AppStack extends cdk.Stack {
     const dynamoDB = new DynamoDBTable(this, "DynamoDB");
 
     const adminSiteStack = new AdminSiteStack(this, "AdminPortal", {
-      siteDomain: `${CONFIG.adminPortalSubDomain}.${CONFIG.domainName}`,
+      siteDomain: `${DOMAIN_NAMES.ADMIN_PORTAL_SUBDOMAIN}.${DOMAIN_NAMES.TLD_NAME}`,
       pathName: path.resolve(
         CONFIG.environment.basePath,
-        CONFIG.adminPortal.siteDirectory,
-        CONFIG.adminPortal.siteBuildDirectory
+        BUILD_DIRECTORIES.ADMIN_PORTAL,
+        BUILD_DIRECTORIES.STATIC_SITE_BUILD
       ),
       certificate: certificates.adminPortalCertificate,
       hostedZone: certificates.hostedZone,
+      authCallbackUrls: CONFIG.adminPortal.callbackUrls,
     });
 
     // const webClientStack = new WebClientStack(this, "web-client");
