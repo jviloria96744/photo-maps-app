@@ -6,7 +6,7 @@ from routes import routers
 from utils.logger import logger
 
 cors_config = CORSConfig(allow_origin="*")
-app = APIGatewayRestResolver(cors=cors_config)
+app = APIGatewayRestResolver(cors=cors_config, strip_prefixes=["/resources"])
 for router in routers:
     app.include_router(router)
 
