@@ -17,6 +17,7 @@ const certStack = new CertificateStack(app, "Certificate", {
   adminPortalSubDomain: DOMAIN_NAMES.ADMIN_PORTAL_SUBDOMAIN,
   webClientSubDomain: DOMAIN_NAMES.WEBCLIENT_SUBDOMAIN,
   apiSubDomain: DOMAIN_NAMES.API_SUBDOMAIN,
+  assetSubDomain: DOMAIN_NAMES.ASSETS_SUBDOMAIN,
 });
 
 const appStack = new AppStack(app, "App", {
@@ -29,6 +30,7 @@ const appStack = new AppStack(app, "App", {
     adminPortalCertificate: certStack.adminPortalCertificate,
     webClientCertificate: certStack.webClientCertificate,
     restApiCertificate: certStack.restApiCertificate,
+    assetCDNCertificate: certStack.assetCDNCertificate,
     hostedZone: certStack.hostedZone,
   },
 

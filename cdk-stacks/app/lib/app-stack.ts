@@ -21,6 +21,7 @@ interface AppStackProps extends cdk.StackProps {
     adminPortalCertificate: acm.Certificate;
     webClientCertificate: acm.Certificate;
     restApiCertificate: acm.Certificate;
+    assetCDNCertificate: acm.Certificate;
     hostedZone: route53.IHostedZone;
   };
 }
@@ -71,6 +72,9 @@ export class AppStack extends cdk.Stack {
       {
         dynamoTable: dynamoDB.table,
         Config: CONFIG,
+        assetCDNCertificate: certificates.assetCDNCertificate,
+        cdnDomain: `${DOMAIN_NAMES.ASSETS_SUBDOMAIN}.${DOMAIN_NAMES.TLD_NAME}`,
+        hostedZone: certificates.hostedZone,
       }
     );
 

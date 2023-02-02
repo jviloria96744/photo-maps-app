@@ -1,5 +1,7 @@
 import * as cdk from "aws-cdk-lib";
 import * as iam from "aws-cdk-lib/aws-iam";
+import * as acm from "aws-cdk-lib/aws-certificatemanager";
+import * as route53 from "aws-cdk-lib/aws-route53";
 import * as secretsmanager from "aws-cdk-lib/aws-secretsmanager";
 import * as dynamodb from "aws-cdk-lib/aws-dynamodb";
 import * as lambda from "aws-cdk-lib/aws-lambda";
@@ -16,6 +18,9 @@ import * as path from "path";
 interface ImageProcessorWorkflowStackProps extends cdk.NestedStackProps {
   dynamoTable: dynamodb.Table;
   Config: IConfig;
+  assetCDNCertificate: acm.Certificate;
+  cdnDomain: string;
+  hostedZone: route53.IHostedZone;
 }
 
 export class ImageProcessorWorkflowStack extends cdk.NestedStack {
@@ -32,9 +37,14 @@ export class ImageProcessorWorkflowStack extends cdk.NestedStack {
   ) {
     super(scope, id, props);
 
-    const { dynamoTable, Config } = props;
+    const { dynamoTable, assetCDNCertificate, Config, cdnDomain, hostedZone } =
+      props;
 
-    const assetBucket = new S3ToSQS(this, "Assets");
+    const assetBucket = new S3ToSQS(this, "Assets", {
+      certificate: assetCDNCertificate,
+      domainName: cdnDomain,
+      hostedZone: hostedZone,
+    });
 
     const lambdaSecrets = secretsmanager.Secret.fromSecretNameV2(
       this,
