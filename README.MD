@@ -36,3 +36,8 @@ These contain some references that were used to handle troublesome parts of this
 ### Web Client Authentication
 
 `useAuth` hook reference, https://dev.to/kwhitejr/useauth-aws-amplify-auth-react-hooks-easy-auth-management-2hon
+
+### Mapbox Setup and Clustering
+
+- https://www.youtube.com/watch?v=3HYvbP2pQRA
+- https://www.leighhalliday.com/how-does-swr-work
