@@ -1,6 +1,6 @@
 import axios, { AxiosRequestConfig } from "axios";
 import { getIdToken } from "./utils";
-import { ENV } from "../config/environment";
+import { ENV } from "../config";
 
 const baseAxiosConfig: AxiosRequestConfig = {
   baseURL: ENV.VITE_BASE_API_URL,

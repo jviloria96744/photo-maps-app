@@ -3,7 +3,7 @@ import { Auth, CognitoHostedUIIdentityProvider } from "@aws-amplify/auth";
 import { AuthContext } from "../context/AuthContext";
 import { postUser, deleteUser } from "../api/base-endpoints";
 import { User, UserResponse } from "../models/user";
-import { ENV } from "../config/environment";
+import { ENV } from "../config";
 
 export function ProvideAuth({ children }: React.PropsWithChildren) {
   const auth = useProvideAuth();
@@ -17,25 +17,27 @@ function useProvideAuth() {
   const [isSignedIn, setIsSignedIn] = useState(false);
 
   useEffect(() => {
-    if (!user) {
-      Auth.currentAuthenticatedUser()
-        .then(async () => {
-          const userData: UserResponse = await postUser();
-
-          const user: User = {
-            username: userData.username,
-            id: userData.pk,
-            lastLoginDate: userData.datetime_updated,
-            userCreatedDate: userData.datetime_created,
-          };
-
-          setIsSignedIn(true);
-          setUser(user);
-        })
-        .catch((err) => {
-          console.log("Auth error");
-        });
+    if (user) {
+      return;
     }
+
+    Auth.currentAuthenticatedUser()
+      .then(async () => {
+        const userData: UserResponse = await postUser();
+
+        const user: User = {
+          username: userData.username,
+          id: userData.pk,
+          lastLoginDate: userData.datetime_updated,
+          userCreatedDate: userData.datetime_created,
+        };
+
+        setIsSignedIn(true);
+        setUser(user);
+      })
+      .catch((err) => {
+        console.log("Auth error");
+      });
   }, [user]);
 
   const signIn = async () => {
