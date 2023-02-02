@@ -71,6 +71,7 @@ export class S3ToSQS extends Construct {
     });
 
     new route53.ARecord(parent, "CDNARecord", {
+      recordName: domainName,
       zone: hostedZone,
       target: route53.RecordTarget.fromAlias(
         new targets.CloudFrontTarget(distribution)
