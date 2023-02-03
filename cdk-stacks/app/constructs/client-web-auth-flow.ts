@@ -35,7 +35,7 @@ export class WebClientAuthFlow extends Construct {
         userPool,
         clientId: googleClientId,
         clientSecretValue: googleClientSecretValue,
-        scopes: ["profile", "email", "openid"],
+        scopes: ["profile", "email", "openid", "aws.cognito.signin.user.admin"],
         attributeMapping: {
           email: cognito.ProviderAttribute.GOOGLE_EMAIL,
         },

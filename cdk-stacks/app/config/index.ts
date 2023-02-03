@@ -101,6 +101,6 @@ export const CONFIG: IConfig = {
     ],
   },
   websocket: {
-    pathName: "cdk-stacks/app/config/appsync/schema.graphql",
+    pathName: "client-web/schema.graphql",
   },
 };
