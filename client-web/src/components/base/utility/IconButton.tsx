@@ -31,7 +31,7 @@ const IconButton = ({
           icon={
             <Icon
               as={IconComponent}
-              boxSize={boxSize ?? "25"}
+              boxSize={boxSize ?? "50"}
               focusable={true}
             />
           }

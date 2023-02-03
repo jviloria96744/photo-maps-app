@@ -1,23 +1,26 @@
 import { RefObject } from "react";
 import { Marker, MapRef } from "react-map-gl";
-import { PointFeature } from "supercluster";
+import Supercluster, { PointFeature } from "supercluster";
 import { GeoJsonProperties } from "geojson";
+import { usePhotoContainerStore } from "../../stores/photoContainerStore";
 import "./map-view.css";
 
 interface ClusterMarkerProps {
   cluster: PointFeature<GeoJsonProperties>;
+  supercluster: Supercluster;
   expansionZoom: number;
   mapRef: RefObject<MapRef>;
 }
 const ClusterMarker = ({
   cluster,
+  supercluster,
   expansionZoom,
   mapRef,
 }: ClusterMarkerProps) => {
   const [longitude, latitude] = cluster.geometry.coordinates;
   const isCluster = cluster.properties?.cluster;
   const numPoints = cluster.properties?.point_count;
-  const handleClick = () => {
+  const handleZoomClick = () => {
     mapRef.current?.easeTo({
       center: [longitude, latitude],
       zoom: expansionZoom,
@@ -25,16 +28,52 @@ const ClusterMarker = ({
     });
   };
 
+  const openContainer = usePhotoContainerStore((state) => state.openContainer);
+
+  const handleMarkerClick = (
+    cluster: PointFeature<GeoJsonProperties>
+  ): void => {
+    if (isCluster) {
+      const clusterPoints = supercluster.getLeaves(
+        cluster.properties?.cluster_id as number
+      );
+      const selectedKeys = clusterPoints.map((point) => {
+        return point.properties?.objectKey || "";
+      });
+      openContainer(selectedKeys);
+    } else {
+      openContainer([cluster.properties?.objectKey || ""]);
+    }
+  };
+
   if (isCluster) {
     return (
-      <Marker latitude={latitude} longitude={longitude} anchor="center">
-        <div className="cluster-marker" onClick={handleClick}>
+      <Marker
+        latitude={latitude}
+        longitude={longitude}
+        anchor="center"
+        style={{ cursor: "pointer" }}
+      >
+        <div
+          className="cluster-marker"
+          onClick={() => handleMarkerClick(cluster)}
+          onContextMenu={handleZoomClick}
+        >
           {numPoints}
         </div>
       </Marker>
     );
   } else {
-    return <Marker latitude={latitude} longitude={longitude} anchor="center" />;
+    return (
+      <Marker
+        latitude={latitude}
+        longitude={longitude}
+        anchor="center"
+        style={{ cursor: "pointer" }}
+        scale={1.5}
+        onClick={() => handleMarkerClick(cluster)}
+      />
+    );
   }
 };
 

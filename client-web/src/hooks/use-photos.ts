@@ -1,7 +1,7 @@
 import { useEffect, useState, RefObject } from "react";
 import { MapRef } from "react-map-gl";
 import { useAuth } from "./use-auth";
-import { PointFeature } from "supercluster";
+import Supercluster, { PointFeature } from "supercluster";
 import { BBox, GeoJsonProperties } from "geojson";
 import useSupercluster from "use-supercluster";
 import { PhotoObject } from "../models/photo";
@@ -38,6 +38,7 @@ export const usePhotos = ({
               cluster: false,
               pointId: point.sk,
               category: "Photo",
+              objectKey: point.attribute_object_key,
             },
             geometry: {
               type: "Point",

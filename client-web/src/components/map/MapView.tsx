@@ -3,6 +3,7 @@ import Map, { NavigationControl, MapRef } from "react-map-gl";
 import { usePhotos } from "../../hooks/use-photos";
 import { ENV, MAP_CONFIG } from "../../config";
 import ClusterMarker from "./ClusterMarker";
+import Supercluster from "supercluster";
 
 interface ViewPort {
   latitude: number;
@@ -51,6 +52,7 @@ const MapView = () => {
                 : cluster.properties?.pointId
             }
             cluster={cluster}
+            supercluster={supercluster as Supercluster}
             expansionZoom={expansionZoom}
             mapRef={mapRef}
           />

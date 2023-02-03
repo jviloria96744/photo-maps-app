@@ -34,6 +34,7 @@ export interface ImageLabel {
 export interface PhotoObject {
   attribute_image_geo: ImageGeo;
   attribute_image_labels?: ImageLabel[];
+  attribute_object_key: string;
   datetime_created: string;
   datetime_updated: string;
   pk: string;
