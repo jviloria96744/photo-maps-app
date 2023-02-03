@@ -49,6 +49,7 @@ export class WebSocketStack extends cdk.NestedStack {
       api,
       typeName: "Mutation",
       fieldName: "publish2channel",
+      dataSource: api.addNoneDataSource("pubsub"),
       requestMappingTemplate: appsync.MappingTemplate.fromString(`
         {
           "version": "2017-02-28",
