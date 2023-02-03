@@ -8,6 +8,7 @@ import { Construct } from "constructs";
 interface WebSocketStackProps extends cdk.StackProps {
   pathName: string;
   cognitoUserPool: cognito.UserPool;
+  subDomainName: string;
   domainName: string;
   certificate: acm.Certificate;
   hostedZone: route53.IHostedZone;
@@ -18,8 +19,14 @@ export class WebSocketStack extends cdk.NestedStack {
   constructor(scope: Construct, id: string, props: WebSocketStackProps) {
     super(scope, id, props);
 
-    const { pathName, cognitoUserPool, domainName, certificate, hostedZone } =
-      props;
+    const {
+      pathName,
+      cognitoUserPool,
+      domainName,
+      certificate,
+      hostedZone,
+      subDomainName,
+    } = props;
 
     const api = new appsync.GraphqlApi(this, "GraphQLApi", {
       name: "WS-API",
@@ -39,6 +46,7 @@ export class WebSocketStack extends cdk.NestedStack {
     });
 
     new route53.CnameRecord(this, "CNameRecord", {
+      recordName: subDomainName,
       domainName: api.appSyncDomainName,
       zone: hostedZone,
     });

@@ -92,6 +92,7 @@ export class AppStack extends cdk.Stack {
     const websocketStack = new WebSocketStack(this, "websocket", {
       pathName: `${CONFIG.environment.basePath}/${CONFIG.websocket.pathName}`,
       cognitoUserPool: webClientStack.webClientAuthFlow.userPool,
+      subDomainName: DOMAIN_NAMES.APPSYNC_SUBDOMAIN,
       domainName: `${DOMAIN_NAMES.APPSYNC_SUBDOMAIN}.${DOMAIN_NAMES.TLD_NAME}`,
       certificate: certificates.appSyncCertificate,
       hostedZone: certificates.hostedZone,
