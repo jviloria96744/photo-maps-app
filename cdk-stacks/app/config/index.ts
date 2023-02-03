@@ -6,6 +6,7 @@ export enum DOMAIN_NAMES {
   ADMIN_PORTAL_SUBDOMAIN = "admin-portal.photo-maps-app",
   API_SUBDOMAIN = "api.photo-maps-app",
   ASSETS_SUBDOMAIN = "assets.photo-maps-app",
+  APPSYNC_SUBDOMAIN = "api.ws.photo-maps-app",
 }
 
 export enum BUILD_DIRECTORIES {

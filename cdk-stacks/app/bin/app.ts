@@ -18,6 +18,7 @@ const certStack = new CertificateStack(app, "Certificate", {
   webClientSubDomain: DOMAIN_NAMES.WEBCLIENT_SUBDOMAIN,
   apiSubDomain: DOMAIN_NAMES.API_SUBDOMAIN,
   assetSubDomain: DOMAIN_NAMES.ASSETS_SUBDOMAIN,
+  appSyncSubDomain: DOMAIN_NAMES.APPSYNC_SUBDOMAIN,
 });
 
 const appStack = new AppStack(app, "App", {
@@ -31,6 +32,7 @@ const appStack = new AppStack(app, "App", {
     webClientCertificate: certStack.webClientCertificate,
     restApiCertificate: certStack.restApiCertificate,
     assetCDNCertificate: certStack.assetCDNCertificate,
+    appSyncCertificate: certStack.appSyncCertificate,
     hostedZone: certStack.hostedZone,
   },
 

@@ -9,12 +9,14 @@ interface CertificateStackProps extends cdk.StackProps {
   webClientSubDomain: string;
   apiSubDomain: string;
   assetSubDomain: string;
+  appSyncSubDomain: string;
 }
 export class CertificateStack extends cdk.Stack {
   adminPortalCertificate: acm.Certificate;
   webClientCertificate: acm.Certificate;
   restApiCertificate: acm.Certificate;
   assetCDNCertificate: acm.Certificate;
+  appSyncCertificate: acm.Certificate;
   hostedZone: route53.IHostedZone;
   constructor(scope: Construct, id: string, props: CertificateStackProps) {
     super(scope, id, props);
@@ -25,6 +27,7 @@ export class CertificateStack extends cdk.Stack {
       webClientSubDomain,
       apiSubDomain,
       assetSubDomain,
+      appSyncSubDomain,
     } = props;
 
     const zone = route53.HostedZone.fromLookup(this, `${id}-HostedZone`, {
@@ -55,10 +58,16 @@ export class CertificateStack extends cdk.Stack {
       validation: acm.CertificateValidation.fromDns(zone),
     });
 
+    const appSyncCertificate = new acm.Certificate(this, `${id}-AppSync`, {
+      domainName: `${appSyncSubDomain}.${domainName}`,
+      validation: acm.CertificateValidation.fromDns(zone),
+    });
+
     this.adminPortalCertificate = adminPortalCertificate;
     this.webClientCertificate = webClientCertificate;
     this.restApiCertificate = restApiCertificate;
     this.assetCDNCertificate = assetCDNCertificate;
+    this.appSyncCertificate = appSyncCertificate;
     this.hostedZone = zone;
   }
 }

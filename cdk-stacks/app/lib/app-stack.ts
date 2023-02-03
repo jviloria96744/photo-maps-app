@@ -22,6 +22,7 @@ interface AppStackProps extends cdk.StackProps {
     webClientCertificate: acm.Certificate;
     restApiCertificate: acm.Certificate;
     assetCDNCertificate: acm.Certificate;
+    appSyncCertificate: acm.Certificate;
     hostedZone: route53.IHostedZone;
   };
 }
@@ -91,6 +92,9 @@ export class AppStack extends cdk.Stack {
     const websocketStack = new WebSocketStack(this, "websocket", {
       pathName: `${CONFIG.environment.basePath}/${CONFIG.websocket.pathName}`,
       cognitoUserPool: webClientStack.webClientAuthFlow.userPool,
+      domainName: `${DOMAIN_NAMES.APPSYNC_SUBDOMAIN}.${DOMAIN_NAMES.TLD_NAME}`,
+      certificate: certificates.appSyncCertificate,
+      hostedZone: certificates.hostedZone,
     });
 
     this.dynamoDb = dynamoDB;
