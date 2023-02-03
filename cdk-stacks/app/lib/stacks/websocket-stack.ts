@@ -45,6 +45,24 @@ export class WebSocketStack extends cdk.NestedStack {
       },
     });
 
+    const mutationResolver = new appsync.Resolver(this, "MutationResolver", {
+      api,
+      typeName: "Mutation",
+      fieldName: "publish2channel",
+      requestMappingTemplate: appsync.MappingTemplate.fromString(`
+        {
+          "version": "2017-02-28",
+          "payload": {
+            "name": "$context.arguments.name",
+            "data": $util.toJson($context.arguments.data)  
+          }
+        }
+      `),
+      responseMappingTemplate: appsync.MappingTemplate.fromString(
+        `$util.toJson($context.result)`
+      ),
+    });
+
     new route53.CnameRecord(this, "CNameRecord", {
       recordName: subDomainName,
       domainName: api.appSyncDomainName,
