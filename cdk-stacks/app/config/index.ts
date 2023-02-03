@@ -49,6 +49,9 @@ export interface IConfig {
     appServer: AppLambda;
     buildCommands: string[];
   };
+  websocket: {
+    pathName: string;
+  };
 }
 
 export const CONFIG: IConfig = {
@@ -95,5 +98,8 @@ export const CONFIG: IConfig = {
       "-c",
       `pip install -r requirements.txt -t /asset-output && cp -au . /asset-output && ${removeStatements}`,
     ],
+  },
+  websocket: {
+    pathName: "cdk-stacks/app/config/appsync/schema.graphql",
   },
 };

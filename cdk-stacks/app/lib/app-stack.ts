@@ -88,7 +88,10 @@ export class AppStack extends cdk.Stack {
       hostedZone: certificates.hostedZone,
     });
 
-    const websocketStack = new WebSocketStack(this, "websocket");
+    const websocketStack = new WebSocketStack(this, "websocket", {
+      pathName: `${CONFIG.environment.basePath}/${CONFIG.websocket.pathName}`,
+      cognitoUserPool: webClientStack.webClientAuthFlow.userPool,
+    });
 
     this.dynamoDb = dynamoDB;
     this.adminSiteStack = adminSiteStack;
