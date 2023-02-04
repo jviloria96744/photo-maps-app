@@ -41,3 +41,7 @@ These contain some references that were used to handle troublesome parts of this
 
 - https://www.youtube.com/watch?v=3HYvbP2pQRA
 - https://www.leighhalliday.com/how-does-swr-work
+
+### Appsync Websocket Implementation
+
+https://aws.amazon.com/blogs/mobile/appsync-simple-websocket-api/. _DO NOT FORGET THE RESOLVERS_

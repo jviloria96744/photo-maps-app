@@ -7,6 +7,9 @@ interface IEnvironment {
   VITE_MAPBOX_ACCESS_TOKEN: string;
   VITE_MAPBOX_URL: string;
   VITE_ASSETS_BASE_URL: string;
+  VITE_APPSYNC_API_URL: string;
+  VITE_APPSYNC_AUTH_TYPE: string;
+  VITE_APPSYNC_API_KEY: string;
   MAPBOX_STYLE: string;
 }
 
@@ -19,5 +22,8 @@ export const ENV: IEnvironment = {
   VITE_MAPBOX_ACCESS_TOKEN: import.meta.env.VITE_MAPBOX_ACCESS_TOKEN,
   VITE_MAPBOX_URL: import.meta.env.VITE_MAPBOX_URL,
   VITE_ASSETS_BASE_URL: import.meta.env.VITE_ASSETS_BASE_URL,
+  VITE_APPSYNC_API_URL: import.meta.env.VITE_APPSYNC_API_URL,
+  VITE_APPSYNC_AUTH_TYPE: import.meta.env.VITE_APPSYNC_AUTH_TYPE,
+  VITE_APPSYNC_API_KEY: import.meta.env.VITE_APPSYNC_API_KEY,
   MAPBOX_STYLE: "mapbox://styles/mapbox/streets-v12",
 };

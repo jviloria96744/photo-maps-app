@@ -28,6 +28,7 @@ const MapView = () => {
   return (
     <Map
       {...viewPort}
+      reuseMaps={true}
       onMove={(evt) => setViewPort(evt.viewState)}
       mapStyle={MAP_CONFIG.STYLE}
       mapboxAccessToken={ENV.VITE_MAPBOX_ACCESS_TOKEN}
