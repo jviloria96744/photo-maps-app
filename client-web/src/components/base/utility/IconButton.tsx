@@ -10,6 +10,8 @@ interface IconButtonProps {
   IconComponent: IconType;
   boxSize?: string;
   ariaLabel: string;
+  variant?: string;
+  color?: string;
   clickHandler?: () => void;
   photoUploadRef?: React.MutableRefObject<HTMLInputElement | null>;
 }
@@ -20,6 +22,8 @@ const IconButton = ({
   boxSize,
   ariaLabel,
   clickHandler,
+  variant,
+  color,
 }: IconButtonProps) => {
   if (tooltipLabel) {
     return (
@@ -27,12 +31,16 @@ const IconButton = ({
         <ChakraIconButton
           aria-label={tooltipLabel}
           onClick={clickHandler}
-          variant="outline"
+          variant={variant || "outline"}
+          _hover={{
+            textDecoration: "None",
+          }}
           icon={
             <Icon
               as={IconComponent}
               boxSize={boxSize ?? "50"}
               focusable={true}
+              color={color || "currentcolor"}
             />
           }
         />
