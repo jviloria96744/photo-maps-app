@@ -8,6 +8,7 @@ import { WebClientStack } from "./stacks/web-client-stack";
 import { ImageProcessorWorkflowStack } from "./stacks/image-processor-workflow-stack";
 import { AppApiStack } from "./stacks/app-api-stack";
 import { WebSocketStack } from "./stacks/websocket-stack";
+import { EventBusStack } from "./stacks/event-bus-stack";
 import * as path from "path";
 import {
   CONFIG,
@@ -34,6 +35,7 @@ export class AppStack extends cdk.Stack {
   imageProcessorWorkflowStack: ImageProcessorWorkflowStack;
   appApiStack: AppApiStack;
   websocketStack: WebSocketStack;
+  eventBusStack: EventBusStack;
   constructor(scope: Construct, id: string, props: AppStackProps) {
     super(scope, id, props);
 
@@ -98,7 +100,10 @@ export class AppStack extends cdk.Stack {
       hostedZone: certificates.hostedZone,
     });
 
+    const eventBusStack = new EventBusStack(this, "AppEventBusStack");
+
     this.dynamoDb = dynamoDB;
+    this.eventBusStack = eventBusStack;
     this.adminSiteStack = adminSiteStack;
     this.webClientStack = webClientStack;
     this.imageProcessorWorkflowStack = imageProcessorWorkflowStack;
