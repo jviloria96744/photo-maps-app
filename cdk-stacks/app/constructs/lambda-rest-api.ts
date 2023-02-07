@@ -134,6 +134,10 @@ export class LambdaApi extends Construct {
         // POST Generate pre-signed URL for photo upload
         methods: ["POST"],
       },
+      {
+        resourceName: "photo_manifest",
+        methods: ["POST"],
+      },
     ];
 
     resources.forEach((resource) => {
