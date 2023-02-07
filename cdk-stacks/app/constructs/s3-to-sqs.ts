@@ -78,12 +78,19 @@ export class S3ToSQS extends Construct {
       ),
     });
 
-    // const queueNotification = new aws_s3_notifications.SqsDestination(queue);
+    const queueNotification = new aws_s3_notifications.SqsDestination(queue);
     // const deleteQueueNotification = new aws_s3_notifications.SqsDestination(
     //   deleteQueue
     // );
 
-    // bucket.addEventNotification(s3.EventType.OBJECT_CREATED, queueNotification);
+    bucket.addEventNotification(
+      s3.EventType.OBJECT_CREATED,
+      queueNotification,
+      {
+        prefix: "image_manifest/",
+        suffix: ".json",
+      }
+    );
     // bucket.addEventNotification(
     //   s3.EventType.OBJECT_REMOVED,
     //   deleteQueueNotification

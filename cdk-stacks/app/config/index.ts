@@ -48,6 +48,7 @@ export interface IConfig {
     imageProcessor: ImageProcessorLambda;
     imageDeleter: ImageLambda;
     appServer: AppLambda;
+    stepFunctionOrchestrator: ImageLambda;
     buildCommands: string[];
   };
   websocket: {
@@ -93,6 +94,13 @@ export const CONFIG: IConfig = {
     appServer: {
       codeDirectory: "app_server",
       logLevel: LOG_LEVELS.INFO,
+    },
+    stepFunctionOrchestrator: {
+      codeDirectory: "step_function_orchestrator",
+      logLevel: LOG_LEVELS.INFO,
+      batchSize: 1,
+      maxConcurrency: 100,
+      duration: 10,
     },
     buildCommands: [
       "bash",

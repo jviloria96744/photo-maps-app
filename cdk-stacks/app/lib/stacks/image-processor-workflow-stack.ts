@@ -89,12 +89,41 @@ export class ImageProcessorWorkflowStack extends cdk.NestedStack {
     lambdaSecrets.grantRead(imageProcessor.fnRole);
     dynamoTable.grantReadWriteData(imageProcessor.fnRole);
 
-    const imageProcessorEventTrigger = new SqsEventSource(assetBucket.queue, {
-      batchSize: Config.pythonLambdas.imageProcessor.batchSize,
-      maxConcurrency: Config.pythonLambdas.imageProcessor.maxConcurrency,
+    const stepFunctionOrchestratorProps: PythonLambdaProps = {
+      pathName: this.createPathName(
+        Config.environment.basePath,
+        Config.pythonLambdas.stepFunctionOrchestrator.codeDirectory
+      ),
+      duration: Config.pythonLambdas.stepFunctionOrchestrator.duration,
+      environment: {
+        LOG_LEVEL: Config.pythonLambdas.stepFunctionOrchestrator.logLevel,
+        POWERTOOLS_SERVICE_NAME:
+          Config.pythonLambdas.stepFunctionOrchestrator.codeDirectory,
+      },
+      lambdaBuildCommands: Config.pythonLambdas.buildCommands,
+    };
+
+    const stepFunctionOrchestrator = new PythonLambda(
+      this,
+      "SFOrchestratorLambda",
+      stepFunctionOrchestratorProps
+    );
+    assetBucket.bucket.grantRead(stepFunctionOrchestrator.fnRole);
+
+    const imageManifestEventTrigger = new SqsEventSource(assetBucket.queue, {
+      batchSize: Config.pythonLambdas.stepFunctionOrchestrator.batchSize,
+      maxConcurrency:
+        Config.pythonLambdas.stepFunctionOrchestrator.maxConcurrency,
     });
 
-    imageProcessor.function.addEventSource(imageProcessorEventTrigger);
+    stepFunctionOrchestrator.function.addEventSource(imageManifestEventTrigger);
+
+    // const imageProcessorEventTrigger = new SqsEventSource(assetBucket.queue, {
+    //   batchSize: Config.pythonLambdas.imageProcessor.batchSize,
+    //   maxConcurrency: Config.pythonLambdas.imageProcessor.maxConcurrency,
+    // });
+
+    // imageProcessor.function.addEventSource(imageProcessorEventTrigger);
 
     const imageDeleterProps: PythonLambdaProps = {
       pathName: this.createPathName(
