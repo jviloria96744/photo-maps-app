@@ -14,7 +14,8 @@ def get_event_metadata(event: dict):
         event_metadata = event_metadata["Records"][0]
 
         s3_object_key = event_metadata["s3"]["object"]["key"]
-        user_id, photo_id = s3_object_key.split("/") 
+        split_key = s3_object_key.split("/")
+        user_id, photo_id = split_key[0], split_key[2]
         
         if not user_id or not photo_id:
             raise Exception("Key name is not in correct format")
