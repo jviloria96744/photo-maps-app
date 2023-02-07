@@ -18,8 +18,9 @@ export function deleteUser() {
 export function getPreSignedPost(body: {
   asset_uuid: string;
   asset_extension: string;
+  endpoint: string;
 }) {
-  return postCall("/photo", body);
+  return postCall(body.endpoint, body);
 }
 
 export function getPhotosByUser() {

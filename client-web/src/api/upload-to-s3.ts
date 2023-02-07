@@ -5,40 +5,67 @@ import {
   PresignedPostResponse,
   PresignedPostResponseFields,
 } from "../models/photo";
+import { User } from "../models/user";
 
-export const uploadPhotosToS3 = (photos: FileList): void => {
+export const uploadPhotosToS3 = (photos: FileList, user: User): void => {
+  const uploadPhotosPromiseArray: Promise<any>[] = [];
+  const photoIdArray: string[] = [];
   for (let i = 0; i < photos.length; i++) {
-    uploadPhotoToS3(photos[i]);
+    const photoId = uuidv4();
+    const extension = photos[i].name.split(".").pop() || "";
+    uploadPhotosPromiseArray.push(
+      uploadPhotoToS3(photos[i], photoId, extension, photoIdArray)
+    );
   }
-};
-export const uploadPhotoToS3 = (photo: File): void => {
-  const photoId = uuidv4();
-  const extension = photo.name.split(".").pop() || "";
 
-  getPreSignedPost({
+  Promise.allSettled(uploadPhotosPromiseArray).then(() => {
+    const manifestJson = {
+      userId: user.id,
+      imageIds: photoIdArray,
+    };
+    const manifestId = uuidv4();
+    getPreSignedPost({
+      asset_uuid: manifestId,
+      asset_extension: "json",
+      endpoint: "/photo_manifest",
+    }).then((res: PresignedPostResponse) => {
+      constructAndPostForm(res, JSON.stringify(manifestJson));
+    });
+  });
+};
+
+const uploadPhotoToS3 = (
+  photo: File,
+  photoId: string,
+  photoExtension: string,
+  photoIdArray: string[]
+): Promise<any> => {
+  return getPreSignedPost({
     asset_uuid: photoId,
-    asset_extension: extension,
+    asset_extension: photoExtension,
+    endpoint: "/photo",
   }).then((res: PresignedPostResponse) => {
-    const { url, fields } = res;
-    const photoFormData = new FormData();
-    let k: keyof PresignedPostResponseFields;
-    for (k in fields) {
-      photoFormData.append(k, fields[k]);
-    }
-    photoFormData.append("file", photo);
-    axios({
-      method: "post",
-      url: url,
-      data: photoFormData,
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
-    })
-      .then((res) => {
-        console.log(res);
-      })
-      .catch((err) => {
-        console.log(err);
-      });
+    photoIdArray.push(res.fields.key);
+
+    constructAndPostForm(res, photo);
+  });
+};
+
+const constructAndPostForm = (data: PresignedPostResponse, file: any): void => {
+  const { url, fields } = data;
+  const formData = new FormData();
+  let k: keyof PresignedPostResponseFields;
+  for (k in fields) {
+    formData.append(k, fields[k]);
+  }
+  formData.append("file", file);
+
+  axios({
+    method: "post",
+    url: url,
+    data: formData,
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
   });
 };

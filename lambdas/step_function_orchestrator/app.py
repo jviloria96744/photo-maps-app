@@ -22,7 +22,7 @@ def get_event_metadata(event: dict):
         logger.debug(str(e), extra=event)
         raise Exception("Error extracting metadata from event object")
 
-def lambda_handler(event, context):
+def handler(event, context):
     event_metadata = get_event_metadata(event)
     logger.info("Event", extra=event_metadata)
     # response = client.start_execution(

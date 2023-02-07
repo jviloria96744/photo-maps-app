@@ -3,9 +3,12 @@ import { Box } from "@chakra-ui/react";
 import IconButton from "./base/utility/IconButton";
 import { MdImage } from "react-icons/md";
 import { uploadPhotosToS3 } from "../api/upload-to-s3";
+import { useAuth } from "../hooks/use-auth";
+import { User } from "../models/user";
 
 const UploadPhotoIconButton = () => {
   const inputRef = useRef<HTMLInputElement | null>(null);
+  const { user } = useAuth();
 
   const handleUploadClick = () => {
     inputRef.current?.click();
@@ -16,7 +19,7 @@ const UploadPhotoIconButton = () => {
       return;
     }
 
-    uploadPhotosToS3(e.target.files);
+    uploadPhotosToS3(e.target.files, user as User);
   };
 
   return (
