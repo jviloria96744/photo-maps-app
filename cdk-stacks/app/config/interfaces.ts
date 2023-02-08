@@ -1,6 +1,8 @@
 export interface AppLambda {
   codeDirectory: string;
   logLevel: string;
+  duration?: number;
+  memorySize?: number;
 }
 
 // Image Processing Lambdas are triggered from SQS Queue, therefore they need batchSize and maxConcurrency props
@@ -11,7 +13,7 @@ export interface ImageLambda extends AppLambda {
   memorySize?: number;
 }
 
-export interface ImageProcessorLambda extends ImageLambda {
+export interface ImageGeotaggerLambda extends AppLambda {
   imageProcessorSecretName: string;
   imageProcessorSecretKey: string;
 }

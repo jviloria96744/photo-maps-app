@@ -1,0 +1,5 @@
+from image.get_exif_data import get_exif_data_from_s3_image as exif_data
+from image.get_reverse_geocoding import get_reverse_geocoding_from_lat_lng as reverse_geocoding
+
+get_exif_data_from_s3_image = exif_data
+get_reverse_geocoding_from_lat_lng = reverse_geocoding

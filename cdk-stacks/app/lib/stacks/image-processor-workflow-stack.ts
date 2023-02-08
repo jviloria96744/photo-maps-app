@@ -26,8 +26,8 @@ interface ImageProcessorWorkflowStackProps extends cdk.NestedStackProps {
 
 export class ImageProcessorWorkflowStack extends cdk.NestedStack {
   assetBucket: S3ToSQS;
-  imageProcessorLambda: lambda.Function;
-  imageProcessorRole: iam.IRole;
+  imageGeotaggerLambda: lambda.Function;
+  imageGeotaggerRole: iam.IRole;
   imageDeleterLambda: lambda.Function;
   imageDeleterRole: iam.IRole;
 
@@ -50,45 +50,35 @@ export class ImageProcessorWorkflowStack extends cdk.NestedStack {
     const lambdaSecrets = secretsmanager.Secret.fromSecretNameV2(
       this,
       "Secret",
-      Config.pythonLambdas.imageProcessor.imageProcessorSecretName
+      Config.pythonLambdas.imageGeotagger.imageProcessorSecretName
     );
 
-    const imageProcessorProps: PythonLambdaProps = {
+    const imageGeotaggerProps: PythonLambdaProps = {
       pathName: this.createPathName(
         Config.environment.basePath,
-        Config.pythonLambdas.imageProcessor.codeDirectory
+        Config.pythonLambdas.imageGeotagger.codeDirectory
       ),
-      duration: Config.pythonLambdas.imageProcessor.duration,
-      memorySize: Config.pythonLambdas.imageProcessor.memorySize,
+      duration: Config.pythonLambdas.imageGeotagger.duration,
+      memorySize: Config.pythonLambdas.imageGeotagger.memorySize,
       environment: {
         IMAGE_PROCESSOR_SECRET_NAME:
-          Config.pythonLambdas.imageProcessor.imageProcessorSecretName,
+          Config.pythonLambdas.imageGeotagger.imageProcessorSecretName,
         IMAGE_PROCESSOR_SECRET_KEY:
-          Config.pythonLambdas.imageProcessor.imageProcessorSecretKey,
-        DDB_TABLE_NAME: dynamoTable.tableName,
-        LOG_LEVEL: Config.pythonLambdas.imageProcessor.logLevel,
+          Config.pythonLambdas.imageGeotagger.imageProcessorSecretKey,
+        LOG_LEVEL: Config.pythonLambdas.imageGeotagger.logLevel,
         POWERTOOLS_SERVICE_NAME:
-          Config.pythonLambdas.imageProcessor.codeDirectory,
+          Config.pythonLambdas.imageGeotagger.codeDirectory,
       },
       lambdaBuildCommands: Config.pythonLambdas.buildCommands,
     };
-    const imageProcessor = new PythonLambda(
+    const imageGeotagger = new PythonLambda(
       this,
-      "ProcessorLambda",
-      imageProcessorProps
+      "GeotaggerLambda",
+      imageGeotaggerProps
     );
 
-    imageProcessor.fnRole.addToPrincipalPolicy(
-      new iam.PolicyStatement({
-        effect: iam.Effect.ALLOW,
-        actions: ["rekognition:DetectLabels"],
-        resources: ["*"],
-      })
-    );
-
-    assetBucket.bucket.grantRead(imageProcessor.fnRole);
-    lambdaSecrets.grantRead(imageProcessor.fnRole);
-    dynamoTable.grantReadWriteData(imageProcessor.fnRole);
+    assetBucket.bucket.grantRead(imageGeotagger.fnRole);
+    lambdaSecrets.grantRead(imageGeotagger.fnRole);
 
     const imageLabelFilterProps: PythonLambdaProps = {
       pathName: this.createPathName(
@@ -109,6 +99,7 @@ export class ImageProcessorWorkflowStack extends cdk.NestedStack {
 
     const stepFunction = new ImageUploadStepFunction(this, id, {
       imageLabelFilterLambda: imageLabelFilter,
+      imageGeotaggerLambda: imageGeotagger,
     });
 
     const stepFunctionOrchestratorProps: PythonLambdaProps = {
@@ -184,8 +175,8 @@ export class ImageProcessorWorkflowStack extends cdk.NestedStack {
     stepFunction.machine.grantStartExecution(stepFunctionOrchestrator.function);
 
     this.assetBucket = assetBucket;
-    this.imageProcessorLambda = imageProcessor.function;
-    this.imageProcessorRole = imageProcessor.fnRole;
+    this.imageGeotaggerLambda = imageGeotagger.function;
+    this.imageGeotaggerRole = imageGeotagger.fnRole;
     this.imageDeleterLambda = imageDeleter.function;
     this.imageDeleterRole = imageDeleter.fnRole;
   }

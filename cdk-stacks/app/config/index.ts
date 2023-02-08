@@ -1,4 +1,4 @@
-import { ImageProcessorLambda, ImageLambda, AppLambda } from "./interfaces";
+import { ImageGeotaggerLambda, ImageLambda, AppLambda } from "./interfaces";
 
 export enum DOMAIN_NAMES {
   TLD_NAME = "jviloria.com",
@@ -45,7 +45,7 @@ export interface IConfig {
     callbackUrls: string[];
   };
   pythonLambdas: {
-    imageProcessor: ImageProcessorLambda;
+    imageGeotagger: ImageGeotaggerLambda;
     imageDeleter: ImageLambda;
     imageLabelFilter: AppLambda;
     appServer: AppLambda;
@@ -75,14 +75,12 @@ export const CONFIG: IConfig = {
     ],
   },
   pythonLambdas: {
-    imageProcessor: {
-      codeDirectory: "image_processor",
+    imageGeotagger: {
+      codeDirectory: "image_geotagger",
       imageProcessorSecretName: IMAGE_PROCESSOR_SECRETS.NAME,
       imageProcessorSecretKey: IMAGE_PROCESSOR_SECRETS.KEY,
       duration: 15,
       memorySize: 512,
-      batchSize: 1,
-      maxConcurrency: 300,
       logLevel: LOG_LEVELS.INFO,
     },
     imageDeleter: {

@@ -7,6 +7,7 @@ import { PythonLambda } from "../python-lambda";
 
 interface ImageUploadStepFunctionProps {
   imageLabelFilterLambda: PythonLambda;
+  imageGeotaggerLambda: PythonLambda;
 }
 
 export class ImageUploadStepFunction extends Construct {
@@ -18,7 +19,7 @@ export class ImageUploadStepFunction extends Construct {
   ) {
     super(parent, name);
 
-    const { imageLabelFilterLambda } = props;
+    const { imageLabelFilterLambda, imageGeotaggerLambda } = props;
 
     const getUploadManifest = new tasks.CallAwsService(
       this,
@@ -59,9 +60,16 @@ export class ImageUploadStepFunction extends Construct {
       }
     );
 
-    parallelImageProcessingTask.branch(
-      new step_function.Pass(this, "Debug Step GeoTagging")
-    );
+    const geoTaggingTask = new tasks.LambdaInvoke(this, "Extract Geotag Data", {
+      lambdaFunction: imageGeotaggerLambda.function,
+      retryOnServiceExceptions: false,
+      resultSelector: {
+        "geoData.$": "$.Payload",
+      },
+      resultPath: "$.result",
+    });
+
+    parallelImageProcessingTask.branch(geoTaggingTask);
 
     const rekognitionBranch = new tasks.CallAwsService(
       this,
@@ -98,6 +106,9 @@ export class ImageUploadStepFunction extends Construct {
       {
         lambdaFunction: imageLabelFilterLambda.function,
         retryOnServiceExceptions: false,
+        resultSelector: {
+          "labels.$": "$.Payload",
+        },
         resultPath: "$.result",
       }
     );

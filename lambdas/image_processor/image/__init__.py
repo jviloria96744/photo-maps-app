@@ -1,9 +1,0 @@
-from image.get_exif_data import get_exif_data_from_s3_image as exif_data
-from image.get_labels import get_labels_from_s3_image as labels
-from image.get_reverse_geocoding import get_reverse_geocoding_from_lat_lng as reverse_geocoding
-from image.upload_metadata import update_table_with_item as upload
-
-get_exif_data_from_s3_image = exif_data
-get_labels_from_s3_image = labels
-get_reverse_geocoding_from_lat_lng = reverse_geocoding
-update_table_with_item = upload

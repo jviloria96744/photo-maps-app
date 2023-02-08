@@ -23,7 +23,7 @@ def get_reverse_geocoding_from_lat_lng(lat: str, lng: str) -> dict:
     rev_geocoding = {}
 
     try:
-        base_url = "https://maps.googleapis.com/maps/api/geocode/json"
+        base_url = Config.GOOGLE_API_BASE_URL
         latlng = f"?latlng={lat},{lng}"
         api_key = get_secret(Config.IMAGE_PROCESSOR_SECRET_NAME, Config.IMAGE_PROCESSOR_SECRET_KEY)
         key = f"&key={api_key}"

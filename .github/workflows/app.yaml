@@ -25,7 +25,8 @@ jobs:
       pipeline: ${{ steps.filter.outputs.pipeline }}
       web-client: ${{ steps.filter.outputs.web-client }}
       admin-portal: ${{ steps.filter.outputs.admin-portal }}
-      image-processor: ${{ steps.filter.outputs.image-processor }}
+      image-geotagger: ${{ steps.filter.outputs.image-geotagger }}
+      image-labeller: ${{ steps.filter.outputs.image-labeller }}
       app-server: ${{ steps.filter.outputs.app-server }}
     steps:
       - uses: actions/checkout@v3
@@ -41,8 +42,10 @@ jobs:
               - 'client-web/**'
             admin-portal:
               - 'admin-portal/**'
-            image-processor:
-              - 'lambdas/image_processor/**'
+            image-geotagger:
+              - 'lambdas/image_geotagger/**'
+            image-labeller:
+              - 'lambdas/image_label_filter/**'
             app-server:
               - 'lambdas/app_server/**'
   build-admin-portal:
@@ -87,9 +90,9 @@ jobs:
         with:
           directory: "client-web"
           artifact_bucket: $ARTIFACT_BUCKET
-  test-image-processor-lambda:
+  test-image-geotagger-lambda:
     needs: change-detector
-    if: ${{ needs.change-detector.outputs.image-processor == 'true' || needs.change-detector.outputs.pipeline == 'true'}}
+    if: ${{ needs.change-detector.outputs.image-geotagger == 'true' || needs.change-detector.outputs.pipeline == 'true'}}
     name: Run Image Processor Unit Tests
     runs-on: ubuntu-latest
     permissions:
@@ -106,7 +109,27 @@ jobs:
       - name: Run Unit Tests
         uses: ./.github/actions/run-python-lambda-tests
         with:
-          directory: "image_processor"
+          directory: "image_geotagger"
+  test-image-labeller-lambda:
+    needs: change-detector
+    if: ${{ needs.change-detector.outputs.image-labeller == 'true' || needs.change-detector.outputs.pipeline == 'true'}}
+    name: Run Image Processor Unit Tests
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v3
+      - name: Configure AWS CLI and Credentials
+        uses: ./.github/actions/configure-aws-cli
+        with:
+          account_id: ${{ env.AWS_ACCOUNT_ID }}
+          default_region: ${{ env.AWS_DEFAULT_REGION }}
+      - name: Run Unit Tests
+        uses: ./.github/actions/run-python-lambda-tests
+        with:
+          directory: "image_label_filter"
   test-app-server-lambda:
     needs: change-detector
     if: ${{ needs.change-detector.outputs.app-server == 'true' || needs.change-detector.outputs.pipeline == 'true'}}

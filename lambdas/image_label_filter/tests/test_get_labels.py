@@ -1,5 +1,5 @@
 import pytest
-import image.get_labels as get_labels
+import app
 
 @pytest.mark.parametrize("label_object, expected", [
     ({'Name': 'Landmark', 'Confidence': 66.17167663574219, 'Instances': [], 'Parents': [], 'Aliases': [], 'Categories': [{'Name': 'Popular Landmarks'}]}, True),
@@ -8,7 +8,7 @@ import image.get_labels as get_labels
     ({"Test": "Hello"}, False)
 ])
 def test_is_landmark(label_object, expected):
-    assert get_labels.is_landmark(label_object) == expected
+    assert app.is_landmark(label_object) == expected
     
 labels_one_invalid = [
     {'Name': 'Landmark', 'Confidence': 66.17167663574219, 'Parents': [], 'Aliases': [], 'Categories': [{'Name': 'Popular Landmarks'}]},
@@ -33,5 +33,5 @@ labels_all_invalid = [
     (labels_all_invalid, 0)
 ])
 def test_label_filter(labels, expected_length):
-    assert len(get_labels.label_filter(labels)) == expected_length
+    assert len(app.label_filter(labels)) == expected_length
     
