@@ -27,7 +27,7 @@ export class ImageUploadStepFunction extends Construct {
       },
       iamResources: ["*"],
       resultSelector: {
-        "output.$": "States.stringToJson($.Body)",
+        "output.$": "States.StringToJson($.Body)",
       },
       comment:
         "Get manifest file from S3 to determine files that need to be processed",
