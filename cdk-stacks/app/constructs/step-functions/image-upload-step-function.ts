@@ -78,9 +78,8 @@ export class ImageUploadStepFunction extends Construct {
           "imageLabels.$": `$.Labels[?(
               @.Confidence > 90 || 
               @.Name == 'Landmark' || 
-              States.ArrayContains(@.Categories[*].Name, 'Landmark') || 
-              States.ArrayContains(@.Parents[*].Name, 'Landmark') 
             )]`,
+          "rawOutput.$": "$",
         },
         resultPath: "$.result",
       }
