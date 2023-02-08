@@ -149,7 +149,8 @@ jobs:
       [
         build-admin-portal,
         build-client-web,
-        test-image-processor-lambda,
+        test-image-geotagger-lambda,
+        test-image-labeller-lambda,
         test-app-server-lambda,
       ]
     if: |
