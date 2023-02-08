@@ -31,6 +31,7 @@ export class ImageUploadStepFunction extends Construct {
         iamResources: ["*"],
         resultSelector: {
           "output.$": "States.StringToJson($.Body)",
+          "rawOutput.$": "$",
         },
         resultPath: "$.result",
         comment:
