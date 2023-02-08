@@ -75,7 +75,8 @@ export class ImageUploadStepFunction extends Construct {
           }),
         ],
         resultSelector: {
-          "imageLabels.$": "$.Labels",
+          "imageLabels.$":
+            "$.Labels[?(@.Confidence > 90 || @.Name == 'Landmark')]",
         },
         resultPath: "$.result",
       }
