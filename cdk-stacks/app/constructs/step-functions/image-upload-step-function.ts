@@ -20,7 +20,7 @@ export class ImageUploadStepFunction extends Construct {
         },
         iamResources: ["*"],
         resultSelector: {
-          "output.$": "States.StringToJson($.Body)",
+          "manifestData.$": "States.StringToJson($.Body)",
         },
         resultPath: "$.result",
         comment:
@@ -29,7 +29,7 @@ export class ImageUploadStepFunction extends Construct {
     );
 
     const mapImages = new step_function.Map(this, "Process Images", {
-      itemsPath: "$.output.imageIds",
+      itemsPath: "$.result.manifestData.imageIds",
       maxConcurrency: 0,
     });
 
