@@ -75,8 +75,12 @@ export class ImageUploadStepFunction extends Construct {
           }),
         ],
         resultSelector: {
-          "imageLabels.$":
-            "$.Labels[?(@.Confidence > 90 || @.Name == 'Landmark')]",
+          "imageLabels.$": `$.Labels[?(
+              @.Confidence > 90 || 
+              @.Name == 'Landmark' || 
+              States.ArrayContains(@.Categories[*].Name, 'Landmark') || 
+              States.ArrayContains(@.Parents[*].Name, 'Landmark') 
+            )]`,
         },
         resultPath: "$.result",
       }
