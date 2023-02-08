@@ -159,7 +159,7 @@ export class ImageProcessorWorkflowStack extends cdk.NestedStack {
 
     imageDeleter.function.addEventSource(imageDeleterEventTrigger);
 
-    const stepFunction = new ImageUploadStepFunction(this, "Machine", {
+    const stepFunction = new ImageUploadStepFunction(this, id, {
       bucket: assetBucket.bucket,
     });
 

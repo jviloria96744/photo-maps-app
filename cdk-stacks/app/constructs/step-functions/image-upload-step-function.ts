@@ -18,20 +18,25 @@ export class ImageUploadStepFunction extends Construct {
 
     const { bucket } = props;
 
-    const getUploadManifest = new tasks.CallAwsService(this, "GetManifest", {
-      service: "s3",
-      action: "getObject",
-      parameters: {
-        Bucket: bucket.bucketName,
-        "Key.$": "$.object_key",
-      },
-      iamResources: ["*"],
-      resultSelector: {
-        "output.$": "States.StringToJson($.Body)",
-      },
-      comment:
-        "Get manifest file from S3 to determine files that need to be processed",
-    });
+    const getUploadManifest = new tasks.CallAwsService(
+      this,
+      "Get Photo Upload Manifest",
+      {
+        service: "s3",
+        action: "getObject",
+        parameters: {
+          Bucket: bucket.bucketName,
+          "Key.$": "$.object_key",
+        },
+        iamResources: ["*"],
+        resultSelector: {
+          "output.$": "States.StringToJson($.Body)",
+        },
+        resultPath: "$.result",
+        comment:
+          "Get manifest file from S3 to determine files that need to be processed",
+      }
+    );
 
     const definition = getUploadManifest;
 
