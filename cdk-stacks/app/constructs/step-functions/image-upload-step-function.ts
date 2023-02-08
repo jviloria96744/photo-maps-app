@@ -25,7 +25,7 @@ export class ImageUploadStepFunction extends Construct {
         Bucket: bucket.bucketName,
         "Key.$": "$.object_key",
       },
-      iamResources: ["s3:getObject"],
+      iamResources: ["*"],
       resultSelector: {
         "output.$": "States.stringToJson($.Body)",
       },
