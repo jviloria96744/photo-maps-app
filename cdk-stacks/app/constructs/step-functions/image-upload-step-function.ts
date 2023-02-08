@@ -33,11 +33,7 @@ export class ImageUploadStepFunction extends Construct {
       maxConcurrency: 0,
     });
 
-    mapImages.iterator(
-      new step_function.Pass(this, "Debug Step", {
-        resultPath: "$.result",
-      })
-    );
+    mapImages.iterator(new step_function.Pass(this, "Debug Step"));
 
     const definition = getUploadManifest.next(mapImages);
 
