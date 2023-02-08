@@ -13,9 +13,11 @@ def get_event_metadata(event: dict):
         event_metadata = json.loads(event["Records"][0]["body"])
         event_metadata = event_metadata["Records"][0]
 
+        s3_bucket_name = event_metadata["s3"]["bucket"]["name"] 
         s3_object_key = event_metadata["s3"]["object"]["key"]
 
         return json.dumps({
+            "bucket_name": s3_bucket_name,
             "object_key": s3_object_key,
         })
     except Exception as e:

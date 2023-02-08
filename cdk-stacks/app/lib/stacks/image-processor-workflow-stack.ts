@@ -90,9 +90,7 @@ export class ImageProcessorWorkflowStack extends cdk.NestedStack {
     lambdaSecrets.grantRead(imageProcessor.fnRole);
     dynamoTable.grantReadWriteData(imageProcessor.fnRole);
 
-    const stepFunction = new ImageUploadStepFunction(this, id, {
-      bucket: assetBucket.bucket,
-    });
+    const stepFunction = new ImageUploadStepFunction(this, id);
 
     const stepFunctionOrchestratorProps: PythonLambdaProps = {
       pathName: this.createPathName(
