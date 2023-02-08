@@ -33,7 +33,32 @@ export class ImageUploadStepFunction extends Construct {
       maxConcurrency: 0,
     });
 
-    mapImages.iterator(new step_function.Pass(this, "Debug Step"));
+    const parallelImageProcessingTask = new step_function.Parallel(
+      this,
+      "Run Image Processing Tasks",
+      {
+        comment:
+          "The GeoTagging and Rekognition steps are independent, therefore can be run in parallel",
+      }
+    );
+
+    parallelImageProcessingTask.branch(
+      new step_function.Pass(this, "Debug Step GeoTagging", {
+        parameters: {
+          "Bucket.$": "$.bucket_name",
+        },
+      })
+    );
+
+    parallelImageProcessingTask.branch(
+      new step_function.Pass(this, "Debug Step Rekognition", {
+        parameters: {
+          "Bucket.$": "$.bucket_name",
+        },
+      })
+    );
+
+    mapImages.iterator(parallelImageProcessingTask);
 
     const definition = getUploadManifest.next(mapImages);
 
