@@ -90,6 +90,10 @@ export class ImageProcessorWorkflowStack extends cdk.NestedStack {
     lambdaSecrets.grantRead(imageProcessor.fnRole);
     dynamoTable.grantReadWriteData(imageProcessor.fnRole);
 
+    const stepFunction = new ImageUploadStepFunction(this, id, {
+      bucket: assetBucket.bucket,
+    });
+
     const stepFunctionOrchestratorProps: PythonLambdaProps = {
       pathName: this.createPathName(
         Config.environment.basePath,
@@ -100,6 +104,7 @@ export class ImageProcessorWorkflowStack extends cdk.NestedStack {
         LOG_LEVEL: Config.pythonLambdas.stepFunctionOrchestrator.logLevel,
         POWERTOOLS_SERVICE_NAME:
           Config.pythonLambdas.stepFunctionOrchestrator.codeDirectory,
+        STATE_MACHINE_ARN: stepFunction.machine.stateMachineArn,
       },
       lambdaBuildCommands: Config.pythonLambdas.buildCommands,
     };
@@ -158,10 +163,6 @@ export class ImageProcessorWorkflowStack extends cdk.NestedStack {
     );
 
     imageDeleter.function.addEventSource(imageDeleterEventTrigger);
-
-    const stepFunction = new ImageUploadStepFunction(this, id, {
-      bucket: assetBucket.bucket,
-    });
 
     stepFunction.machine.grantStartExecution(stepFunctionOrchestrator.function);
 

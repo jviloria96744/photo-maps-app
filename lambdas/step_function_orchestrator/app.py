@@ -26,6 +26,6 @@ def handler(event, context):
     event_metadata = get_event_metadata(event)
     logger.info("Event", extra={"event_string": event_metadata})
     response = client.start_execution(
-        stateMachineArn='${ExpressStateMachineArn}',
+        stateMachineArn=os.getenv("STATE_MACHINE_ARN"),
         input=event_metadata
     )
