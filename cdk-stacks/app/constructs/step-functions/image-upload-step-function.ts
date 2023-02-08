@@ -1,5 +1,6 @@
 import * as step_function from "aws-cdk-lib/aws-stepfunctions";
 import * as tasks from "aws-cdk-lib/aws-stepfunctions-tasks";
+import * as iam from "aws-cdk-lib/aws-iam";
 import { Stack } from "aws-cdk-lib";
 import { Construct } from "constructs";
 
@@ -51,9 +52,36 @@ export class ImageUploadStepFunction extends Construct {
       new step_function.Pass(this, "Debug Step GeoTagging")
     );
 
-    parallelImageProcessingTask.branch(
-      new step_function.Pass(this, "Debug Step Rekognition")
+    const rekognitionBranch = new tasks.CallAwsService(
+      this,
+      "Detect Image Labels",
+      {
+        service: "rekognition",
+        action: "detectLabels",
+        parameters: {
+          Features: ["GENERAL_LABELS"],
+          Image: {
+            S3Object: {
+              "Bucket.$": "$.Bucket",
+              "Name.$": "$.imageId",
+            },
+          },
+        },
+        iamResources: ["*"],
+        additionalIamStatements: [
+          new iam.PolicyStatement({
+            actions: ["s3:getObject"],
+            resources: ["*"],
+          }),
+        ],
+        resultSelector: {
+          "imageLabels.$": "$.Labels",
+        },
+        resultPath: "$.result",
+      }
     );
+
+    parallelImageProcessingTask.branch(rekognitionBranch);
 
     mapImages.iterator(parallelImageProcessingTask);
 
