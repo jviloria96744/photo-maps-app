@@ -31,8 +31,10 @@ export class ImageUploadStepFunction extends Construct {
     const mapImages = new step_function.Map(this, "Process Images", {
       parameters: {
         "Bucket.$": "$.bucket_name",
+        "imageId.$": "$$.Map.Item.Value",
       },
       itemsPath: "$.result.manifestData.imageIds",
+      resultPath: "$.result",
       maxConcurrency: 0,
     });
 
