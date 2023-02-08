@@ -12,6 +12,7 @@ import {
   PythonLambda,
   PythonLambdaProps,
 } from "../../constructs/python-lambda";
+import { ImageUploadStepFunction } from "../../constructs/step-functions/image-upload-step-function";
 import { IConfig } from "../../config";
 import * as path from "path";
 
@@ -157,6 +158,12 @@ export class ImageProcessorWorkflowStack extends cdk.NestedStack {
     );
 
     imageDeleter.function.addEventSource(imageDeleterEventTrigger);
+
+    const stepFunction = new ImageUploadStepFunction(this, "Machine", {
+      bucket: assetBucket.bucket,
+    });
+
+    stepFunction.machine.grantStartExecution(stepFunctionOrchestrator.function);
 
     this.assetBucket = assetBucket;
     this.imageProcessorLambda = imageProcessor.function;
