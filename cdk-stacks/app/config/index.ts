@@ -47,6 +47,7 @@ export interface IConfig {
   pythonLambdas: {
     imageProcessor: ImageProcessorLambda;
     imageDeleter: ImageLambda;
+    imageLabelFilter: AppLambda;
     appServer: AppLambda;
     stepFunctionOrchestrator: ImageLambda;
     buildCommands: string[];
@@ -89,6 +90,10 @@ export const CONFIG: IConfig = {
       batchSize: 1,
       maxConcurrency: 50,
       duration: 15,
+      logLevel: LOG_LEVELS.INFO,
+    },
+    imageLabelFilter: {
+      codeDirectory: "image_label_filter",
       logLevel: LOG_LEVELS.INFO,
     },
     appServer: {

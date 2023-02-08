@@ -90,7 +90,26 @@ export class ImageProcessorWorkflowStack extends cdk.NestedStack {
     lambdaSecrets.grantRead(imageProcessor.fnRole);
     dynamoTable.grantReadWriteData(imageProcessor.fnRole);
 
-    const stepFunction = new ImageUploadStepFunction(this, id);
+    const imageLabelFilterProps: PythonLambdaProps = {
+      pathName: this.createPathName(
+        Config.environment.basePath,
+        Config.pythonLambdas.imageLabelFilter.codeDirectory
+      ),
+      environment: {
+        LOG_LEVEL: Config.pythonLambdas.imageLabelFilter.logLevel,
+      },
+      lambdaBuildCommands: Config.pythonLambdas.buildCommands,
+    };
+
+    const imageLabelFilter = new PythonLambda(
+      this,
+      "ImageLabelFilterLambda",
+      imageLabelFilterProps
+    );
+
+    const stepFunction = new ImageUploadStepFunction(this, id, {
+      imageLabelFilterLambda: imageLabelFilter,
+    });
 
     const stepFunctionOrchestratorProps: PythonLambdaProps = {
       pathName: this.createPathName(

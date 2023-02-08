@@ -3,11 +3,22 @@ import * as tasks from "aws-cdk-lib/aws-stepfunctions-tasks";
 import * as iam from "aws-cdk-lib/aws-iam";
 import { Stack } from "aws-cdk-lib";
 import { Construct } from "constructs";
+import { PythonLambda } from "../python-lambda";
+
+interface ImageUploadStepFunctionProps {
+  imageLabelFilterLambda: PythonLambda;
+}
 
 export class ImageUploadStepFunction extends Construct {
   machine: step_function.StateMachine;
-  constructor(parent: Stack, name: string) {
+  constructor(
+    parent: Stack,
+    name: string,
+    props: ImageUploadStepFunctionProps
+  ) {
     super(parent, name);
+
+    const { imageLabelFilterLambda } = props;
 
     const getUploadManifest = new tasks.CallAwsService(
       this,
@@ -75,13 +86,23 @@ export class ImageUploadStepFunction extends Construct {
           }),
         ],
         resultSelector: {
-          "imageLabels.$":
-            "$.Labels[?(@.Confidence > 90 || @.Name == 'Landmark')]",
-          "rawOutput.$": "$",
+          "imageLabels.$": "$.Labels",
         },
         resultPath: "$.result",
       }
     );
+
+    const imageLabelFilterTask = new tasks.LambdaInvoke(
+      this,
+      "Filter Image Labels",
+      {
+        lambdaFunction: imageLabelFilterLambda.function,
+        retryOnServiceExceptions: false,
+        resultPath: "$.result",
+      }
+    );
+
+    rekognitionBranch.next(imageLabelFilterTask);
 
     parallelImageProcessingTask.branch(rekognitionBranch);
 
