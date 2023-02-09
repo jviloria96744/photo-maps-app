@@ -149,11 +149,41 @@ export class ImageUploadStepFunction extends Construct {
             JsonPath.stringAt("$.imageId")
           ),
           image_labels: tasks.DynamoAttributeValue.fromList(
-            JsonPath.listAt("$.result[1].result.labels").map((item, index) =>
-              tasks.DynamoAttributeValue.mapFromJsonPath(
-                `$.result[1].result.labels[${index}]`
-              )
-            )
+            JsonPath.listAt("$.result[1].result.labels").map((item, index) => {
+              const rootString = `$.result[1].result.labels[${index}]`;
+              return tasks.DynamoAttributeValue.fromMap({
+                label_name: tasks.DynamoAttributeValue.fromString(
+                  JsonPath.stringAt(`${rootString}.label_name`)
+                ),
+                label_parents: tasks.DynamoAttributeValue.fromList(
+                  JsonPath.listAt(`${rootString}.label_parents`).map(
+                    (item, index) => {
+                      return tasks.DynamoAttributeValue.mapFromJsonPath(
+                        `${rootString}.label_parents[${index}]`
+                      );
+                    }
+                  )
+                ),
+                label_aliases: tasks.DynamoAttributeValue.fromList(
+                  JsonPath.listAt(`${rootString}.label_parents`).map(
+                    (item, index) => {
+                      return tasks.DynamoAttributeValue.mapFromJsonPath(
+                        `${rootString}.label_aliases[${index}]`
+                      );
+                    }
+                  )
+                ),
+                label_categories: tasks.DynamoAttributeValue.fromList(
+                  JsonPath.listAt(`${rootString}.label_parents`).map(
+                    (item, index) => {
+                      return tasks.DynamoAttributeValue.mapFromJsonPath(
+                        `${rootString}.label_categories[${index}]`
+                      );
+                    }
+                  )
+                ),
+              });
+            })
           ),
           // image_labels: tasks.DynamoAttributeValue.fromString(
           //   JsonPath.stringAt("$.result[1].result.labels")
