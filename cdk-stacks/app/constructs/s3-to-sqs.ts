@@ -93,7 +93,17 @@ export class S3ToSQS extends Construct {
     );
     bucket.addEventNotification(
       s3.EventType.OBJECT_REMOVED,
-      deleteQueueNotification
+      deleteQueueNotification,
+      {
+        suffix: ".jpg",
+      }
+    );
+    bucket.addEventNotification(
+      s3.EventType.OBJECT_REMOVED,
+      deleteQueueNotification,
+      {
+        suffix: ".jpeg",
+      }
     );
 
     this.bucket = bucket;
