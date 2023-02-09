@@ -93,7 +93,7 @@ jobs:
   test-image-geotagger-lambda:
     needs: change-detector
     if: ${{ needs.change-detector.outputs.image-geotagger == 'true' || needs.change-detector.outputs.pipeline == 'true'}}
-    name: Run Image Processor Unit Tests
+    name: Run Image Geotagger Unit Tests
     runs-on: ubuntu-latest
     permissions:
       actions: write
@@ -113,7 +113,7 @@ jobs:
   test-image-labeller-lambda:
     needs: change-detector
     if: ${{ needs.change-detector.outputs.image-labeller == 'true' || needs.change-detector.outputs.pipeline == 'true'}}
-    name: Run Image Processor Unit Tests
+    name: Run Image Label Filter Unit Tests
     runs-on: ubuntu-latest
     permissions:
       actions: write
