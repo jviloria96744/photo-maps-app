@@ -79,9 +79,9 @@ export class S3ToSQS extends Construct {
     });
 
     const queueNotification = new aws_s3_notifications.SqsDestination(queue);
-    // const deleteQueueNotification = new aws_s3_notifications.SqsDestination(
-    //   deleteQueue
-    // );
+    const deleteQueueNotification = new aws_s3_notifications.SqsDestination(
+      deleteQueue
+    );
 
     bucket.addEventNotification(
       s3.EventType.OBJECT_CREATED,
@@ -91,10 +91,10 @@ export class S3ToSQS extends Construct {
         suffix: ".json",
       }
     );
-    // bucket.addEventNotification(
-    //   s3.EventType.OBJECT_REMOVED,
-    //   deleteQueueNotification
-    // );
+    bucket.addEventNotification(
+      s3.EventType.OBJECT_REMOVED,
+      deleteQueueNotification
+    );
 
     this.bucket = bucket;
     this.queue = queue;

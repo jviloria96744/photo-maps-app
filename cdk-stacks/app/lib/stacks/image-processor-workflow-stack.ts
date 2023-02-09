@@ -133,13 +133,6 @@ export class ImageProcessorWorkflowStack extends cdk.NestedStack {
 
     stepFunctionOrchestrator.function.addEventSource(imageManifestEventTrigger);
 
-    // const imageProcessorEventTrigger = new SqsEventSource(assetBucket.queue, {
-    //   batchSize: Config.pythonLambdas.imageProcessor.batchSize,
-    //   maxConcurrency: Config.pythonLambdas.imageProcessor.maxConcurrency,
-    // });
-
-    // imageProcessor.function.addEventSource(imageProcessorEventTrigger);
-
     const imageDeleterProps: PythonLambdaProps = {
       pathName: this.createPathName(
         Config.environment.basePath,
