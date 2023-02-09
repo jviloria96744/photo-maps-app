@@ -149,8 +149,10 @@ export class ImageUploadStepFunction extends Construct {
             JsonPath.stringAt("$.imageId")
           ),
           image_labels: tasks.DynamoAttributeValue.fromList(
-            JsonPath.listAt("$.result[1].result.labels").map((item) =>
-              tasks.DynamoAttributeValue.mapFromJsonPath(item)
+            JsonPath.listAt("$.result[1].result.labels").map((item, index) =>
+              tasks.DynamoAttributeValue.mapFromJsonPath(
+                `$.result[1].result.labels[${index}]`
+              )
             )
           ),
           // image_labels: tasks.DynamoAttributeValue.fromString(
