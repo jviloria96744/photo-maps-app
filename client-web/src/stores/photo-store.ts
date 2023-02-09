@@ -1,9 +1,6 @@
 import { create } from "zustand";
-import { PhotoObject } from "../models/photo";
 
 interface PhotoStoreState {
-  photos: PhotoObject[];
-  setPhotos: (photos: PhotoObject[]) => void;
   isContainerOpen: boolean;
   selectedPhotoKeys: string[];
   userSelectedPhoto: string | null;
@@ -13,10 +10,6 @@ interface PhotoStoreState {
 }
 
 export const usePhotoStore = create<PhotoStoreState>()((set) => ({
-  photos: [],
-  setPhotos: (photos: PhotoObject[]) =>
-    set((state) => ({ photos: [...state.photos, ...photos] })),
-
   isContainerOpen: false,
   selectedPhotoKeys: [],
   userSelectedPhoto: null,

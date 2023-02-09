@@ -123,7 +123,6 @@ export class ImageProcessorWorkflowStack extends cdk.NestedStack {
       "SFOrchestratorLambda",
       stepFunctionOrchestratorProps
     );
-    assetBucket.bucket.grantRead(stepFunctionOrchestrator.fnRole);
 
     const imageManifestEventTrigger = new SqsEventSource(assetBucket.queue, {
       batchSize: Config.pythonLambdas.stepFunctionOrchestrator.batchSize,

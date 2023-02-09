@@ -1,13 +1,10 @@
-import { useEffect, RefObject } from "react";
+import { RefObject } from "react";
 import { MapRef } from "react-map-gl";
 import { PointFeature } from "supercluster";
 import { BBox, GeoJsonProperties } from "geojson";
 import useSupercluster from "use-supercluster";
 import { usePhotosQuery } from "./use-photos-query";
 import { PhotoObject } from "../models/photo";
-import { useAuth } from "./use-auth";
-import { getPhotosByUser } from "../api/base-endpoints";
-import { usePhotoStore } from "../stores/photo-store";
 
 const getMapBounds = (mapRef: RefObject<MapRef>): BBox => {
   return mapRef.current
@@ -71,39 +68,9 @@ export const usePhotos = ({
   zoom: number;
   mapRef: RefObject<MapRef>;
 }) => {
-  const { user } = useAuth();
-  const { photos, setPhotos } = usePhotoStore();
-  useEffect(() => {
-    if (!user) {
-      return;
-    }
+  const { data } = usePhotosQuery();
 
-    getPhotosByUser().then((res) => {
-      setPhotos(res);
-    });
-  }, [user]);
-  // const { data, refetch } = usePhotosQuery();
-
-  // const refreshData = async () => {
-  //   const { data } = await refetch();
-  //   const { clusters, supercluster, points } = createClusters(
-  //     data,
-  //     zoom,
-  //     mapRef
-  //   );
-
-  //   return {
-  //     clusters,
-  //     supercluster,
-  //     points,
-  //   };
-  // };
-
-  const { clusters, supercluster, points } = createClusters(
-    photos,
-    zoom,
-    mapRef
-  );
+  const { clusters, supercluster, points } = createClusters(data, zoom, mapRef);
 
   return {
     clusters,
