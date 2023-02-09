@@ -47,7 +47,7 @@ class DB:
 
     def get_photos_by_user(self, user_id):
         response = self.table.query(
-            KeyConditionExpression=Key("pk").eq(user_id) & Key("sk").begins_with("IMAGE")
+            KeyConditionExpression=Key("pk").eq(f"USER_{user_id}") & Key("sk").begins_with("IMAGE")
         )
 
         return response

@@ -14,7 +14,7 @@ def post_user():
         epoch_timestamp = router.current_event["requestContext"]["requestTimeEpoch"]
         user_id, username = get_user_data_from_event(router.current_event)
         user_item = {
-            "pk": user_id,
+            "pk": f"USER_{user_id}",
             "sk": f"USER_{user_id}",
             "username": username,
             "datetime_updated": get_iso_timestamp(epoch_timestamp)
