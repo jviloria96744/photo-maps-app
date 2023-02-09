@@ -1,9 +1,10 @@
 import { ModalBody, Image } from "@chakra-ui/react";
-import { usePhotoContainerStore } from "../../stores/photoContainerStore";
+// import { usePhotoContainerStore } from "../../stores/photoContainerStore";
+import { usePhotoStore } from "../../stores/photo-store";
 import { ENV } from "../../config";
 
 const GalleryView = () => {
-  const { selectedPhotoKeys, setUserSelectedPhoto } = usePhotoContainerStore();
+  const { selectedPhotoKeys, setUserSelectedPhoto } = usePhotoStore();
   const calculatedColumnCount = () => {
     if (selectedPhotoKeys.length === 1) {
       return [1];

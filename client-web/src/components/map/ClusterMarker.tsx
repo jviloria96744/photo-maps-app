@@ -2,7 +2,8 @@ import { RefObject } from "react";
 import { Marker, MapRef } from "react-map-gl";
 import Supercluster, { PointFeature } from "supercluster";
 import { GeoJsonProperties } from "geojson";
-import { usePhotoContainerStore } from "../../stores/photoContainerStore";
+// import { usePhotoContainerStore } from "../../stores/photoContainerStore";
+import { usePhotoStore } from "../../stores/photo-store";
 import "./map-view.css";
 
 interface ClusterMarkerProps {
@@ -28,7 +29,7 @@ const ClusterMarker = ({
     });
   };
 
-  const openContainer = usePhotoContainerStore((state) => state.openContainer);
+  const openContainer = usePhotoStore((state) => state.openContainer);
 
   const handleMarkerClick = (
     cluster: PointFeature<GeoJsonProperties>

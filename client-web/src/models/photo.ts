@@ -32,9 +32,9 @@ export interface ImageLabel {
   label_name: string;
 }
 export interface PhotoObject {
-  attribute_image_geo: ImageGeo;
-  attribute_image_labels?: ImageLabel[];
-  attribute_object_key: string;
+  geo_data: ImageGeo;
+  image_labels?: string; // This is a jsonified string with an ImageLabel structure
+  object_key: string;
   datetime_created: string;
   datetime_updated: string;
   pk: string;

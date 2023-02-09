@@ -1,10 +1,13 @@
-import { RefObject } from "react";
+import { useEffect, RefObject } from "react";
 import { MapRef } from "react-map-gl";
 import { PointFeature } from "supercluster";
 import { BBox, GeoJsonProperties } from "geojson";
 import useSupercluster from "use-supercluster";
 import { usePhotosQuery } from "./use-photos-query";
 import { PhotoObject } from "../models/photo";
+import { useAuth } from "./use-auth";
+import { getPhotosByUser } from "../api/base-endpoints";
+import { usePhotoStore } from "../stores/photo-store";
 
 const getMapBounds = (mapRef: RefObject<MapRef>): BBox => {
   return mapRef.current
@@ -22,13 +25,13 @@ const transformPhotoObjects = (
         cluster: false,
         pointId: point.sk,
         category: "Photo",
-        objectKey: point.attribute_object_key,
+        objectKey: point.object_key,
       },
       geometry: {
         type: "Point",
         coordinates: [
-          parseFloat(point.attribute_image_geo.lng),
-          parseFloat(point.attribute_image_geo.lat),
+          parseFloat(point.geo_data.lng),
+          parseFloat(point.geo_data.lat),
         ],
       },
     };
@@ -68,29 +71,43 @@ export const usePhotos = ({
   zoom: number;
   mapRef: RefObject<MapRef>;
 }) => {
-  const { data, refetch } = usePhotosQuery();
+  const { user } = useAuth();
+  const { photos, setPhotos } = usePhotoStore();
+  useEffect(() => {
+    if (!user) {
+      return;
+    }
 
-  const refreshData = async () => {
-    const { data } = await refetch();
-    const { clusters, supercluster, points } = createClusters(
-      data,
-      zoom,
-      mapRef
-    );
+    getPhotosByUser().then((res) => {
+      setPhotos(res);
+    });
+  }, [user]);
+  // const { data, refetch } = usePhotosQuery();
 
-    return {
-      clusters,
-      supercluster,
-      points,
-    };
-  };
+  // const refreshData = async () => {
+  //   const { data } = await refetch();
+  //   const { clusters, supercluster, points } = createClusters(
+  //     data,
+  //     zoom,
+  //     mapRef
+  //   );
 
-  const { clusters, supercluster, points } = createClusters(data, zoom, mapRef);
+  //   return {
+  //     clusters,
+  //     supercluster,
+  //     points,
+  //   };
+  // };
+
+  const { clusters, supercluster, points } = createClusters(
+    photos,
+    zoom,
+    mapRef
+  );
 
   return {
     clusters,
     supercluster,
     points,
-    refreshData,
   };
 };
