@@ -174,9 +174,9 @@ export class ImageUploadStepFunction extends Construct {
           object_key: tasks.DynamoAttributeValue.fromString(
             JsonPath.stringAt("$.imageId")
           ),
-          image_labels: tasks.DynamoAttributeValue.listFromJsonPath(
-            "$.result[1].result.labels"
-          ),
+          // image_labels: tasks.DynamoAttributeValue.listFromJsonPath(
+          //   "$.result[1].result.labels"
+          // ),
         },
         table: dynamoTable,
         resultPath: "$.result",
