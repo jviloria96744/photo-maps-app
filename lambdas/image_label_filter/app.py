@@ -1,3 +1,5 @@
+import json
+
 def label_filter(labels: list[dict]) -> list[dict]:
     filtered_labels = [{
         "label_name": label.get("Name", ""),
@@ -26,6 +28,6 @@ def is_landmark(label_object: dict) -> bool:
 
 def handler(event, context):
     try:
-        return label_filter(event["result"]["imageLabels"])
+        return json.dumps(label_filter(event["result"]["imageLabels"]))
     except:
         return []
