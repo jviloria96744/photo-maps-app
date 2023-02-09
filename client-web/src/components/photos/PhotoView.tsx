@@ -1,7 +1,6 @@
 import { Box, ModalBody, Image } from "@chakra-ui/react";
 import IconButton from "../base/utility/IconButton";
 import { MdChevronLeft } from "react-icons/md";
-// import { usePhotoContainerStore } from "../../stores/photoContainerStore";
 import { usePhotoStore } from "../../stores/photo-store";
 import { ENV } from "../../config";
 

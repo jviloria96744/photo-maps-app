@@ -6,6 +6,7 @@ import {
   Subscribe2channelSubscription,
   publish2channel,
 } from "../graphql";
+import { User } from "../models/user";
 
 export type CallbackFunctionType = (
   value: GraphQLResult<GraphQLSubscription<Subscribe2channelSubscription>>
@@ -14,7 +15,7 @@ export type CallbackFunctionType = (
 interface UseSubscriptionProps {
   channel: string;
   callback_function: CallbackFunctionType;
-  isSignedIn: boolean | undefined;
+  user: User | undefined;
 }
 
 type msgType = {
@@ -22,16 +23,18 @@ type msgType = {
 };
 
 export const useSubscription = (props: UseSubscriptionProps) => {
-  const { channel, callback_function, isSignedIn } = props;
+  const { channel, callback_function, user } = props;
 
   useEffect(() => {
-    if (!isSignedIn) {
+    if (!user) {
       return;
     }
 
     const subscription = API.graphql<
       GraphQLSubscription<Subscribe2channelSubscription>
-    >(graphqlOperation(subscribe2channel, { name: channel })).subscribe({
+    >(
+      graphqlOperation(subscribe2channel, { name: `${channel}-${user.id}` })
+    ).subscribe({
       next: ({ provider, value }) => {
         // Structure of
         // value?.data?.subscribe2channel?.data
@@ -41,7 +44,7 @@ export const useSubscription = (props: UseSubscriptionProps) => {
     });
 
     return () => subscription.unsubscribe();
-  }, [isSignedIn]);
+  }, [user]);
 
   const publishMessage = (channel: string, msg: msgType) => {
     API.graphql(

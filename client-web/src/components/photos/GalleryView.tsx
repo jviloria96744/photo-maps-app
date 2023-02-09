@@ -1,5 +1,4 @@
 import { ModalBody, Image } from "@chakra-ui/react";
-// import { usePhotoContainerStore } from "../../stores/photoContainerStore";
 import { usePhotoStore } from "../../stores/photo-store";
 import { ENV } from "../../config";
 

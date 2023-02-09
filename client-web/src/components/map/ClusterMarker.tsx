@@ -2,7 +2,6 @@ import { RefObject } from "react";
 import { Marker, MapRef } from "react-map-gl";
 import Supercluster, { PointFeature } from "supercluster";
 import { GeoJsonProperties } from "geojson";
-// import { usePhotoContainerStore } from "../../stores/photoContainerStore";
 import { usePhotoStore } from "../../stores/photo-store";
 import "./map-view.css";
 

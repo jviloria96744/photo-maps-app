@@ -1,7 +1,6 @@
 import { Modal, ModalOverlay, ModalContent } from "@chakra-ui/react";
 import PhotoView from "./PhotoView";
 import GalleryView from "./GalleryView";
-// import { usePhotoContainerStore } from "../../stores/photoContainerStore";
 import { usePhotoStore } from "../../stores/photo-store";
 import { PHOTO_CONFIG } from "../../config";
 
