@@ -128,7 +128,7 @@ export class ImageUploadStepFunction extends Construct {
       {
         item: {
           pk: tasks.DynamoAttributeValue.fromString(
-            JsonPath.format("USER_{}", JsonPath.stringAt("$.userId"))
+            JsonPath.stringAt("$.userId")
           ),
           sk: tasks.DynamoAttributeValue.fromString(
             JsonPath.format(
