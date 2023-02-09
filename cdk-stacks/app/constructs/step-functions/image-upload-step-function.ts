@@ -1,13 +1,16 @@
 import * as step_function from "aws-cdk-lib/aws-stepfunctions";
 import * as tasks from "aws-cdk-lib/aws-stepfunctions-tasks";
 import * as iam from "aws-cdk-lib/aws-iam";
+import * as dynamodb from "aws-cdk-lib/aws-dynamodb";
 import { Stack } from "aws-cdk-lib";
 import { Construct } from "constructs";
 import { PythonLambda } from "../python-lambda";
+import { JsonPath } from "aws-cdk-lib/aws-stepfunctions";
 
 interface ImageUploadStepFunctionProps {
   imageLabelFilterLambda: PythonLambda;
   imageGeotaggerLambda: PythonLambda;
+  dynamoTable: dynamodb.Table;
 }
 
 export class ImageUploadStepFunction extends Construct {
@@ -19,7 +22,7 @@ export class ImageUploadStepFunction extends Construct {
   ) {
     super(parent, name);
 
-    const { imageLabelFilterLambda, imageGeotaggerLambda } = props;
+    const { imageLabelFilterLambda, imageGeotaggerLambda, dynamoTable } = props;
 
     const getUploadManifest = new tasks.CallAwsService(
       this,
@@ -45,6 +48,7 @@ export class ImageUploadStepFunction extends Construct {
       parameters: {
         "Bucket.$": "$.bucket_name",
         "imageId.$": "$$.Map.Item.Value",
+        "userId.$": "$.result.manifestData.userId",
       },
       itemsPath: "$.result.manifestData.imageIds",
       resultPath: "$.result",
@@ -57,6 +61,7 @@ export class ImageUploadStepFunction extends Construct {
       {
         comment:
           "The Geotagging and Rekognition steps are independent, therefore can be run in parallel",
+        resultPath: "$.result",
       }
     );
 
@@ -116,6 +121,69 @@ export class ImageUploadStepFunction extends Construct {
     rekognitionBranch.next(imageLabelFilterTask);
 
     parallelImageProcessingTask.branch(rekognitionBranch);
+
+    const dynamoDbPutItemTask = new tasks.DynamoPutItem(
+      this,
+      "Write Image Metadata To DynamoDB",
+      {
+        item: {
+          pk: tasks.DynamoAttributeValue.fromString(
+            JsonPath.format("USER_{}", JsonPath.stringAt("$.userId"))
+          ),
+          sk: tasks.DynamoAttributeValue.fromString(
+            JsonPath.format(
+              "IMAGE_{}",
+              JsonPath.stringSplit("$.imageId", "/")[-1]
+            )
+          ),
+          datetime_created: tasks.DynamoAttributeValue.fromString(
+            JsonPath.stringAt("$$.State.EnteredTime")
+          ),
+          datetime_updated: tasks.DynamoAttributeValue.fromString(
+            JsonPath.stringAt("$$.State.EnteredTime")
+          ),
+          geo_data: tasks.DynamoAttributeValue.mapFromJsonPath(
+            "$.result[0].result.geoData"
+          ),
+          // geo_data: tasks.DynamoAttributeValue.fromMap({
+          //   image_date: tasks.DynamoAttributeValue.fromString(
+          //     JsonPath.stringAt("$.result[0].result.geoData.date")
+          //   ),
+          //   image_width: tasks.DynamoAttributeValue.fromString(
+          //     JsonPath.stringAt("$.result[0].result.geoData.image_width")
+          //   ),
+          //   image_length: tasks.DynamoAttributeValue.fromString(
+          //     JsonPath.stringAt("$.result[0].result.geoData.image_length")
+          //   ),
+          //   lat: tasks.DynamoAttributeValue.fromString(
+          //     JsonPath.stringAt("$.result[0].result.geoData.lat")
+          //   ),
+          //   lng: tasks.DynamoAttributeValue.fromString(
+          //     JsonPath.stringAt("$.result[0].result.geoData.lng")
+          //   ),
+          //   city: tasks.DynamoAttributeValue.fromString(
+          //     JsonPath.stringAt("$.result[0].result.geoData.city")
+          //   ),
+          //   country: tasks.DynamoAttributeValue.fromString(
+          //     JsonPath.stringAt("$.result[0].result.geoData.country")
+          //   ),
+          //   country_code: tasks.DynamoAttributeValue.fromString(
+          //     JsonPath.stringAt("$.result[0].result.geoData.country_code")
+          //   ),
+          // }),
+          object_key: tasks.DynamoAttributeValue.fromString(
+            JsonPath.stringAt("$.imageId")
+          ),
+          image_labels: tasks.DynamoAttributeValue.listFromJsonPath(
+            "$.result[1].result.labels"
+          ),
+        },
+        table: dynamoTable,
+        resultPath: "$.result",
+      }
+    );
+
+    parallelImageProcessingTask.next(dynamoDbPutItemTask);
 
     mapImages.iterator(parallelImageProcessingTask);
 
