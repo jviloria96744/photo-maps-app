@@ -1,4 +1,4 @@
-# import json
+import json
 
 def label_filter(labels: list[dict]) -> list[dict]:
     filtered_labels = [{
@@ -28,6 +28,7 @@ def is_landmark(label_object: dict) -> bool:
 
 def handler(event, context):
     try:
-        return label_filter(event["result"]["imageLabels"])
+        # This is necessary because the task definition is not able to handle complex list objects
+        return json.dumps(label_filter(event["result"]["imageLabels"]))
     except:
         return []
