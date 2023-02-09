@@ -122,68 +122,68 @@ export class ImageUploadStepFunction extends Construct {
 
     parallelImageProcessingTask.branch(rekognitionBranch);
 
-    const dynamoDbPutItemTask = new tasks.DynamoPutItem(
-      this,
-      "Write Image Metadata To DynamoDB",
-      {
-        item: {
-          pk: tasks.DynamoAttributeValue.fromString(
-            JsonPath.format("USER_{}", JsonPath.stringAt("$.userId"))
-          ),
-          sk: tasks.DynamoAttributeValue.fromString(
-            JsonPath.format(
-              "IMAGE_{}",
-              JsonPath.stringSplit("$.imageId", "/")[-1]
-            )
-          ),
-          datetime_created: tasks.DynamoAttributeValue.fromString(
-            JsonPath.stringAt("$$.State.EnteredTime")
-          ),
-          datetime_updated: tasks.DynamoAttributeValue.fromString(
-            JsonPath.stringAt("$$.State.EnteredTime")
-          ),
-          geo_data: tasks.DynamoAttributeValue.mapFromJsonPath(
-            "$.result[0].result.geoData"
-          ),
-          // geo_data: tasks.DynamoAttributeValue.fromMap({
-          //   image_date: tasks.DynamoAttributeValue.fromString(
-          //     JsonPath.stringAt("$.result[0].result.geoData.date")
-          //   ),
-          //   image_width: tasks.DynamoAttributeValue.fromString(
-          //     JsonPath.stringAt("$.result[0].result.geoData.image_width")
-          //   ),
-          //   image_length: tasks.DynamoAttributeValue.fromString(
-          //     JsonPath.stringAt("$.result[0].result.geoData.image_length")
-          //   ),
-          //   lat: tasks.DynamoAttributeValue.fromString(
-          //     JsonPath.stringAt("$.result[0].result.geoData.lat")
-          //   ),
-          //   lng: tasks.DynamoAttributeValue.fromString(
-          //     JsonPath.stringAt("$.result[0].result.geoData.lng")
-          //   ),
-          //   city: tasks.DynamoAttributeValue.fromString(
-          //     JsonPath.stringAt("$.result[0].result.geoData.city")
-          //   ),
-          //   country: tasks.DynamoAttributeValue.fromString(
-          //     JsonPath.stringAt("$.result[0].result.geoData.country")
-          //   ),
-          //   country_code: tasks.DynamoAttributeValue.fromString(
-          //     JsonPath.stringAt("$.result[0].result.geoData.country_code")
-          //   ),
-          // }),
-          object_key: tasks.DynamoAttributeValue.fromString(
-            JsonPath.stringAt("$.imageId")
-          ),
-          image_labels: tasks.DynamoAttributeValue.listFromJsonPath(
-            "$.result[1].result.labels"
-          ),
-        },
-        table: dynamoTable,
-        resultPath: "$.result",
-      }
-    );
+    // const dynamoDbPutItemTask = new tasks.DynamoPutItem(
+    //   this,
+    //   "Write Image Metadata To DynamoDB",
+    //   {
+    //     item: {
+    //       pk: tasks.DynamoAttributeValue.fromString(
+    //         JsonPath.format("USER_{}", JsonPath.stringAt("$.userId"))
+    //       ),
+    //       sk: tasks.DynamoAttributeValue.fromString(
+    //         JsonPath.format(
+    //           "IMAGE_{}",
+    //           JsonPath.stringSplit("$.imageId", "/")[-1]
+    //         )
+    //       ),
+    //       datetime_created: tasks.DynamoAttributeValue.fromString(
+    //         JsonPath.stringAt("$$.State.EnteredTime")
+    //       ),
+    //       datetime_updated: tasks.DynamoAttributeValue.fromString(
+    //         JsonPath.stringAt("$$.State.EnteredTime")
+    //       ),
+    //       geo_data: tasks.DynamoAttributeValue.mapFromJsonPath(
+    //         "$.result[0].result.geoData"
+    //       ),
+    //       // geo_data: tasks.DynamoAttributeValue.fromMap({
+    //       //   image_date: tasks.DynamoAttributeValue.fromString(
+    //       //     JsonPath.stringAt("$.result[0].result.geoData.date")
+    //       //   ),
+    //       //   image_width: tasks.DynamoAttributeValue.fromString(
+    //       //     JsonPath.stringAt("$.result[0].result.geoData.image_width")
+    //       //   ),
+    //       //   image_length: tasks.DynamoAttributeValue.fromString(
+    //       //     JsonPath.stringAt("$.result[0].result.geoData.image_length")
+    //       //   ),
+    //       //   lat: tasks.DynamoAttributeValue.fromString(
+    //       //     JsonPath.stringAt("$.result[0].result.geoData.lat")
+    //       //   ),
+    //       //   lng: tasks.DynamoAttributeValue.fromString(
+    //       //     JsonPath.stringAt("$.result[0].result.geoData.lng")
+    //       //   ),
+    //       //   city: tasks.DynamoAttributeValue.fromString(
+    //       //     JsonPath.stringAt("$.result[0].result.geoData.city")
+    //       //   ),
+    //       //   country: tasks.DynamoAttributeValue.fromString(
+    //       //     JsonPath.stringAt("$.result[0].result.geoData.country")
+    //       //   ),
+    //       //   country_code: tasks.DynamoAttributeValue.fromString(
+    //       //     JsonPath.stringAt("$.result[0].result.geoData.country_code")
+    //       //   ),
+    //       // }),
+    //       object_key: tasks.DynamoAttributeValue.fromString(
+    //         JsonPath.stringAt("$.imageId")
+    //       ),
+    //       image_labels: tasks.DynamoAttributeValue.listFromJsonPath(
+    //         "$.result[1].result.labels"
+    //       ),
+    //     },
+    //     table: dynamoTable,
+    //     resultPath: "$.result",
+    //   }
+    // );
 
-    parallelImageProcessingTask.next(dynamoDbPutItemTask);
+    // parallelImageProcessingTask.next(dynamoDbPutItemTask);
 
     mapImages.iterator(parallelImageProcessingTask);
 

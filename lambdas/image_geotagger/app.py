@@ -9,6 +9,8 @@ def get_event_metadata(event):
     try:
         s3_bucket_name = event["Bucket"]
         s3_object_key = event["imageId"] 
+        image_id = s3_object_key.split("/")[-1]
+        image_id = image_id.split(".")[0]
 
         if not s3_bucket_name or not s3_object_key:
             raise Exception("Key name is not in correct format")
@@ -16,6 +18,7 @@ def get_event_metadata(event):
         return {
             "bucket_name": s3_bucket_name,
             "key": s3_object_key,
+            "image_id": image_id
         }
     except Exception:
         logger.exception("Error extracting metadata from event object")
@@ -33,7 +36,8 @@ def handler(event, context: LambdaContext):
 
     geotagged_data = {
         **exif_data,
-        **rev_geocode_data
+        **rev_geocode_data,
+        "image_id": event_metadata["image_id"]
     }
 
     logger.debug("Successfully extracted geo data from image", extra=geotagged_data)
