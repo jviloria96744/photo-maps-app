@@ -57,6 +57,9 @@ export class ImageUploadStepFunction extends Construct {
       {
         item: this.createDynamoDBItemParam(),
         table: dynamoTable,
+        resultSelector: {
+          "statusCode.$": "$.SdkHttpMetadata.HttpStatusCode",
+        },
         resultPath: "$.result",
       }
     );
@@ -65,7 +68,12 @@ export class ImageUploadStepFunction extends Construct {
 
     mapImages.iterator(parallelImageProcessingTask);
 
-    const definition = getUploadManifest.next(mapImages);
+    const deleteManifestTask = this.deleteManifestTask();
+
+    const definition = getUploadManifest
+      .next(mapImages)
+      // Appsync Notification will go here
+      .next(deleteManifestTask);
 
     const machine = new step_function.StateMachine(this, "StateMachine", {
       definition,
@@ -90,6 +98,24 @@ export class ImageUploadStepFunction extends Construct {
       resultPath: "$.result",
       comment:
         "Get manifest file from S3 to determine files that need to be processed",
+    });
+  }
+
+  deleteManifestTask() {
+    return new tasks.CallAwsService(this, "Delete Photo Upload Manifest", {
+      service: "s3",
+      action: "deleteObject",
+      parameters: {
+        "Bucket.$": "$.bucket_name",
+        "Key.$": "$.object_key",
+      },
+      iamResources: ["*"],
+      // resultSelector: {
+      //   "manifestData.$": "States.StringToJson($.Body)",
+      // },
+      resultPath: "$.result",
+      comment:
+        "Once all processing is complete, we can remove the manifest file",
     });
   }
 

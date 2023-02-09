@@ -21,7 +21,7 @@ def get_event_metadata(event: dict):
             raise Exception("Key name is not in correct format")
 
         return {
-            "partition_key": user_id,
+            "partition_key": f"USER_{user_id}",
             "sort_key": f"IMAGE_{photo_id}"
         }
     except Exception as e:
