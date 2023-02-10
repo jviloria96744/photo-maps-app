@@ -21,6 +21,10 @@ export class EventBridgeBus extends Construct {
     const logGroupRule = new events.Rule(this, "EventBusLogRule", {
       eventBus,
       targets: [new CloudWatchLogGroup(logGroup)],
+      eventPattern: {
+        detailType: ["ImagesUploadMessageFromStepFunctions"],
+        source: ["step.functions"],
+      },
     });
 
     this.eventBus = eventBus;
