@@ -23,15 +23,16 @@ export class EventBridgePutItemTask extends Construct {
             detail: step_functions.TaskInput.fromObject({
               channel: step_functions.JsonPath.format(
                 "channel-{}",
-                step_functions.JsonPath.stringAt("$.userId")
+                step_functions.JsonPath.stringAt("$.result[0].userId")
               ),
-              // data: step_functions.JsonPath.array(),
+              data: step_functions.JsonPath.objectAt("$.result[*].result.item"),
             }),
             detailType: "ImagesUploadMessageFromStepFunctions",
             eventBus: eventBus,
             source: "step.functions",
           },
         ],
+        resultPath: step_functions.JsonPath.DISCARD,
       }
     );
 

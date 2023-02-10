@@ -7,6 +7,7 @@ import { PythonLambda } from "../python-lambda";
 import { DynamoDbWriteItemTask } from "./dynamo-db-write-item-task";
 import { ParallelImageProcessingTask } from "./parallel-image-processing-task";
 import { ManifestFileTasks } from "./manifest-file-tasks";
+import { EventBridgePutItemTask } from "./eventbridge-put-item-task";
 
 interface ImageUploadStepFunctionProps {
   imageLabelFilterLambda: PythonLambda;
@@ -24,7 +25,12 @@ export class ImageUploadStepFunction extends Construct {
   ) {
     super(parent, name);
 
-    const { imageLabelFilterLambda, imageGeotaggerLambda, dynamoTable } = props;
+    const {
+      imageLabelFilterLambda,
+      imageGeotaggerLambda,
+      dynamoTable,
+      eventBus,
+    } = props;
 
     const parallelImageProcessingTask = new ParallelImageProcessingTask(
       parent,
@@ -59,16 +65,17 @@ export class ImageUploadStepFunction extends Construct {
 
     const manifestTasks = new ManifestFileTasks(parent, "ManifestFileTasks");
 
-    const debugTask = new step_function.Pass(this, "DebugTask", {
-      parameters: {
-        "userId.$": "$.result[0].userId",
-        "items.$": "$.result[*].result.item",
-      },
-    });
+    const publishMessageTask = new EventBridgePutItemTask(
+      parent,
+      "SendMessageTask",
+      {
+        eventBus,
+      }
+    );
 
     const definition = manifestTasks.uploadTask
       .next(mapImages)
-      .next(debugTask)
+      .next(publishMessageTask.task)
       // Appsync Notification will go here
       .next(manifestTasks.deleteTask);
 
