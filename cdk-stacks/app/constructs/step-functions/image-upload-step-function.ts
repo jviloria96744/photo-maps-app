@@ -68,7 +68,7 @@ export class ImageUploadStepFunction extends Construct {
 
     const definition = manifestTasks.uploadTask
       .next(mapImages)
-      // .next(debugTask)
+      .next(debugTask)
       // Appsync Notification will go here
       .next(manifestTasks.deleteTask);
 

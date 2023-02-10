@@ -20,6 +20,10 @@ const UploadPhotoIconButton = () => {
     }
 
     uploadPhotosToS3(e.target.files, user as User);
+
+    if (inputRef.current?.value) {
+      inputRef.current.value = "";
+    }
   };
 
   return (
