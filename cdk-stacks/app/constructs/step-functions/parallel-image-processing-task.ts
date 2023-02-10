@@ -1,7 +1,7 @@
 import * as step_function from "aws-cdk-lib/aws-stepfunctions";
 import * as tasks from "aws-cdk-lib/aws-stepfunctions-tasks";
 import * as iam from "aws-cdk-lib/aws-iam";
-import { Stack } from "aws-cdk-lib";
+import { Stack, Duration } from "aws-cdk-lib";
 import { Construct } from "constructs";
 import { PythonLambda } from "../python-lambda";
 import { IFunction } from "aws-cdk-lib/aws-lambda";
@@ -38,10 +38,20 @@ export class ParallelImageProcessingTask extends Construct {
       imageGeotaggerLambda.function,
       "geoData"
     );
+
+    geoTaggingTask.addRetry({
+      interval: Duration.seconds(1),
+      maxAttempts: 3,
+    });
     // Left Branch
 
     // Right Branch
     const rekognitionBranch = this.createRekognitionTask();
+
+    rekognitionBranch.addRetry({
+      interval: Duration.seconds(1),
+      maxAttempts: 3,
+    });
 
     const imageLabelFilterTask = this.createLambdaInvokeTask(
       "Filter Image Labels",
