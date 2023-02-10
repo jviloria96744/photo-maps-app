@@ -57,48 +57,52 @@ export class DynamoDbWriteItemTask extends Construct {
             object_key=:object_key,
             image_labels=:image_labels
         `,
+        resultSelector: {
+          "statusCode.$": "$.result.SdkHttpMetadata.HttpStatusCode",
+          item: this.createItemOutput(),
+        },
         resultPath: "$.result",
       }
     );
-    // const dynamoDbPutItemTask = new tasks.DynamoPutItem(
-    //   this,
-    //   "Write Image Metadata To DynamoDB",
-    //   {
-    //     item: {
-    //       pk: tasks.DynamoAttributeValue.fromString(
-    //         JsonPath.stringAt("$.userId")
-    //       ),
-    //       sk: tasks.DynamoAttributeValue.fromString(
-    //         JsonPath.format(
-    //           "IMAGE_{}",
-    //           JsonPath.stringAt("$.result[0].result.geoData.image_id")
-    //         )
-    //       ),
-    //       datetime_created: tasks.DynamoAttributeValue.fromString(
-    //         JsonPath.stringAt("$$.State.EnteredTime")
-    //       ),
-    //       datetime_updated: tasks.DynamoAttributeValue.fromString(
-    //         JsonPath.stringAt("$$.State.EnteredTime")
-    //       ),
-    //       geo_data: tasks.DynamoAttributeValue.mapFromJsonPath(
-    //         "$.result[0].result.geoData"
-    //       ),
-    //       object_key: tasks.DynamoAttributeValue.fromString(
-    //         JsonPath.stringAt("$.imageId")
-    //       ),
-    //       image_labels: tasks.DynamoAttributeValue.fromString(
-    //         JsonPath.stringAt("$.result[1].result.labels")
-    //       ),
-    //     },
-    //     table: dynamoTable,
-    //     // resultSelector: {
-    //     //   "statusCode.$": "$.SdkHttpMetadata.HttpStatusCode",
-    //     // },
-    //     resultPath: "$.result",
-    //     returnValues: tasks.DynamoReturnValues.ALL_NEW,
-    //   }
-    // );
 
     this.task = dynamoDbUpdateItemTask;
+  }
+
+  private createItemOutput(): { [key: string]: any } {
+    const itemKeys = [
+      "pk",
+      "sk",
+      "datetime_created",
+      "datetime_updated",
+      "object_key",
+    ];
+    const geoDataKeys = [
+      "date",
+      "country",
+      "country_code",
+      "image_length",
+      "image_width",
+      "lng",
+      "lat",
+      "city",
+      "image_id",
+    ];
+    return {
+      ...this.keysFromStringList(itemKeys, "$.result.Attributes"),
+      "image_labels.$":
+        "States.StringToJson($.result.Attributes.image_labels.S)",
+      geo_data: {
+        ...this.keysFromStringList(geoDataKeys, "$.result.Attributes.geo_data"),
+      },
+    };
+  }
+
+  private keysFromStringList(keys: string[], basePath: string) {
+    const obj: { [key: string]: string } = {};
+    keys.forEach((key) => {
+      obj[`${key}.$`] = `${basePath}.${key}.S`;
+    });
+
+    return obj;
   }
 }
