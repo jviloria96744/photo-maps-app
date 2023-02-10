@@ -25,7 +25,7 @@ export class EventBridgePutItemTask extends Construct {
                 "channel-{}",
                 step_functions.JsonPath.stringAt("$.userId")
               ),
-              data: step_functions.JsonPath.objectAt("$.result"),
+              // data: step_functions.JsonPath.array(),
             }),
             detailType: "ImagesUploadMessageFromStepFunctions",
             eventBus: eventBus,

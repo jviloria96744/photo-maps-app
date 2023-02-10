@@ -59,8 +59,16 @@ export class ImageUploadStepFunction extends Construct {
 
     const manifestTasks = new ManifestFileTasks(parent, "ManifestFileTasks");
 
+    const debugTask = new step_function.Pass(this, "DebugTask", {
+      parameters: {
+        "userId.$": "$.result[0].userId",
+        "items.$": "$.result[*].result.item",
+      },
+    });
+
     const definition = manifestTasks.uploadTask
       .next(mapImages)
+      .next(debugTask)
       // Appsync Notification will go here
       .next(manifestTasks.deleteTask);
 
