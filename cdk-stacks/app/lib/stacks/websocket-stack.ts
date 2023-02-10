@@ -3,6 +3,8 @@ import * as route53 from "aws-cdk-lib/aws-route53";
 import * as acm from "aws-cdk-lib/aws-certificatemanager";
 import * as cognito from "aws-cdk-lib/aws-cognito";
 import * as appsync from "aws-cdk-lib/aws-appsync";
+import * as events from "aws-cdk-lib/aws-events";
+import * as iam from "aws-cdk-lib/aws-iam";
 import { Construct } from "constructs";
 
 interface WebSocketStackProps extends cdk.StackProps {
@@ -12,6 +14,7 @@ interface WebSocketStackProps extends cdk.StackProps {
   domainName: string;
   certificate: acm.Certificate;
   hostedZone: route53.IHostedZone;
+  eventBus: events.EventBus;
 }
 
 export class WebSocketStack extends cdk.NestedStack {
@@ -26,6 +29,7 @@ export class WebSocketStack extends cdk.NestedStack {
       certificate,
       hostedZone,
       subDomainName,
+      eventBus,
     } = props;
 
     const api = new appsync.GraphqlApi(this, "GraphQLApi", {
@@ -37,6 +41,11 @@ export class WebSocketStack extends cdk.NestedStack {
             userPool: cognitoUserPool,
           },
         },
+        additionalAuthorizationModes: [
+          {
+            authorizationType: appsync.AuthorizationType.API_KEY,
+          },
+        ],
       },
       schema: appsync.SchemaFile.fromAsset(pathName),
       domainName: {
@@ -68,6 +77,75 @@ export class WebSocketStack extends cdk.NestedStack {
       recordName: subDomainName,
       domainName: api.appSyncDomainName,
       zone: hostedZone,
+    });
+
+    // TODO: ADD API KEY TO SECRETS MANAGER AND FETCH FROM THERE
+    const eventBusAppSyncConnection = new events.Connection(
+      this,
+      "BusAppSyncConnection",
+      {
+        authorization: events.Authorization.apiKey(
+          "x-api-key",
+          cdk.SecretValue.unsafePlainText(api.apiKey || "")
+        ),
+      }
+    );
+
+    const eventBusDestination = new events.ApiDestination(
+      this,
+      "BusApiDestination",
+      {
+        connection: eventBusAppSyncConnection,
+        endpoint: api.graphqlUrl,
+        httpMethod: events.HttpMethod.POST,
+      }
+    );
+
+    const invokeRole = new iam.Role(this, "InvokeRole", {
+      assumedBy: new iam.ServicePrincipal("events.amazonaws.com"),
+      inlinePolicies: {
+        invokeApi: new iam.PolicyDocument({
+          statements: [
+            new iam.PolicyStatement({
+              resources: ["*"],
+              actions: ["events:InvokeApiDestination"],
+            }),
+          ],
+        }),
+      },
+    });
+
+    const appSyncRule = new events.CfnRule(this, "AppSyncRule", {
+      eventBusName: eventBus.eventBusName,
+      eventPattern: {
+        detailType: ["ImagesUploadMessageFromStepFunctions"],
+        source: ["step.functions"],
+      },
+      targets: [
+        {
+          arn: eventBusDestination.apiDestinationArn,
+          id: "AppSyncTarget",
+          roleArn: invokeRole.roleArn,
+          inputTransformer: {
+            inputPathsMap: {
+              name: "$.detail.channel",
+              data: "$.detail.data",
+            },
+            inputTemplate: `
+             "query": "mutation Publish2channel($data: AWSJSON!, $name: String!) {
+              publish2channel(data: $data, name: $name) {
+                data
+                name
+              }
+            }",
+            "variables": {
+              "name": "",
+              "data": {}
+            }
+          `.replace(/\n\s*/g, " "),
+          },
+        },
+      ],
     });
 
     this.api = api;
