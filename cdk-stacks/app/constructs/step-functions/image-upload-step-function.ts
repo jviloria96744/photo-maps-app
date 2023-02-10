@@ -1,9 +1,10 @@
 import * as step_function from "aws-cdk-lib/aws-stepfunctions";
 import * as dynamodb from "aws-cdk-lib/aws-dynamodb";
+import * as events from "aws-cdk-lib/aws-events";
 import { Stack } from "aws-cdk-lib";
 import { Construct } from "constructs";
 import { PythonLambda } from "../python-lambda";
-import { DynamoDbPutItemTask } from "./dynamo-db-put-item-task";
+import { DynamoDbWriteItemTask } from "./dynamo-db-write-item-task";
 import { ParallelImageProcessingTask } from "./parallel-image-processing-task";
 import { ManifestFileTasks } from "./manifest-file-tasks";
 
@@ -11,6 +12,7 @@ interface ImageUploadStepFunctionProps {
   imageLabelFilterLambda: PythonLambda;
   imageGeotaggerLambda: PythonLambda;
   dynamoTable: dynamodb.Table;
+  eventBus: events.EventBus;
 }
 
 export class ImageUploadStepFunction extends Construct {
@@ -33,7 +35,7 @@ export class ImageUploadStepFunction extends Construct {
       }
     );
 
-    const dynamoDbPutItemTask = new DynamoDbPutItemTask(
+    const dynamoDbWriteItemTask = new DynamoDbWriteItemTask(
       parent,
       "DynamoPutItemTask",
       {
@@ -41,7 +43,7 @@ export class ImageUploadStepFunction extends Construct {
       }
     );
 
-    parallelImageProcessingTask.task.next(dynamoDbPutItemTask.task);
+    parallelImageProcessingTask.task.next(dynamoDbWriteItemTask.task);
 
     const mapImages = new step_function.Map(this, "Process Images", {
       parameters: {

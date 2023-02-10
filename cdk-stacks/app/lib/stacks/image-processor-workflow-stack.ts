@@ -5,6 +5,7 @@ import * as route53 from "aws-cdk-lib/aws-route53";
 import * as secretsmanager from "aws-cdk-lib/aws-secretsmanager";
 import * as dynamodb from "aws-cdk-lib/aws-dynamodb";
 import * as lambda from "aws-cdk-lib/aws-lambda";
+import * as events from "aws-cdk-lib/aws-events";
 import { SqsEventSource } from "aws-cdk-lib/aws-lambda-event-sources";
 import { Construct } from "constructs";
 import { S3ToSQS } from "../../constructs/s3-to-sqs";
@@ -22,6 +23,7 @@ interface ImageProcessorWorkflowStackProps extends cdk.NestedStackProps {
   assetCDNCertificate: acm.Certificate;
   cdnDomain: string;
   hostedZone: route53.IHostedZone;
+  eventBus: events.EventBus;
 }
 
 export class ImageProcessorWorkflowStack extends cdk.NestedStack {
@@ -38,8 +40,14 @@ export class ImageProcessorWorkflowStack extends cdk.NestedStack {
   ) {
     super(scope, id, props);
 
-    const { dynamoTable, assetCDNCertificate, Config, cdnDomain, hostedZone } =
-      props;
+    const {
+      dynamoTable,
+      assetCDNCertificate,
+      Config,
+      cdnDomain,
+      hostedZone,
+      eventBus,
+    } = props;
 
     const assetBucket = new S3ToSQS(this, "Assets", {
       certificate: assetCDNCertificate,
@@ -101,6 +109,7 @@ export class ImageProcessorWorkflowStack extends cdk.NestedStack {
       imageLabelFilterLambda: imageLabelFilter,
       imageGeotaggerLambda: imageGeotagger,
       dynamoTable,
+      eventBus,
     });
 
     const stepFunctionOrchestratorProps: PythonLambdaProps = {
