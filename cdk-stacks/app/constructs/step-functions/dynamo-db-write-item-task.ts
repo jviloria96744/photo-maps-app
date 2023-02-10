@@ -58,7 +58,7 @@ export class DynamoDbWriteItemTask extends Construct {
             image_labels=:image_labels
         `,
         resultSelector: {
-          "statusCode.$": "$.result.SdkHttpMetadata.HttpStatusCode",
+          "statusCode.$": "$.SdkHttpMetadata.HttpStatusCode",
           item: this.createItemOutput(),
         },
         resultPath: "$.result",
@@ -88,11 +88,10 @@ export class DynamoDbWriteItemTask extends Construct {
       "image_id",
     ];
     return {
-      ...this.keysFromStringList(itemKeys, "$.result.Attributes"),
-      "image_labels.$":
-        "States.StringToJson($.result.Attributes.image_labels.S)",
+      ...this.keysFromStringList(itemKeys, "$.Attributes"),
+      "image_labels.$": "States.StringToJson($.Attributes.image_labels.S)",
       geo_data: {
-        ...this.keysFromStringList(geoDataKeys, "$.result.Attributes.geo_data"),
+        ...this.keysFromStringList(geoDataKeys, "$.Attributes.geo_data"),
       },
     };
   }
