@@ -91,7 +91,7 @@ export class DynamoDbWriteItemTask extends Construct {
       ...this.keysFromStringList(itemKeys, "$.Attributes"),
       "image_labels.$": "States.StringToJson($.Attributes.image_labels.S)",
       geo_data: {
-        ...this.keysFromStringList(geoDataKeys, "$.Attributes.geo_data"),
+        ...this.keysFromStringList(geoDataKeys, "$.Attributes.geo_data.M"),
       },
     };
   }
