@@ -10,7 +10,7 @@ type Channel {
 }
 
 type Mutation {
-  publish2channel(data: AWSJSON!, name: String!): Channel
+  publish2channel(data: AWSJSON!, name: String!): Channel @aws_api_key
 }
 
 type Query {
