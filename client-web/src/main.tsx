@@ -12,6 +12,8 @@ Amplify.configure({
   ...graphqlConfiguration,
 });
 
+Amplify.Logger.LOG_LEVEL = "DEBUG";
+
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {

@@ -133,16 +133,12 @@ export class WebSocketStack extends cdk.NestedStack {
             },
             inputTemplate: `{
              "query": "mutation Publish2channel($data: AWSJSON!, $name: String!) {
-              publish2channel(data: $data, name: $name) {
-                data
-                name
-              }
-            }",
-            "variables": {
-              "name": "",
-              "data": {}
-            }
-          }`.replace(/\n\s*/g, " "),
+                publish2channel(data: $data, name: $name) {
+                  data
+                  name
+                }
+              }"
+            }`.replace(/\n\s*/g, " "),
           },
         },
       ],

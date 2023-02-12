@@ -14,7 +14,7 @@ export type CallbackFunctionType = (
 
 interface UseSubscriptionProps {
   channel: string;
-  callback_function: CallbackFunctionType;
+  callbackFunction: CallbackFunctionType;
   user: User | undefined;
 }
 
@@ -23,7 +23,7 @@ type msgType = {
 };
 
 export const useSubscription = (props: UseSubscriptionProps) => {
-  const { channel, callback_function, user } = props;
+  const { channel, callbackFunction, user } = props;
 
   useEffect(() => {
     if (!user) {
@@ -38,13 +38,13 @@ export const useSubscription = (props: UseSubscriptionProps) => {
       next: ({ provider, value }) => {
         // Structure of
         // value?.data?.subscribe2channel?.data
-        callback_function(value);
+        callbackFunction(value);
       },
       error: (error) => console.warn(error),
     });
 
     return () => subscription.unsubscribe();
-  }, [user]);
+  }, [user, channel, callbackFunction]);
 
   const publishMessage = (channel: string, msg: msgType) => {
     API.graphql(
