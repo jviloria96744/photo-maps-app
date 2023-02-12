@@ -136,8 +136,12 @@ export class WebSocketStack extends cdk.NestedStack {
                 publish2channel(data: $data, name: $name) {
                   data
                   name
-                }
-              }"
+                },
+              }",
+              "variables": {
+                "name": "<name>",
+                "data": "<data>"
+              }
             }`.replace(/\n\s*/g, " "),
           },
         },

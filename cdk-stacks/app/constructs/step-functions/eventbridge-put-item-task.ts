@@ -26,7 +26,7 @@ export class EventBridgePutItemTask extends Construct {
                 step_functions.JsonPath.stringAt("$.result[0].userId")
               ),
               data: step_functions.JsonPath.jsonToString(
-                "$.result[*].result.item"
+                step_functions.JsonPath.objectAt("$.result[*].result.item")
               ),
             }),
             detailType: "ImagesUploadMessageFromStepFunctions",
