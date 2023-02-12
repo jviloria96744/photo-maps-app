@@ -4,7 +4,7 @@ schema {
   subscription: Subscription
 }
 
-type Channel {
+type Channel @aws_api_key {
   data: AWSJSON!
   name: String!
 }
