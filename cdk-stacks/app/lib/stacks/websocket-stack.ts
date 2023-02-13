@@ -76,18 +76,6 @@ export class WebSocketStack extends cdk.NestedStack {
       zone: hostedZone,
     });
 
-    // TODO: ADD API KEY TO SECRETS MANAGER AND FETCH FROM THERE
-    const eventBusAppSyncConnection = new events.Connection(
-      this,
-      "BusAppSyncConnection",
-      {
-        authorization: events.Authorization.apiKey(
-          "x-api-key",
-          cdk.SecretValue.unsafePlainText(api.apiKey || "")
-        ),
-      }
-    );
-
     this.api = api;
   }
 }
