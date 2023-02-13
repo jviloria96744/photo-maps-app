@@ -3,7 +3,6 @@ import * as route53 from "aws-cdk-lib/aws-route53";
 import * as acm from "aws-cdk-lib/aws-certificatemanager";
 import * as cognito from "aws-cdk-lib/aws-cognito";
 import * as appsync from "aws-cdk-lib/aws-appsync";
-import * as events from "aws-cdk-lib/aws-events";
 import { Construct } from "constructs";
 
 interface WebSocketStackProps extends cdk.StackProps {
@@ -41,6 +40,9 @@ export class WebSocketStack extends cdk.NestedStack {
         additionalAuthorizationModes: [
           {
             authorizationType: appsync.AuthorizationType.API_KEY,
+            apiKeyConfig: {
+              expires: cdk.Expiration.after(cdk.Duration.days(365)),
+            },
           },
         ],
       },
