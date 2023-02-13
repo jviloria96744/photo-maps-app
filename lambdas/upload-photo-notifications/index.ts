@@ -2,18 +2,13 @@ import { Handler } from "aws-lambda";
 import { API, Amplify } from "aws-amplify";
 import * as mutations from "./graphql/mutations";
 import { getAmplifyConfiguration } from "./utils/amplify-configuration";
+import { Event, eventParser } from "./utils/event-parser";
 
-interface EventData {
-  channel: string;
-  data: any;
-}
-
-export const handler: Handler = async (event: EventData, context) => {
-  const { channel, data } = event;
-  const stringifiedData = JSON.stringify(data);
+export const handler: Handler = async (event: Event, context) => {
+  const { channel, data } = eventParser(event);
 
   try {
-    await handleEvent(channel, stringifiedData);
+    await handleEvent(channel, data);
   } catch (error) {
     return error;
   }

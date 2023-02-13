@@ -143,6 +143,7 @@ export class ImageProcessorWorkflowStack extends cdk.NestedStack {
     const stepFunction = new ImageUploadStepFunction(this, id, {
       imageLabelFilterLambda: imageLabelFilter,
       imageGeotaggerLambda: imageGeotagger,
+      appsyncMessengerLambda: appsyncMessenger,
       dynamoTable,
       eventBus,
     });
