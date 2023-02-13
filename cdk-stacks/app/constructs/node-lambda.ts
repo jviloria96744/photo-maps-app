@@ -31,7 +31,7 @@ export class NodeLambda extends Construct {
       entry,
       handler: "handler",
       runtime: lambda.Runtime.NODEJS_16_X,
-      architecture: lambda.Architecture.ARM_64,
+      architecture: lambda.Architecture.X86_64,
       timeout: Duration.seconds(duration ?? 10),
       memorySize: memorySize ?? 128,
       retryAttempts: retryAttempts ?? 0,
