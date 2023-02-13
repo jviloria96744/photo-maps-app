@@ -41,6 +41,7 @@ export class NodeLambda extends Construct {
       bundling: {
         minify: true,
       },
+      depsLockFilePath: `${codePath}/package-lock.json`,
       projectRoot: codePath,
     });
 
