@@ -40,6 +40,17 @@ export class NodeLambda extends Construct {
       },
       bundling: {
         minify: true,
+        commandHooks: {
+          beforeBundling(inputDir: string, outputDir: string) {
+            return [`cd ${inputDir}`, "npm ci"];
+          },
+          beforeInstall() {
+            return [];
+          },
+          afterBundling() {
+            return [];
+          },
+        },
       },
       depsLockFilePath: `${codePath}/package-lock.json`,
       projectRoot: codePath,
