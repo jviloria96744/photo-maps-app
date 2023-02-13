@@ -38,7 +38,6 @@ export class NodeLambda extends Construct {
       environment: {
         ...environment,
       },
-      depsLockFilePath: codePath,
       bundling: {
         minify: true,
       },
