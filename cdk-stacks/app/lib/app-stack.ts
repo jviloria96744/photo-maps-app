@@ -3,7 +3,6 @@ import * as acm from "aws-cdk-lib/aws-certificatemanager";
 import * as route53 from "aws-cdk-lib/aws-route53";
 import { Construct } from "constructs";
 import { DynamoDBTable } from "../constructs/dynamo-db-table";
-import { EventBridgeBus } from "../constructs/eventbridge-bus";
 import { AdminSiteStack } from "./stacks/admin-site-stack";
 import { WebClientStack } from "./stacks/web-client-stack";
 import { ImageProcessorWorkflowStack } from "./stacks/image-processor-workflow-stack";
@@ -41,7 +40,6 @@ export class AppStack extends cdk.Stack {
     const { certificates } = props;
 
     const dynamoDB = new DynamoDBTable(this, "DynamoDB");
-    const eventBridge = new EventBridgeBus(this, "EventBridge");
 
     const adminSiteStack = new AdminSiteStack(this, "AdminPortal", {
       siteDomain: `${DOMAIN_NAMES.ADMIN_PORTAL_SUBDOMAIN}.${DOMAIN_NAMES.TLD_NAME}`,
@@ -78,7 +76,6 @@ export class AppStack extends cdk.Stack {
         assetCDNCertificate: certificates.assetCDNCertificate,
         cdnDomain: `${DOMAIN_NAMES.ASSETS_SUBDOMAIN}.${DOMAIN_NAMES.TLD_NAME}`,
         hostedZone: certificates.hostedZone,
-        eventBus: eventBridge.eventBus,
       }
     );
 
@@ -99,7 +96,6 @@ export class AppStack extends cdk.Stack {
       domainName: `${DOMAIN_NAMES.APPSYNC_SUBDOMAIN}.${DOMAIN_NAMES.TLD_NAME}`,
       certificate: certificates.appSyncCertificate,
       hostedZone: certificates.hostedZone,
-      eventBus: eventBridge.eventBus,
     });
 
     this.dynamoDb = dynamoDB;

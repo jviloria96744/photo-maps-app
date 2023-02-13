@@ -9,14 +9,12 @@ import { DynamoDbWriteItemTask } from "./dynamo-db-write-item-task";
 import { ParallelImageProcessingTask } from "./parallel-image-processing-task";
 import { ManifestFileTasks } from "./manifest-file-tasks";
 import { AppsyncMutationTask } from "./appsync-mutation-task";
-import { EventBridgePutItemTask } from "./eventbridge-put-item-task";
 
 interface ImageUploadStepFunctionProps {
   imageLabelFilterLambda: PythonLambda;
   imageGeotaggerLambda: PythonLambda;
   appsyncMessengerLambda: NodeLambda;
   dynamoTable: dynamodb.Table;
-  eventBus: events.EventBus;
 }
 
 export class ImageUploadStepFunction extends Construct {
@@ -32,7 +30,6 @@ export class ImageUploadStepFunction extends Construct {
       imageLabelFilterLambda,
       imageGeotaggerLambda,
       dynamoTable,
-      eventBus,
       appsyncMessengerLambda,
     } = props;
 
@@ -76,19 +73,10 @@ export class ImageUploadStepFunction extends Construct {
         lambda: appsyncMessengerLambda,
       }
     );
-    // const publishMessageTask = new EventBridgePutItemTask(
-    //   parent,
-    //   "SendMessageTask",
-    //   {
-    //     eventBus,
-    //   }
-    // );
 
     const definition = manifestTasks.uploadTask
       .next(mapImages)
       .next(appsyncMutationTask.task)
-      // .next(publishMessageTask.task)
-      // Appsync Notification will go here
       .next(manifestTasks.deleteTask);
 
     const machine = new step_function.StateMachine(this, "StateMachine", {
