@@ -1,6 +1,7 @@
 import * as cdk from "aws-cdk-lib";
 import * as acm from "aws-cdk-lib/aws-certificatemanager";
 import * as route53 from "aws-cdk-lib/aws-route53";
+import { IHostedZone } from "aws-cdk-lib/aws-route53";
 import { Construct } from "constructs";
 
 interface CertificateStackProps extends cdk.StackProps {
@@ -34,34 +35,40 @@ export class CertificateStack extends cdk.Stack {
       domainName: domainName,
     });
 
-    const adminPortalCertificate = new acm.Certificate(
-      this,
+    const adminPortalCertificate = this.createCertificate(
+      adminPortalSubDomain,
+      domainName,
       `${id}-AdminPortal`,
-      {
-        domainName: `${adminPortalSubDomain}.${domainName}`,
-        validation: acm.CertificateValidation.fromDns(zone),
-      }
+      zone
     );
 
-    const webClientCertificate = new acm.Certificate(this, `${id}-WebClient`, {
-      domainName: `${webClientSubDomain}.${domainName}`,
-      validation: acm.CertificateValidation.fromDns(zone),
-    });
+    const webClientCertificate = this.createCertificate(
+      webClientSubDomain,
+      domainName,
+      `${id}-WebClientPortal`,
+      zone
+    );
 
-    const restApiCertificate = new acm.Certificate(this, `${id}-RestApi`, {
-      domainName: `${apiSubDomain}.${domainName}`,
-      validation: acm.CertificateValidation.fromDns(zone),
-    });
+    const restApiCertificate = this.createCertificate(
+      apiSubDomain,
+      domainName,
+      `${id}-RestApi`,
+      zone
+    );
 
-    const assetCDNCertificate = new acm.Certificate(this, `${id}-AssetCDN`, {
-      domainName: `${assetSubDomain}.${domainName}`,
-      validation: acm.CertificateValidation.fromDns(zone),
-    });
+    const assetCDNCertificate = this.createCertificate(
+      assetSubDomain,
+      domainName,
+      `${id}-AssetCDN`,
+      zone
+    );
 
-    const appSyncCertificate = new acm.Certificate(this, `${id}-AppSync`, {
-      domainName: `${appSyncSubDomain}.${domainName}`,
-      validation: acm.CertificateValidation.fromDns(zone),
-    });
+    const appSyncCertificate = this.createCertificate(
+      appSyncSubDomain,
+      domainName,
+      `${id}-AppSync`,
+      zone
+    );
 
     this.adminPortalCertificate = adminPortalCertificate;
     this.webClientCertificate = webClientCertificate;
@@ -69,5 +76,19 @@ export class CertificateStack extends cdk.Stack {
     this.assetCDNCertificate = assetCDNCertificate;
     this.appSyncCertificate = appSyncCertificate;
     this.hostedZone = zone;
+  }
+
+  private createCertificate(
+    subdomain: string,
+    domain: string,
+    id: string,
+    zone: IHostedZone
+  ): acm.Certificate {
+    const certificate = new acm.Certificate(this, id, {
+      domainName: `${subdomain}.${domain}`,
+      validation: acm.CertificateValidation.fromDns(zone),
+    });
+
+    return certificate;
   }
 }

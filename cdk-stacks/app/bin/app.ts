@@ -2,7 +2,10 @@
 import "source-map-support/register";
 import * as cdk from "aws-cdk-lib";
 import { AppStack } from "../lib/app-stack";
-import { CertificateStack } from "../lib/stacks/certificate-stack";
+import {
+  CertificateStack,
+  CertificateParameterStoreStack,
+} from "../lib/stacks/certificates";
 import { DOMAIN_NAMES } from "../config";
 
 const app = new cdk.App();
@@ -20,6 +23,27 @@ const certStack = new CertificateStack(app, "Certificate", {
   assetSubDomain: DOMAIN_NAMES.ASSETS_SUBDOMAIN,
   appSyncSubDomain: DOMAIN_NAMES.APPSYNC_SUBDOMAIN,
 });
+
+const certParameterStoreStack = new CertificateParameterStoreStack(
+  app,
+  "CertificateParameters",
+  {
+    env: {
+      account: process.env.CDK_DEFAULT_ACCOUNT,
+      region: process.env.CDK_DEFAULT_REGION,
+    },
+    crossRegionReferences: true,
+    certificates: {
+      adminPortalCertificate: certStack.adminPortalCertificate,
+      webClientCertificate: certStack.webClientCertificate,
+      restApiCertificate: certStack.restApiCertificate,
+      assetCDNCertificate: certStack.assetCDNCertificate,
+      appSyncCertificate: certStack.appSyncCertificate,
+    },
+  }
+);
+
+certParameterStoreStack.addDependency(certStack);
 
 const appStack = new AppStack(app, "App", {
   env: {

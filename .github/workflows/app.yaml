@@ -23,6 +23,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       pipeline: ${{ steps.filter.outputs.pipeline }}
+      certificates: ${{ steps.filter.outputs.certificates }}
       web-client: ${{ steps.filter.outputs.web-client }}
       admin-portal: ${{ steps.filter.outputs.admin-portal }}
       image-geotagger: ${{ steps.filter.outputs.image-geotagger }}
@@ -38,6 +39,8 @@ jobs:
           filters: |
             pipeline:
               - '.github/**'
+            certificates:
+              - 'cdk-stacks/lib/certificates/**'
             web-client:
               - 'client-web/**'
             admin-portal:
@@ -48,115 +51,11 @@ jobs:
               - 'lambdas/image_label_filter/**'
             app-server:
               - 'lambdas/app_server/**'
-  build-admin-portal:
+  deploy-certificate-stack:
     needs: change-detector
-    if: ${{ needs.change-detector.outputs.admin-portal == 'true' || needs.change-detector.outputs.pipeline == 'true'}}
-    name: Create Admin Portal Artifact
+    if: ${{ needs.change-detector.outputs.certificates == 'true' || needs.change-detector.outputs.pipeline == 'true'}}
+    name: Deploy Certificates And Store ARN Values in Parameter Store
     runs-on: ubuntu-latest
-    permissions:
-      actions: write
-      contents: read
-      id-token: write
-    steps:
-      - uses: actions/checkout@v3
-      - name: Configure AWS CLI and Credentials
-        uses: ./.github/actions/configure-aws-cli
-        with:
-          account_id: ${{ env.AWS_ACCOUNT_ID }}
-          default_region: ${{ env.AWS_DEFAULT_REGION }}
-      - name: Build and Upload Artifact
-        uses: ./.github/actions/build-web-artifact
-        with:
-          directory: "admin-portal"
-          artifact_bucket: $ARTIFACT_BUCKET
-  build-client-web:
-    needs: change-detector
-    if: ${{ needs.change-detector.outputs.web-client == 'true' || needs.change-detector.outputs.pipeline == 'true'}}
-    name: Create Web Client Artifact
-    runs-on: ubuntu-latest
-    permissions:
-      actions: write
-      contents: read
-      id-token: write
-    steps:
-      - uses: actions/checkout@v3
-      - name: Configure AWS CLI and Credentials
-        uses: ./.github/actions/configure-aws-cli
-        with:
-          account_id: ${{ env.AWS_ACCOUNT_ID }}
-          default_region: ${{ env.AWS_DEFAULT_REGION }}
-      - name: Build and Upload Artifact
-        uses: ./.github/actions/build-web-artifact
-        with:
-          directory: "client-web"
-          artifact_bucket: $ARTIFACT_BUCKET
-  test-image-geotagger-lambda:
-    needs: change-detector
-    if: ${{ needs.change-detector.outputs.image-geotagger == 'true' || needs.change-detector.outputs.pipeline == 'true'}}
-    name: Run Image Geotagger Unit Tests
-    runs-on: ubuntu-latest
-    permissions:
-      actions: write
-      contents: read
-      id-token: write
-    steps:
-      - uses: actions/checkout@v3
-      - name: Configure AWS CLI and Credentials
-        uses: ./.github/actions/configure-aws-cli
-        with:
-          account_id: ${{ env.AWS_ACCOUNT_ID }}
-          default_region: ${{ env.AWS_DEFAULT_REGION }}
-      - name: Run Unit Tests
-        uses: ./.github/actions/run-python-lambda-tests
-        with:
-          directory: "image_geotagger"
-  test-image-labeller-lambda:
-    needs: change-detector
-    if: ${{ needs.change-detector.outputs.image-labeller == 'true' || needs.change-detector.outputs.pipeline == 'true'}}
-    name: Run Image Label Filter Unit Tests
-    runs-on: ubuntu-latest
-    permissions:
-      actions: write
-      contents: read
-      id-token: write
-    steps:
-      - uses: actions/checkout@v3
-      - name: Configure AWS CLI and Credentials
-        uses: ./.github/actions/configure-aws-cli
-        with:
-          account_id: ${{ env.AWS_ACCOUNT_ID }}
-          default_region: ${{ env.AWS_DEFAULT_REGION }}
-      - name: Run Unit Tests
-        uses: ./.github/actions/run-python-lambda-tests
-        with:
-          directory: "image_label_filter"
-  test-app-server-lambda:
-    needs: change-detector
-    if: ${{ needs.change-detector.outputs.app-server == 'true' || needs.change-detector.outputs.pipeline == 'true'}}
-    name: Run App Server Unit Tests
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - name: Run Unit Tests
-        uses: ./.github/actions/run-python-lambda-tests
-        with:
-          directory: "app_server"
-  deploy:
-    name: Build/Deploy Application Infrastructure
-    timeout-minutes: 20
-    runs-on: ubuntu-latest
-    needs:
-      [
-        build-admin-portal,
-        build-client-web,
-        test-image-geotagger-lambda,
-        test-image-labeller-lambda,
-        test-app-server-lambda,
-      ]
-    if: |
-      always() && 
-      !contains(needs.*.result, 'failure') && 
-      !contains(needs.*.result, 'cancelled')
     permissions:
       actions: write
       contents: read
@@ -171,22 +70,154 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: 16.17.0
-      - name: Download Admin Portal Artifact
-        working-directory: admin-portal
-        run: aws s3 sync s3://$ARTIFACT_BUCKET/admin-portal/ dist/
-      - name: Download Web Client Artifact
-        working-directory: client-web
-        run: aws s3 sync s3://$ARTIFACT_BUCKET/client-web/ dist/
       - name: Install CDK
         run: npm install -g aws-cdk
       - name: Install Dependencies
         working-directory: cdk-stacks/app
         run: npm ci
-      - name: Test Synth Step
-        if: github.ref != 'refs/heads/main'
-        working-directory: cdk-stacks/app
-        run: cdk synth --all
       - name: Deploy Stack
         if: github.ref == 'refs/heads/main'
         working-directory: cdk-stacks/app
-        run: cdk deploy --require-approval "never" --all
+        run: cdk deploy CertificateParameters --require-approval "never"
+  # build-admin-portal:
+  #   needs: change-detector
+  #   if: ${{ needs.change-detector.outputs.admin-portal == 'true' || needs.change-detector.outputs.pipeline == 'true'}}
+  #   name: Create Admin Portal Artifact
+  #   runs-on: ubuntu-latest
+  #   permissions:
+  #     actions: write
+  #     contents: read
+  #     id-token: write
+  #   steps:
+  #     - uses: actions/checkout@v3
+  #     - name: Configure AWS CLI and Credentials
+  #       uses: ./.github/actions/configure-aws-cli
+  #       with:
+  #         account_id: ${{ env.AWS_ACCOUNT_ID }}
+  #         default_region: ${{ env.AWS_DEFAULT_REGION }}
+  #     - name: Build and Upload Artifact
+  #       uses: ./.github/actions/build-web-artifact
+  #       with:
+  #         directory: "admin-portal"
+  #         artifact_bucket: $ARTIFACT_BUCKET
+  # build-client-web:
+  #   needs: change-detector
+  #   if: ${{ needs.change-detector.outputs.web-client == 'true' || needs.change-detector.outputs.pipeline == 'true'}}
+  #   name: Create Web Client Artifact
+  #   runs-on: ubuntu-latest
+  #   permissions:
+  #     actions: write
+  #     contents: read
+  #     id-token: write
+  #   steps:
+  #     - uses: actions/checkout@v3
+  #     - name: Configure AWS CLI and Credentials
+  #       uses: ./.github/actions/configure-aws-cli
+  #       with:
+  #         account_id: ${{ env.AWS_ACCOUNT_ID }}
+  #         default_region: ${{ env.AWS_DEFAULT_REGION }}
+  #     - name: Build and Upload Artifact
+  #       uses: ./.github/actions/build-web-artifact
+  #       with:
+  #         directory: "client-web"
+  #         artifact_bucket: $ARTIFACT_BUCKET
+  # test-image-geotagger-lambda:
+  #   needs: change-detector
+  #   if: ${{ needs.change-detector.outputs.image-geotagger == 'true' || needs.change-detector.outputs.pipeline == 'true'}}
+  #   name: Run Image Geotagger Unit Tests
+  #   runs-on: ubuntu-latest
+  #   permissions:
+  #     actions: write
+  #     contents: read
+  #     id-token: write
+  #   steps:
+  #     - uses: actions/checkout@v3
+  #     - name: Configure AWS CLI and Credentials
+  #       uses: ./.github/actions/configure-aws-cli
+  #       with:
+  #         account_id: ${{ env.AWS_ACCOUNT_ID }}
+  #         default_region: ${{ env.AWS_DEFAULT_REGION }}
+  #     - name: Run Unit Tests
+  #       uses: ./.github/actions/run-python-lambda-tests
+  #       with:
+  #         directory: "image_geotagger"
+  # test-image-labeller-lambda:
+  #   needs: change-detector
+  #   if: ${{ needs.change-detector.outputs.image-labeller == 'true' || needs.change-detector.outputs.pipeline == 'true'}}
+  #   name: Run Image Label Filter Unit Tests
+  #   runs-on: ubuntu-latest
+  #   permissions:
+  #     actions: write
+  #     contents: read
+  #     id-token: write
+  #   steps:
+  #     - uses: actions/checkout@v3
+  #     - name: Configure AWS CLI and Credentials
+  #       uses: ./.github/actions/configure-aws-cli
+  #       with:
+  #         account_id: ${{ env.AWS_ACCOUNT_ID }}
+  #         default_region: ${{ env.AWS_DEFAULT_REGION }}
+  #     - name: Run Unit Tests
+  #       uses: ./.github/actions/run-python-lambda-tests
+  #       with:
+  #         directory: "image_label_filter"
+  # test-app-server-lambda:
+  #   needs: change-detector
+  #   if: ${{ needs.change-detector.outputs.app-server == 'true' || needs.change-detector.outputs.pipeline == 'true'}}
+  #   name: Run App Server Unit Tests
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v3
+  #     - name: Run Unit Tests
+  #       uses: ./.github/actions/run-python-lambda-tests
+  #       with:
+  #         directory: "app_server"
+  # deploy:
+  #   name: Build/Deploy Application Infrastructure
+  #   timeout-minutes: 20
+  #   runs-on: ubuntu-latest
+  #   needs:
+  #     [
+  #       build-admin-portal,
+  #       build-client-web,
+  #       test-image-geotagger-lambda,
+  #       test-image-labeller-lambda,
+  #       test-app-server-lambda,
+  #     ]
+  #   if: |
+  #     always() &&
+  #     !contains(needs.*.result, 'failure') &&
+  #     !contains(needs.*.result, 'cancelled')
+  #   permissions:
+  #     actions: write
+  #     contents: read
+  #     id-token: write
+  #   steps:
+  #     - uses: actions/checkout@v3
+  # - name: Configure AWS CLI and Credentials
+  #   uses: ./.github/actions/configure-aws-cli
+  #   with:
+  #     account_id: ${{ env.AWS_ACCOUNT_ID }}
+  #     default_region: ${{ env.AWS_DEFAULT_REGION }}
+  # - uses: actions/setup-node@v3
+  #   with:
+  #     node-version: 16.17.0
+  # - name: Download Admin Portal Artifact
+  #   working-directory: admin-portal
+  #   run: aws s3 sync s3://$ARTIFACT_BUCKET/admin-portal/ dist/
+  # - name: Download Web Client Artifact
+  #   working-directory: client-web
+  #   run: aws s3 sync s3://$ARTIFACT_BUCKET/client-web/ dist/
+  # - name: Install CDK
+  #   run: npm install -g aws-cdk
+  # - name: Install Dependencies
+  #   working-directory: cdk-stacks/app
+  #   run: npm ci
+  # - name: Test Synth Step
+  #   if: github.ref != 'refs/heads/main'
+  #   working-directory: cdk-stacks/app
+  #   run: cdk synth --all
+  # - name: Deploy Stack
+  #   if: github.ref == 'refs/heads/main'
+  #   working-directory: cdk-stacks/app
+  #   run: cdk deploy --require-approval "never" --all
