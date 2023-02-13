@@ -13,6 +13,7 @@ import {
   PythonLambda,
   PythonLambdaProps,
 } from "../../constructs/python-lambda";
+import { NodeLambda, NodeLambdaProps } from "../../constructs/node-lambda";
 import { ImageUploadStepFunction } from "../../constructs/step-functions/image-upload-step-function";
 import { IConfig } from "../../config";
 import * as path from "path";
@@ -32,6 +33,7 @@ export class ImageProcessorWorkflowStack extends cdk.NestedStack {
   imageGeotaggerRole: iam.IRole;
   imageDeleterLambda: lambda.Function;
   imageDeleterRole: iam.IRole;
+  appsyncMessenger: NodeLambda;
 
   constructor(
     scope: Construct,
@@ -104,6 +106,39 @@ export class ImageProcessorWorkflowStack extends cdk.NestedStack {
       "ImageLabelFilterLambda",
       imageLabelFilterProps
     );
+
+    const appsyncSecrets = secretsmanager.Secret.fromSecretNameV2(
+      this,
+      "Secret",
+      Config.nodeLambdas.appsyncMessenger.apiKeySecretName
+    );
+
+    const appsyncMessengerLambdaProps: NodeLambdaProps = {
+      entry: path.resolve(
+        Config.environment.basePath,
+        "lambdas",
+        Config.nodeLambdas.appsyncMessenger.codeDirectory,
+        "index.ts"
+      ),
+      codePath: this.createPathName(
+        Config.environment.basePath,
+        Config.nodeLambdas.appsyncMessenger.codeDirectory
+      ),
+      environment: {
+        APPSYNC_API_URL: Config.nodeLambdas.appsyncMessenger.appSyncApiUrl,
+        APPSYNC_AUTH_TYPE: Config.nodeLambdas.appsyncMessenger.appSyncAuthType,
+        SECRET_NAME: Config.nodeLambdas.appsyncMessenger.apiKeySecretName,
+        SECRET_KEY: Config.nodeLambdas.appsyncMessenger.apiKeySecretKey,
+      },
+    };
+
+    const appsyncMessenger = new NodeLambda(
+      this,
+      "AppSyncMutaterLambda",
+      appsyncMessengerLambdaProps
+    );
+
+    appsyncSecrets.grantRead(appsyncMessenger.function);
 
     const stepFunction = new ImageUploadStepFunction(this, id, {
       imageLabelFilterLambda: imageLabelFilter,
@@ -181,6 +216,7 @@ export class ImageProcessorWorkflowStack extends cdk.NestedStack {
     this.imageGeotaggerRole = imageGeotagger.fnRole;
     this.imageDeleterLambda = imageDeleter.function;
     this.imageDeleterRole = imageDeleter.fnRole;
+    this.appsyncMessenger = appsyncMessenger;
   }
 
   private createPathName(basePath: string, codeDirectory: string): string {

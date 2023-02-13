@@ -17,3 +17,10 @@ export interface ImageGeotaggerLambda extends AppLambda {
   imageProcessorSecretName: string;
   imageProcessorSecretKey: string;
 }
+
+export interface AppsyncMessengerLambda extends AppLambda {
+  appSyncApiUrl: string;
+  appSyncAuthType: string;
+  apiKeySecretName: string;
+  apiKeySecretKey: string;
+}

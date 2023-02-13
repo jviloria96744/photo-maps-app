@@ -1,4 +1,9 @@
-import { ImageGeotaggerLambda, ImageLambda, AppLambda } from "./interfaces";
+import {
+  ImageGeotaggerLambda,
+  ImageLambda,
+  AppLambda,
+  AppsyncMessengerLambda,
+} from "./interfaces";
 
 export enum DOMAIN_NAMES {
   TLD_NAME = "jviloria.com",
@@ -51,6 +56,9 @@ export interface IConfig {
     appServer: AppLambda;
     stepFunctionOrchestrator: ImageLambda;
     buildCommands: string[];
+  };
+  nodeLambdas: {
+    appsyncMessenger: AppsyncMessengerLambda;
   };
   websocket: {
     pathName: string;
@@ -110,6 +118,16 @@ export const CONFIG: IConfig = {
       "-c",
       `pip install -r requirements.txt -t /asset-output && cp -au . /asset-output && ${removeStatements}`,
     ],
+  },
+  nodeLambdas: {
+    appsyncMessenger: {
+      codeDirectory: "upload-photo-notifications",
+      logLevel: LOG_LEVELS.INFO,
+      appSyncApiUrl: "https://api.ws.photo-maps-app.jviloria.com/graphql",
+      appSyncAuthType: "API_KEY",
+      apiKeySecretKey: "API_KEY",
+      apiKeySecretName: "sandbox/appsync_api_key",
+    },
   },
   websocket: {
     pathName: "client-web/schema.graphql",
