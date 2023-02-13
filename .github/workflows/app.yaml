@@ -40,7 +40,7 @@ jobs:
             pipeline:
               - '.github/**'
             certificates:
-              - 'cdk-stacks/lib/certificates/**'
+              - 'cdk-stacks/lib/stacks/certificates/**'
             web-client:
               - 'client-web/**'
             admin-portal:
