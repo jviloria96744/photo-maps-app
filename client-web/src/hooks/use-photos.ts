@@ -3,7 +3,7 @@ import { MapRef } from "react-map-gl";
 import { PointFeature } from "supercluster";
 import { BBox, GeoJsonProperties } from "geojson";
 import useSupercluster from "use-supercluster";
-import { usePhotosQuery } from "./use-photos-query";
+import { usePhotoStore } from "../stores/photo-store";
 import { PhotoObject } from "../models/photo";
 
 const getMapBounds = (mapRef: RefObject<MapRef>): BBox => {
@@ -68,9 +68,13 @@ export const usePhotos = ({
   zoom: number;
   mapRef: RefObject<MapRef>;
 }) => {
-  const { data } = usePhotosQuery();
+  const { photos } = usePhotoStore();
 
-  const { clusters, supercluster, points } = createClusters(data, zoom, mapRef);
+  const { clusters, supercluster, points } = createClusters(
+    photos || [],
+    zoom,
+    mapRef
+  );
 
   return {
     clusters,
