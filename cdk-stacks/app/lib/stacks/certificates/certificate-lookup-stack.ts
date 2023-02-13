@@ -45,7 +45,7 @@ export class CertificateLookupStack extends cdk.Stack {
     const certArn = ssm.StringParameter.fromStringParameterName(
       this,
       `${certName}Arn`,
-      `certificates/${certName}/arn`
+      `/certificates/${certName}/arn`
     );
     const certificate = acm.Certificate.fromCertificateArn(
       this,

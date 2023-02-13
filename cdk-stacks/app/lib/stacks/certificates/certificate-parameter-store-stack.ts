@@ -40,7 +40,7 @@ export class CertificateParameterStoreStack extends cdk.Stack {
     const certificateParameters = certificateStrings.map((certString) => {
       return {
         id: certString,
-        name: `certificates/${certString}/arn`,
+        name: `/certificates/${certString}/arn`,
         certificate: certificates[`${certString}Certificate`],
       };
     });
