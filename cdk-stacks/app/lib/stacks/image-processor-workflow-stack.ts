@@ -109,7 +109,7 @@ export class ImageProcessorWorkflowStack extends cdk.NestedStack {
 
     const appsyncSecrets = secretsmanager.Secret.fromSecretNameV2(
       this,
-      "Secret",
+      "AppSyncSecret",
       Config.nodeLambdas.appsyncMessenger.apiKeySecretName
     );
 
