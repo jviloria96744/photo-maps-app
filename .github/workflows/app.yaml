@@ -78,7 +78,7 @@ jobs:
       - name: Deploy Stack
         if: github.ref == 'refs/heads/main'
         working-directory: cdk-stacks/app
-        run: cdk deploy CertificateParameters --require-approval "never"
+        run: cdk deploy CertificateParameters --app "npx ts-node --prefer-ts-exts bin/certificates.ts" --require-approval "never"
   # build-admin-portal:
   #   needs: change-detector
   #   if: ${{ needs.change-detector.outputs.admin-portal == 'true' || needs.change-detector.outputs.pipeline == 'true'}}
