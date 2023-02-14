@@ -100,6 +100,11 @@ jobs:
         with:
           directory: "admin-portal"
           artifact_bucket: $ARTIFACT_BUCKET
+      - name: Install CDK
+        run: npm install -g aws-cdk
+      - name: Install Dependencies
+        working-directory: cdk-stacks/app
+        run: npm ci
       - name: Deploy Stack
         if: github.ref == 'refs/heads/main'
         working-directory: cdk-stacks/app
