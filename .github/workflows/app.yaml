@@ -95,7 +95,7 @@ jobs:
         with:
           account_id: ${{ env.AWS_ACCOUNT_ID }}
           default_region: ${{ env.AWS_DEFAULT_REGION }}
-      - name: Build and Upload Artifact
+      - name: Build Artifact
         uses: ./.github/actions/build-web-artifact
         with:
           directory: "admin-portal"
