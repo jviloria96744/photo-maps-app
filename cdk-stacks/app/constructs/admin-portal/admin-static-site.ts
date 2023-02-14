@@ -18,9 +18,9 @@ export class AdminStaticSite extends Construct {
   adminAuthFlow: AdminAuthFlow;
   constructor(parent: Stack, name: string, props: AdminStaticSiteProps) {
     super(parent, name);
-    const adminSite = new StaticSite(parent, name, props);
+    const adminSite = new StaticSite(parent, "Site", props);
 
-    const adminAuthFlow = new AdminAuthFlow(parent, `${name}-Auth`, {
+    const adminAuthFlow = new AdminAuthFlow(parent, "Auth", {
       authCallbackUrls: props.authCallbackUrls,
     });
 

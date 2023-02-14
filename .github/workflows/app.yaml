@@ -45,6 +45,7 @@ jobs:
               - 'client-web/**'
             admin-portal:
               - 'admin-portal/**'
+              - 'cdk-stacks/lib/stacks/admin-portal/**'
             image-geotagger:
               - 'lambdas/image_geotagger/**'
             image-labeller:

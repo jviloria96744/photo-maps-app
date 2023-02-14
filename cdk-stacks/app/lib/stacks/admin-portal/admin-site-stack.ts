@@ -17,13 +17,13 @@ export class AdminSiteStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props: AdminSiteStackProps) {
     super(scope, id, props);
     const { domainName, siteDomain, pathName, authCallbackUrls } = props;
-    const zone = route53.HostedZone.fromLookup(this, `${id}HostedZone`, {
+    const zone = route53.HostedZone.fromLookup(this, `HostedZone`, {
       domainName: domainName,
     });
 
     const adminPortalCertificate = this.lookupCertificate("AdminPortal");
 
-    const adminStaticSite = new AdminStaticSite(this, `${id}Site`, {
+    const adminStaticSite = new AdminStaticSite(this, `StaticSite`, {
       siteDomain,
       pathName,
       certificate: adminPortalCertificate,
