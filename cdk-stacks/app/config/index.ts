@@ -45,6 +45,7 @@ export interface IConfig {
   };
   adminPortal: {
     callbackUrls: string[];
+    certificateParameterStoreName: string;
   };
   webClient: {
     callbackUrls: string[];
@@ -74,6 +75,7 @@ export const CONFIG: IConfig = {
       "http://localhost:5173/",
       `https://${DOMAIN_NAMES.ADMIN_PORTAL_SUBDOMAIN}.${DOMAIN_NAMES.TLD_NAME}/`,
     ],
+    certificateParameterStoreName: "adminPortal",
   },
   webClient: {
     callbackUrls: [

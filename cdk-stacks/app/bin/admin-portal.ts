@@ -20,4 +20,6 @@ const adminPortalStack = new AdminSiteStack(app, "AdminPortal", {
   ),
   domainName: DOMAIN_NAMES.TLD_NAME,
   authCallbackUrls: CONFIG.adminPortal.callbackUrls,
+  certificateParameterStoreName:
+    CONFIG.adminPortal.certificateParameterStoreName,
 });
