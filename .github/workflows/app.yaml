@@ -79,27 +79,31 @@ jobs:
         if: github.ref == 'refs/heads/main'
         working-directory: cdk-stacks/app
         run: cdk deploy CertificateParameters --app "npx ts-node --prefer-ts-exts bin/certificates.ts" --require-approval "never"
-  # build-admin-portal:
-  #   needs: change-detector
-  #   if: ${{ needs.change-detector.outputs.admin-portal == 'true' || needs.change-detector.outputs.pipeline == 'true'}}
-  #   name: Create Admin Portal Artifact
-  #   runs-on: ubuntu-latest
-  #   permissions:
-  #     actions: write
-  #     contents: read
-  #     id-token: write
-  #   steps:
-  #     - uses: actions/checkout@v3
-  #     - name: Configure AWS CLI and Credentials
-  #       uses: ./.github/actions/configure-aws-cli
-  #       with:
-  #         account_id: ${{ env.AWS_ACCOUNT_ID }}
-  #         default_region: ${{ env.AWS_DEFAULT_REGION }}
-  #     - name: Build and Upload Artifact
-  #       uses: ./.github/actions/build-web-artifact
-  #       with:
-  #         directory: "admin-portal"
-  #         artifact_bucket: $ARTIFACT_BUCKET
+  deploy-admin-portal:
+    needs: change-detector
+    if: ${{ needs.change-detector.outputs.admin-portal == 'true' || needs.change-detector.outputs.pipeline == 'true'}}
+    name: Deploy Admin Portal Front-End
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v3
+      - name: Configure AWS CLI and Credentials
+        uses: ./.github/actions/configure-aws-cli
+        with:
+          account_id: ${{ env.AWS_ACCOUNT_ID }}
+          default_region: ${{ env.AWS_DEFAULT_REGION }}
+      - name: Build and Upload Artifact
+        uses: ./.github/actions/build-web-artifact
+        with:
+          directory: "admin-portal"
+          artifact_bucket: $ARTIFACT_BUCKET
+      - name: Deploy Stack
+        if: github.ref == 'refs/heads/main'
+        working-directory: cdk-stacks/app
+        run: cdk deploy AdminPortal --app "npx ts-node --prefer-ts-exts bin/admin-portal.ts" --require-approval "never"
   # build-client-web:
   #   needs: change-detector
   #   if: ${{ needs.change-detector.outputs.web-client == 'true' || needs.change-detector.outputs.pipeline == 'true'}}

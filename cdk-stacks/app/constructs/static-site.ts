@@ -12,7 +12,7 @@ import { Construct } from "constructs";
 export interface StaticSiteProps {
   siteDomain: string;
   pathName: string;
-  certificate: acm.Certificate;
+  certificate: acm.ICertificate;
   hostedZone: route53.IHostedZone;
 }
 
