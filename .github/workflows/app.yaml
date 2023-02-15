@@ -81,10 +81,14 @@ jobs:
       - name: Deploy Stack
         if: github.ref == 'refs/heads/main'
         working-directory: cdk-stacks/app
-        run: cdk deploy CertificateParameters --app "npx ts-node --prefer-ts-exts bin/certificates.ts" --require-approval "never"
+        run: cdk deploy CertificateParameters --context FLAG_CERTIFICATE=true --require-approval "never"
   deploy-admin-portal:
-    needs: change-detector
-    if: ${{ needs.change-detector.outputs.admin-portal == 'true' || needs.change-detector.outputs.pipeline == 'true'}}
+    needs: [change-detector, deploy-certificate-stack]
+    if: |
+      always() &&
+      (needs.change-detector.outputs.admin-portal == 'true' || needs.change-detector.outputs.pipeline == 'true') &&
+      !contains(needs.*.result, 'failure') &&
+      !contains(needs.*.result, 'cancelled')
     name: Deploy Admin Portal Front-End
     runs-on: ubuntu-latest
     permissions:
@@ -111,7 +115,7 @@ jobs:
       - name: Deploy Stack
         if: github.ref == 'refs/heads/main'
         working-directory: cdk-stacks/app
-        run: cdk deploy AdminPortal --app "npx ts-node --prefer-ts-exts bin/admin-portal.ts" --require-approval "never"
+        run: cdk deploy AdminPortal --context FLAG_ADMIN_PORTAL=true --require-approval "never"
   # build-client-web:
   #   needs: change-detector
   #   if: ${{ needs.change-detector.outputs.web-client == 'true' || needs.change-detector.outputs.pipeline == 'true'}}
