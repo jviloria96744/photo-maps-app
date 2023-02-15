@@ -148,11 +148,11 @@ jobs:
         run: npm ci
       - name: Set Environment Variables
         run: |
-          export FLAG_IMAGE_DELETER=${{ needs.change-detector.outputs.image-deleter == 'true' || env.PIPELINE_TESTING == 'true' }}
+          echo "FLAG_IMAGE_DELETER=${{ needs.change-detector.outputs.image-deleter == 'true' || env.PIPELINE_TESTING == 'true' }}" >> $GITHUB_ENV
       - name: Deploy Stack
         if: github.ref == 'refs/heads/main'
         working-directory: cdk-stacks/app
-        run: cdk deploy --all -c FLAG_MAIN_APP=true -c FLAG_IMAGE_DELETER=$FLAG_IMAGE_DELETER --require-approval "never"
+        run: cdk deploy --all -c FLAG_MAIN_APP=true -c FLAG_IMAGE_DELETER=${{ env.FLAG_IMAGE_DELETER }} --require-approval "never"
 
   # build-client-web:
   #   needs: change-detector
