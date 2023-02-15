@@ -94,7 +94,10 @@ if (flagMainApp === "true") {
     fullDomainName: `${DOMAIN_NAMES.ASSETS_SUBDOMAIN}.${DOMAIN_NAMES.TLD_NAME}`,
     certificateParameterStoreName:
       CONFIG.assetBucket.certificateParameterStoreName,
+    deadLetterQueue: observabilityStack.deadLetterQueue,
   });
+
+  assetBucketStack.addDependency(observabilityStack);
 
   const dynamoDbStack = new DynamoDbStack(app, "DynamoDB", {
     env: {
@@ -112,7 +115,7 @@ if (flagMainApp === "true") {
       assetBucket: assetBucketStack.bucket,
       Config: CONFIG,
       dynamoTable: dynamoDbStack.table,
-      deadLetterQueue: observabilityStack.deadLetterQueue,
+      deleteQueue: assetBucketStack.deleteQueue,
     });
 
     imageDeleterStack.addDependency(observabilityStack);

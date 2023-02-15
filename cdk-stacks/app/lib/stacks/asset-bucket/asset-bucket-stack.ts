@@ -1,5 +1,6 @@
 import * as cdk from "aws-cdk-lib";
 import * as s3 from "aws-cdk-lib/aws-s3";
+import * as sqs from "aws-cdk-lib/aws-sqs";
 import * as cloudfront from "aws-cdk-lib/aws-cloudfront";
 import * as cloudfront_origins from "aws-cdk-lib/aws-cloudfront-origins";
 import * as route53 from "aws-cdk-lib/aws-route53";
@@ -11,17 +12,21 @@ interface AssetBucketStackProps extends cdk.StackProps {
   tldDomainName: string;
   fullDomainName: string;
   certificateParameterStoreName: string;
+  deadLetterQueue: sqs.Queue;
 }
 
 export class AssetBucketStack extends cdk.Stack {
   bucket: s3.Bucket;
+  deleteQueue: sqs.Queue;
   constructor(scope: Construct, id: string, props: AssetBucketStackProps) {
     super(scope, id, props);
 
-    const { tldDomainName, fullDomainName, certificateParameterStoreName } =
-      props;
-
-    const certificate = lookupCertificate(this, certificateParameterStoreName);
+    const {
+      tldDomainName,
+      fullDomainName,
+      certificateParameterStoreName,
+      deadLetterQueue,
+    } = props;
 
     const bucket = new s3.Bucket(this, "Bucket", {
       removalPolicy: cdk.RemovalPolicy.RETAIN,
@@ -34,6 +39,27 @@ export class AssetBucketStack extends cdk.Stack {
         },
       ],
     });
+
+    this.createCloudfrontDistributionResources(
+      tldDomainName,
+      bucket,
+      fullDomainName,
+      certificateParameterStoreName
+    );
+
+    const deleteQueue = this.createDeleteQueueTrigger(deadLetterQueue, bucket);
+
+    this.bucket = bucket;
+    this.deleteQueue = deleteQueue;
+  }
+
+  private createCloudfrontDistributionResources(
+    tldDomainName: string,
+    bucket: s3.Bucket,
+    fullDomainName: string,
+    certificateParameterStoreName: string
+  ): void {
+    const certificate = lookupCertificate(this, certificateParameterStoreName);
 
     const hostedZone = route53.HostedZone.fromLookup(this, `HostedZone`, {
       domainName: tldDomainName,
@@ -54,7 +80,39 @@ export class AssetBucketStack extends cdk.Stack {
         new targets.CloudFrontTarget(distribution)
       ),
     });
+  }
 
-    this.bucket = bucket;
+  private createDeleteQueueTrigger(
+    deadLetterQueue: sqs.Queue,
+    bucket: s3.Bucket
+  ): sqs.Queue {
+    const deleteQueue = new sqs.Queue(this, "ImageDeleteQueue", {
+      visibilityTimeout: cdk.Duration.seconds(15),
+      deadLetterQueue: {
+        queue: deadLetterQueue,
+        maxReceiveCount: 1,
+      },
+    });
+
+    const deleteQueueNotification = new cdk.aws_s3_notifications.SqsDestination(
+      deleteQueue
+    );
+
+    bucket.addEventNotification(
+      s3.EventType.OBJECT_REMOVED,
+      deleteQueueNotification,
+      {
+        suffix: ".jpg",
+      }
+    );
+    bucket.addEventNotification(
+      s3.EventType.OBJECT_REMOVED,
+      deleteQueueNotification,
+      {
+        suffix: ".jpeg",
+      }
+    );
+
+    return deleteQueue;
   }
 }

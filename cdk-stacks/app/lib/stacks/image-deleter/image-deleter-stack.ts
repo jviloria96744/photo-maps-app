@@ -15,13 +15,13 @@ interface ImageDeleterStackProps extends cdk.StackProps {
   assetBucket: s3.Bucket;
   Config: IConfig;
   dynamoTable: dynamodb.Table;
-  deadLetterQueue: sqs.Queue;
+  deleteQueue: sqs.Queue;
 }
 
 export class ImageDeleterStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props: ImageDeleterStackProps) {
     super(scope, id, props);
-    const { assetBucket, Config, dynamoTable, deadLetterQueue } = props;
+    const { Config, dynamoTable, deleteQueue } = props;
 
     const imageDeleterProps: PythonLambdaProps = {
       pathName: createPathName(
@@ -45,33 +45,6 @@ export class ImageDeleterStack extends cdk.Stack {
     );
 
     dynamoTable.grantReadWriteData(imageDeleter.fnRole);
-
-    const deleteQueue = new sqs.Queue(this, "ImageDeleteQueue", {
-      visibilityTimeout: cdk.Duration.seconds(15),
-      deadLetterQueue: {
-        queue: deadLetterQueue,
-        maxReceiveCount: 1,
-      },
-    });
-
-    const deleteQueueNotification = new cdk.aws_s3_notifications.SqsDestination(
-      deleteQueue
-    );
-
-    assetBucket.addEventNotification(
-      s3.EventType.OBJECT_REMOVED,
-      deleteQueueNotification,
-      {
-        suffix: ".jpg",
-      }
-    );
-    assetBucket.addEventNotification(
-      s3.EventType.OBJECT_REMOVED,
-      deleteQueueNotification,
-      {
-        suffix: ".jpeg",
-      }
-    );
 
     const imageDeleterEventTrigger = new SqsEventSource(deleteQueue, {
       batchSize: Config.pythonLambdas.imageDeleter.batchSize,
