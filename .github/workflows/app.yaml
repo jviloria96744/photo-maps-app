@@ -59,7 +59,7 @@ jobs:
               - 'lambdas/app_server/**'
   deploy-certificate-stack:
     needs: change-detector
-    if: ${{ needs.change-detector.outputs.certificates == 'true' || $PIPELINE_TESTING == 'true' }}
+    if: ${{ needs.change-detector.outputs.certificates == 'true' }}
     name: Deploy Certificates And Store ARN Values in Parameter Store
     runs-on: ubuntu-latest
     permissions:
@@ -89,7 +89,7 @@ jobs:
     needs: [change-detector, deploy-certificate-stack]
     if: |
       always() &&
-      (needs.change-detector.outputs.admin-portal == 'true' || $PIPELINE_TESTING == 'true') &&
+      (needs.change-detector.outputs.admin-portal == 'true') &&
       !contains(needs.*.result, 'failure') &&
       !contains(needs.*.result, 'cancelled')
     name: Deploy Admin Portal Front-End
