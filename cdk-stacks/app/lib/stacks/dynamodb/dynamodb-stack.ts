@@ -4,7 +4,7 @@ import { Construct } from "constructs";
 
 export class DynamoDbStack extends cdk.Stack {
   table: dynamodb.Table;
-  constructor(scope: Construct, id: string, props?: cdk.StackProps) {
+  constructor(scope: Construct, id: string, props: cdk.StackProps) {
     super(scope, id, props);
 
     const table = new dynamodb.Table(this, "Table", {

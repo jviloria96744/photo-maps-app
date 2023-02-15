@@ -78,18 +78,36 @@ if (flagAdminPortal === "true") {
 }
 
 if (flagMainApp) {
-  const observabilityStack = new ObservabilityStack(app, "Observability");
+  const observabilityStack = new ObservabilityStack(app, "Observability", {
+    env: {
+      account: process.env.CDK_DEFAULT_ACCOUNT,
+      region: process.env.CDK_DEFAULT_REGION,
+    },
+  });
 
   const assetBucketStack = new AssetBucketStack(app, "AssetBucket", {
+    env: {
+      account: process.env.CDK_DEFAULT_ACCOUNT,
+      region: process.env.CDK_DEFAULT_REGION,
+    },
     domainName: `${DOMAIN_NAMES.ASSETS_SUBDOMAIN}.${DOMAIN_NAMES.TLD_NAME}`,
     certificateParameterStoreName:
       CONFIG.assetBucket.certificateParameterStoreName,
   });
 
-  const dynamoDbStack = new DynamoDbStack(app, "DynamoDB");
+  const dynamoDbStack = new DynamoDbStack(app, "DynamoDB", {
+    env: {
+      account: process.env.CDK_DEFAULT_ACCOUNT,
+      region: process.env.CDK_DEFAULT_REGION,
+    },
+  });
 
   if (flagImageDeleter) {
     const imageDeleterStack = new ImageDeleterStack(app, "ImageDelete", {
+      env: {
+        account: process.env.CDK_DEFAULT_ACCOUNT,
+        region: process.env.CDK_DEFAULT_REGION,
+      },
       assetBucket: assetBucketStack.bucket,
       Config: CONFIG,
       dynamoTable: dynamoDbStack.table,
