@@ -148,7 +148,7 @@ jobs:
       - name: Deploy Stack
         if: github.ref == 'refs/heads/main'
         working-directory: cdk-stacks/app
-        run: cdk deploy --context FLAG_MAIN_APP=true FLAG_IMAGE_DELETER=${{ needs.change-detector.outputs.image-deleter }} --require-approval "never" --all
+        run: cdk deploy --all --context FLAG_MAIN_APP=true FLAG_IMAGE_DELETER=${{ needs.change-detector.outputs.image-deleter }} --require-approval "never"
 
   # build-client-web:
   #   needs: change-detector
