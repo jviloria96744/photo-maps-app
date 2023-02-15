@@ -109,14 +109,12 @@ jobs:
         uses: ./.github/actions/build-web-artifact
         with:
           directory: "admin-portal"
-          artifact_bucket: $ARTIFACT_BUCKET
       - name: Install CDK
         run: npm install -g aws-cdk
       - name: Install Dependencies
         working-directory: cdk-stacks/app
         run: npm ci
       - name: Deploy Stack
-        if: github.ref == 'refs/heads/main'
         working-directory: cdk-stacks/app
         run: cdk deploy AdminPortal --context FLAG_ADMIN_PORTAL=true  --require-approval "never"
   deploy-main-app:
@@ -150,7 +148,7 @@ jobs:
       - name: Deploy Stack
         if: github.ref == 'refs/heads/main'
         working-directory: cdk-stacks/app
-        run: cdk deploy --context FLAG_MAIN_APP=true FLAG_IMAGE_DELETER=${{ needs.change-detector.output.image-deleter }} --require-approval "never" --all
+        run: cdk deploy --context FLAG_MAIN_APP=true FLAG_IMAGE_DELETER=${{ needs.change-detector.outputs.image-deleter }} --require-approval "never" --all
 
   # build-client-web:
   #   needs: change-detector

@@ -1,12 +1,8 @@
 name: "Build Web Artifacts"
-description: "Create build artifacts for react app in a given directory and upload during workflow"
+description: "Create build artifacts for react app"
 inputs:
   directory:
-    description: "Directory of React Project, will also be used to create artifact name"
-    required: true
-    default: ""
-  artifact_bucket:
-    description: "Bucket to save production build in, used as a cache, build will be pulled from here if no changes to code directory"
+    description: "Directory of React Project"
     required: true
     default: ""
 
