@@ -9,7 +9,10 @@ import * as s3 from "aws-cdk-lib/aws-s3";
 import * as cognito from "aws-cdk-lib/aws-cognito";
 import { LambdaRestApi } from "aws-cdk-lib/aws-apigateway";
 import { Construct } from "constructs";
-import { PythonLambda, PythonLambdaProps } from "./python-lambda";
+import {
+  PythonLambda,
+  PythonLambdaProps,
+} from "./lambda-functions/python-lambda";
 import { IConfig } from "../config";
 import * as path from "path";
 

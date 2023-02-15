@@ -1,7 +1,7 @@
 import * as step_functions from "aws-cdk-lib/aws-stepfunctions";
 import * as tasks from "aws-cdk-lib/aws-stepfunctions-tasks";
 import { Stack, Duration } from "aws-cdk-lib";
-import { NodeLambda } from "../node-lambda";
+import { NodeLambda } from "../lambda-functions/node-lambda";
 import { Construct } from "constructs";
 import { JsonFileLogDriver } from "aws-cdk-lib/aws-ecs";
 

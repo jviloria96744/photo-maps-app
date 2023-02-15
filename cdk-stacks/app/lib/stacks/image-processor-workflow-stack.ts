@@ -8,11 +8,12 @@ import * as lambda from "aws-cdk-lib/aws-lambda";
 import { SqsEventSource } from "aws-cdk-lib/aws-lambda-event-sources";
 import { Construct } from "constructs";
 import { S3ToSQS } from "../../constructs/s3-to-sqs";
+import { PythonLambda } from "../../constructs/lambda-functions/python-lambda";
+import { NodeLambda } from "../../constructs/lambda-functions/node-lambda";
 import {
-  PythonLambda,
+  NodeLambdaProps,
   PythonLambdaProps,
-} from "../../constructs/python-lambda";
-import { NodeLambda, NodeLambdaProps } from "../../constructs/node-lambda";
+} from "../../constructs/lambda-functions/types";
 import { ImageUploadStepFunction } from "../../constructs/step-functions/image-upload-step-function";
 import { IConfig } from "../../config";
 import * as path from "path";
@@ -106,13 +107,7 @@ export class ImageProcessorWorkflowStack extends cdk.NestedStack {
     );
 
     const appsyncMessengerLambdaProps: NodeLambdaProps = {
-      entry: path.resolve(
-        Config.environment.basePath,
-        "lambdas",
-        Config.nodeLambdas.appsyncMessenger.codeDirectory,
-        "index.ts"
-      ),
-      codePath: this.createPathName(
+      pathName: this.createPathName(
         Config.environment.basePath,
         Config.nodeLambdas.appsyncMessenger.codeDirectory
       ),

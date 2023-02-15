@@ -2,19 +2,7 @@ import { Stack, Duration } from "aws-cdk-lib";
 import * as lambda from "aws-cdk-lib/aws-lambda";
 import * as iam from "aws-cdk-lib/aws-iam";
 import { Construct } from "constructs";
-
-export type LambdaEnvironmentType = {
-  [key: string]: string;
-};
-
-export interface PythonLambdaProps {
-  pathName: string;
-  duration?: number;
-  memorySize?: number;
-  environment: LambdaEnvironmentType;
-  retryAttempts?: number;
-  lambdaBuildCommands: string[];
-}
+import { PythonLambdaProps } from "./types";
 
 export class PythonLambda extends Construct {
   function: lambda.Function;

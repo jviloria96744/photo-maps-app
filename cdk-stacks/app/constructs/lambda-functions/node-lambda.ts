@@ -2,33 +2,18 @@ import { Stack, Duration } from "aws-cdk-lib";
 import * as lambda from "aws-cdk-lib/aws-lambda";
 import { NodejsFunction } from "aws-cdk-lib/aws-lambda-nodejs";
 import { Construct } from "constructs";
+import { NodeLambdaProps } from "./types";
 
-export interface NodeLambdaProps {
-  entry: string;
-  codePath: string;
-  duration?: number;
-  memorySize?: number;
-  retryAttempts?: number;
-  environment: {
-    [key: string]: string;
-  };
-}
 export class NodeLambda extends Construct {
   function: NodejsFunction;
   constructor(parent: Stack, name: string, props: NodeLambdaProps) {
     super(parent, name);
 
-    const {
-      entry,
-      codePath,
-      duration,
-      memorySize,
-      retryAttempts,
-      environment,
-    } = props;
+    const { pathName, duration, memorySize, retryAttempts, environment } =
+      props;
 
     const baseFunction = new NodejsFunction(this, `${name}Function`, {
-      entry,
+      entry: `${pathName}/index.ts`,
       handler: "handler",
       runtime: lambda.Runtime.NODEJS_16_X,
       architecture: lambda.Architecture.X86_64,
@@ -52,8 +37,8 @@ export class NodeLambda extends Construct {
           },
         },
       },
-      depsLockFilePath: `${codePath}/package-lock.json`,
-      projectRoot: codePath,
+      depsLockFilePath: `${pathName}/package-lock.json`,
+      projectRoot: pathName,
     });
 
     this.function = baseFunction;

@@ -47,6 +47,9 @@ export interface IConfig {
     callbackUrls: string[];
     certificateParameterStoreName: string;
   };
+  assetBucket: {
+    certificateParameterStoreName: string;
+  };
   webClient: {
     callbackUrls: string[];
   };
@@ -76,6 +79,9 @@ export const CONFIG: IConfig = {
       `https://${DOMAIN_NAMES.ADMIN_PORTAL_SUBDOMAIN}.${DOMAIN_NAMES.TLD_NAME}/`,
     ],
     certificateParameterStoreName: "adminPortal",
+  },
+  assetBucket: {
+    certificateParameterStoreName: "assetCDN",
   },
   webClient: {
     callbackUrls: [

@@ -7,6 +7,10 @@ import {
   CertificateParameterStoreStack,
 } from "../lib/stacks/certificates";
 import { AdminSiteStack } from "../lib/stacks/admin-portal/admin-site-stack";
+import { AssetBucketStack } from "../lib/stacks/asset-bucket/asset-bucket-stack";
+import { DynamoDbStack } from "../lib/stacks/dynamodb/dynamodb-stack";
+import { ImageDeleterStack } from "../lib/stacks/image-deleter/image-deleter-stack";
+import { ObservabilityStack } from "../lib/stacks/observability/observability-stack";
 import { DOMAIN_NAMES, CONFIG, BUILD_DIRECTORIES } from "../config";
 import * as path from "path";
 
@@ -14,6 +18,8 @@ const app = new cdk.App();
 
 const flagCertificate = app.node.tryGetContext("FLAG_CERTIFICATE");
 const flagAdminPortal = app.node.tryGetContext("FLAG_ADMIN_PORTAL");
+const flagMainApp = app.node.tryGetContext("FLAG_MAIN_APP");
+const flagImageDeleter = app.node.tryGetContext("FLAG_IMAGE_DELETER");
 
 if (flagCertificate === "true") {
   const certStack = new CertificateStack(app, "Certificate", {
@@ -69,6 +75,27 @@ if (flagAdminPortal === "true") {
     certificateParameterStoreName:
       CONFIG.adminPortal.certificateParameterStoreName,
   });
+}
+
+if (flagMainApp) {
+  const observabilityStack = new ObservabilityStack(app, "Observability");
+
+  const assetBucketStack = new AssetBucketStack(app, "AssetBucket", {
+    domainName: `${DOMAIN_NAMES.ASSETS_SUBDOMAIN}.${DOMAIN_NAMES.TLD_NAME}`,
+    certificateParameterStoreName:
+      CONFIG.assetBucket.certificateParameterStoreName,
+  });
+
+  const dynamoDbStack = new DynamoDbStack(app, "DynamoDB");
+
+  if (flagImageDeleter) {
+    const imageDeleterStack = new ImageDeleterStack(app, "ImageDelete", {
+      assetBucket: assetBucketStack.bucket,
+      Config: CONFIG,
+      dynamoTable: dynamoDbStack.table,
+      deadLetterQueue: observabilityStack.deadLetterQueue,
+    });
+  }
 }
 
 // const certStack = new CertificateStack(app, "Certificate", {

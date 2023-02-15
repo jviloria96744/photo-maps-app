@@ -28,6 +28,7 @@ jobs:
       admin-portal: ${{ steps.filter.outputs.admin-portal }}
       image-geotagger: ${{ steps.filter.outputs.image-geotagger }}
       image-labeller: ${{ steps.filter.outputs.image-labeller }}
+      image-deleter: ${{ steps.filter.outputs.image-deleter }}
       app-server: ${{ steps.filter.outputs.app-server }}
     steps:
       - uses: actions/checkout@v3
@@ -46,12 +47,13 @@ jobs:
             admin-portal:
               - 'admin-portal/**'
               - 'cdk-stacks/app/lib/stacks/admin-portal/**'
-              - 'cdk-stacks/app/bin/admin-portal.ts'
               - 'cdk-stacks/app/constructs/admin-portal/**'
             image-geotagger:
               - 'lambdas/image_geotagger/**'
             image-labeller:
               - 'lambdas/image_label_filter/**'
+            image-deleter:
+              - 'lambdas/image_deleter/**'
             app-server:
               - 'lambdas/app_server/**'
   deploy-certificate-stack:
@@ -90,6 +92,7 @@ jobs:
       !contains(needs.*.result, 'failure') &&
       !contains(needs.*.result, 'cancelled')
     name: Deploy Admin Portal Front-End
+    timeout-minutes: 20
     runs-on: ubuntu-latest
     permissions:
       actions: write
@@ -115,7 +118,40 @@ jobs:
       - name: Deploy Stack
         if: github.ref == 'refs/heads/main'
         working-directory: cdk-stacks/app
-        run: cdk deploy AdminPortal --context FLAG_ADMIN_PORTAL=true --require-approval "never"
+        run: cdk deploy AdminPortal --context FLAG_ADMIN_PORTAL=true  --require-approval "never"
+  deploy-main-app:
+    needs: [change-detector, deploy-certificate-stack]
+    if: |
+      always() &&
+      !contains(needs.*.result, 'failure') &&
+      !contains(needs.*.result, 'cancelled')
+    name: Deploy Main App Resources
+    timeout-minutes: 20
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v3
+      - name: Configure AWS CLI and Credentials
+        uses: ./.github/actions/configure-aws-cli
+        with:
+          account_id: ${{ env.AWS_ACCOUNT_ID }}
+          default_region: ${{ env.AWS_DEFAULT_REGION }}
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16.17.0
+      - name: Install CDK
+        run: npm install -g aws-cdk
+      - name: Install Dependencies
+        working-directory: cdk-stacks/app
+        run: npm ci
+      - name: Deploy Stack
+        if: github.ref == 'refs/heads/main'
+        working-directory: cdk-stacks/app
+        run: cdk deploy --context FLAG_MAIN_APP=true FLAG_IMAGE_DELETER=${{ needs.change-detector.output.image-deleter }} --require-approval "never" --all
+
   # build-client-web:
   #   needs: change-detector
   #   if: ${{ needs.change-detector.outputs.web-client == 'true' || needs.change-detector.outputs.pipeline == 'true'}}

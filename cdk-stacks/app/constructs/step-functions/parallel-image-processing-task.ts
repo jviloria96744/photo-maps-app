@@ -3,7 +3,7 @@ import * as tasks from "aws-cdk-lib/aws-stepfunctions-tasks";
 import * as iam from "aws-cdk-lib/aws-iam";
 import { Stack, Duration } from "aws-cdk-lib";
 import { Construct } from "constructs";
-import { PythonLambda } from "../python-lambda";
+import { PythonLambda } from "../lambda-functions/python-lambda";
 import { IFunction } from "aws-cdk-lib/aws-lambda";
 
 interface ParallelImageProcessingTaskProps {

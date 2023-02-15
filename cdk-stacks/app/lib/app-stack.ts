@@ -3,7 +3,6 @@ import * as acm from "aws-cdk-lib/aws-certificatemanager";
 import * as route53 from "aws-cdk-lib/aws-route53";
 import { Construct } from "constructs";
 import { DynamoDBTable } from "../constructs/dynamo-db-table";
-// import { AdminSiteStack } from "./stacks/admin-portal/admin-site-stack";
 import { WebClientStack } from "./stacks/web-client-stack";
 import { ImageProcessorWorkflowStack } from "./stacks/image-processor-workflow-stack";
 import { AppApiStack } from "./stacks/app-api-stack";
@@ -29,7 +28,6 @@ interface AppStackProps extends cdk.StackProps {
 
 export class AppStack extends cdk.Stack {
   dynamoDb: DynamoDBTable;
-  // adminSiteStack: AdminSiteStack;
   webClientStack: WebClientStack;
   imageProcessorWorkflowStack: ImageProcessorWorkflowStack;
   appApiStack: AppApiStack;
@@ -40,18 +38,6 @@ export class AppStack extends cdk.Stack {
     const { certificates } = props;
 
     const dynamoDB = new DynamoDBTable(this, "DynamoDB");
-
-    // const adminSiteStack = new AdminSiteStack(this, "AdminPortal", {
-    //   siteDomain: `${DOMAIN_NAMES.ADMIN_PORTAL_SUBDOMAIN}.${DOMAIN_NAMES.TLD_NAME}`,
-    //   pathName: path.resolve(
-    //     CONFIG.environment.basePath,
-    //     BUILD_DIRECTORIES.ADMIN_PORTAL,
-    //     BUILD_DIRECTORIES.STATIC_SITE_BUILD
-    //   ),
-    //   certificate: certificates.adminPortalCertificate,
-    //   hostedZone: certificates.hostedZone,
-    //   authCallbackUrls: CONFIG.adminPortal.callbackUrls,
-    // });
 
     const webClientStack = new WebClientStack(this, "WebClient", {
       siteDomain: `${DOMAIN_NAMES.WEBCLIENT_SUBDOMAIN}.${DOMAIN_NAMES.TLD_NAME}`,
@@ -99,7 +85,6 @@ export class AppStack extends cdk.Stack {
     });
 
     this.dynamoDb = dynamoDB;
-    // this.adminSiteStack = adminSiteStack;
     this.webClientStack = webClientStack;
     this.imageProcessorWorkflowStack = imageProcessorWorkflowStack;
     this.appApiStack = appApiStack;
