@@ -77,7 +77,7 @@ if (flagAdminPortal === "true") {
   });
 }
 
-if (flagMainApp) {
+if (flagMainApp === "true") {
   const observabilityStack = new ObservabilityStack(app, "Observability", {
     env: {
       account: process.env.CDK_DEFAULT_ACCOUNT,
@@ -102,7 +102,7 @@ if (flagMainApp) {
     },
   });
 
-  if (flagImageDeleter) {
+  if (flagImageDeleter === "true") {
     const imageDeleterStack = new ImageDeleterStack(app, "ImageDelete", {
       env: {
         account: process.env.CDK_DEFAULT_ACCOUNT,
@@ -113,6 +113,10 @@ if (flagMainApp) {
       dynamoTable: dynamoDbStack.table,
       deadLetterQueue: observabilityStack.deadLetterQueue,
     });
+
+    imageDeleterStack.addDependency(observabilityStack);
+    imageDeleterStack.addDependency(dynamoDbStack);
+    imageDeleterStack.addDependency(assetBucketStack);
   }
 }
 
