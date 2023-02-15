@@ -6,61 +6,122 @@ import {
   CertificateStack,
   CertificateParameterStoreStack,
 } from "../lib/stacks/certificates";
-import { DOMAIN_NAMES } from "../config";
+import { AdminSiteStack } from "../lib/stacks/admin-portal/admin-site-stack";
+import { DOMAIN_NAMES, CONFIG, BUILD_DIRECTORIES } from "../config";
+import * as path from "path";
 
 const app = new cdk.App();
 
-const certStack = new CertificateStack(app, "Certificate", {
-  env: {
-    account: process.env.CDK_DEFAULT_ACCOUNT,
-    region: "us-east-1",
-  },
-  crossRegionReferences: true,
-  domainName: DOMAIN_NAMES.TLD_NAME,
-  adminPortalSubDomain: DOMAIN_NAMES.ADMIN_PORTAL_SUBDOMAIN,
-  webClientSubDomain: DOMAIN_NAMES.WEBCLIENT_SUBDOMAIN,
-  apiSubDomain: DOMAIN_NAMES.API_SUBDOMAIN,
-  assetSubDomain: DOMAIN_NAMES.ASSETS_SUBDOMAIN,
-  appSyncSubDomain: DOMAIN_NAMES.APPSYNC_SUBDOMAIN,
-});
+const flagCertificate = app.node.tryGetContext("FLAG_CERTIFICATE");
+const flagAdminPortal = app.node.tryGetContext("FLAG_ADMIN_PORTAL");
 
-const certParameterStoreStack = new CertificateParameterStoreStack(
-  app,
-  "CertificateParameters",
-  {
+if (flagCertificate === "true") {
+  const certStack = new CertificateStack(app, "Certificate", {
+    env: {
+      account: process.env.CDK_DEFAULT_ACCOUNT,
+      region: "us-east-1",
+    },
+    crossRegionReferences: true,
+    domainName: DOMAIN_NAMES.TLD_NAME,
+    adminPortalSubDomain: DOMAIN_NAMES.ADMIN_PORTAL_SUBDOMAIN,
+    webClientSubDomain: DOMAIN_NAMES.WEBCLIENT_SUBDOMAIN,
+    apiSubDomain: DOMAIN_NAMES.API_SUBDOMAIN,
+    assetSubDomain: DOMAIN_NAMES.ASSETS_SUBDOMAIN,
+    appSyncSubDomain: DOMAIN_NAMES.APPSYNC_SUBDOMAIN,
+  });
+
+  const certParameterStoreStack = new CertificateParameterStoreStack(
+    app,
+    "CertificateParameters",
+    {
+      env: {
+        account: process.env.CDK_DEFAULT_ACCOUNT,
+        region: process.env.CDK_DEFAULT_REGION,
+      },
+      crossRegionReferences: true,
+      certificates: {
+        adminPortalCertificate: certStack.adminPortalCertificate,
+        webClientCertificate: certStack.webClientCertificate,
+        restApiCertificate: certStack.restApiCertificate,
+        assetCDNCertificate: certStack.assetCDNCertificate,
+        appSyncCertificate: certStack.appSyncCertificate,
+      },
+    }
+  );
+
+  certParameterStoreStack.addDependency(certStack);
+}
+
+if (flagAdminPortal === "true") {
+  const adminPortalStack = new AdminSiteStack(app, "AdminPortal", {
     env: {
       account: process.env.CDK_DEFAULT_ACCOUNT,
       region: process.env.CDK_DEFAULT_REGION,
     },
-    crossRegionReferences: true,
-    certificates: {
-      adminPortalCertificate: certStack.adminPortalCertificate,
-      webClientCertificate: certStack.webClientCertificate,
-      restApiCertificate: certStack.restApiCertificate,
-      assetCDNCertificate: certStack.assetCDNCertificate,
-      appSyncCertificate: certStack.appSyncCertificate,
-    },
-  }
-);
+    siteDomain: `${DOMAIN_NAMES.ADMIN_PORTAL_SUBDOMAIN}.${DOMAIN_NAMES.TLD_NAME}`,
+    pathName: path.resolve(
+      CONFIG.environment.basePath,
+      BUILD_DIRECTORIES.ADMIN_PORTAL,
+      BUILD_DIRECTORIES.STATIC_SITE_BUILD
+    ),
+    domainName: DOMAIN_NAMES.TLD_NAME,
+    authCallbackUrls: CONFIG.adminPortal.callbackUrls,
+    certificateParameterStoreName:
+      CONFIG.adminPortal.certificateParameterStoreName,
+  });
+}
 
-certParameterStoreStack.addDependency(certStack);
+// const certStack = new CertificateStack(app, "Certificate", {
+//   env: {
+//     account: process.env.CDK_DEFAULT_ACCOUNT,
+//     region: "us-east-1",
+//   },
+//   crossRegionReferences: true,
+//   domainName: DOMAIN_NAMES.TLD_NAME,
+//   adminPortalSubDomain: DOMAIN_NAMES.ADMIN_PORTAL_SUBDOMAIN,
+//   webClientSubDomain: DOMAIN_NAMES.WEBCLIENT_SUBDOMAIN,
+//   apiSubDomain: DOMAIN_NAMES.API_SUBDOMAIN,
+//   assetSubDomain: DOMAIN_NAMES.ASSETS_SUBDOMAIN,
+//   appSyncSubDomain: DOMAIN_NAMES.APPSYNC_SUBDOMAIN,
+// });
 
-const appStack = new AppStack(app, "App", {
-  env: {
-    account: process.env.CDK_DEFAULT_ACCOUNT,
-    region: process.env.CDK_DEFAULT_REGION,
-  },
-  crossRegionReferences: true,
-  certificates: {
-    adminPortalCertificate: certStack.adminPortalCertificate,
-    webClientCertificate: certStack.webClientCertificate,
-    restApiCertificate: certStack.restApiCertificate,
-    assetCDNCertificate: certStack.assetCDNCertificate,
-    appSyncCertificate: certStack.appSyncCertificate,
-    hostedZone: certStack.hostedZone,
-  },
+// const certParameterStoreStack = new CertificateParameterStoreStack(
+//   app,
+//   "CertificateParameters",
+//   {
+//     env: {
+//       account: process.env.CDK_DEFAULT_ACCOUNT,
+//       region: process.env.CDK_DEFAULT_REGION,
+//     },
+//     crossRegionReferences: true,
+//     certificates: {
+//       adminPortalCertificate: certStack.adminPortalCertificate,
+//       webClientCertificate: certStack.webClientCertificate,
+//       restApiCertificate: certStack.restApiCertificate,
+//       assetCDNCertificate: certStack.assetCDNCertificate,
+//       appSyncCertificate: certStack.appSyncCertificate,
+//     },
+//   }
+// );
 
-  /* For more information, see https://docs.aws.amazon.com/cdk/latest/guide/environments.html */
-});
+// certParameterStoreStack.addDependency(certStack);
 
-appStack.addDependency(certStack);
+// const appStack = new AppStack(app, "App", {
+//   env: {
+//     account: process.env.CDK_DEFAULT_ACCOUNT,
+//     region: process.env.CDK_DEFAULT_REGION,
+//   },
+//   crossRegionReferences: true,
+//   certificates: {
+//     adminPortalCertificate: certStack.adminPortalCertificate,
+//     webClientCertificate: certStack.webClientCertificate,
+//     restApiCertificate: certStack.restApiCertificate,
+//     assetCDNCertificate: certStack.assetCDNCertificate,
+//     appSyncCertificate: certStack.appSyncCertificate,
+//     hostedZone: certStack.hostedZone,
+//   },
+
+//   /* For more information, see https://docs.aws.amazon.com/cdk/latest/guide/environments.html */
+// });
+
+// appStack.addDependency(certStack);
