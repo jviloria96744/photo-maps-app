@@ -8,7 +8,8 @@ import { Construct } from "constructs";
 import { lookupCertificate } from "../../../utils/utils";
 
 interface AssetBucketStackProps extends cdk.StackProps {
-  domainName: string;
+  tldDomainName: string;
+  fullDomainName: string;
   certificateParameterStoreName: string;
 }
 
@@ -17,7 +18,8 @@ export class AssetBucketStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props: AssetBucketStackProps) {
     super(scope, id, props);
 
-    const { domainName, certificateParameterStoreName } = props;
+    const { tldDomainName, fullDomainName, certificateParameterStoreName } =
+      props;
 
     const certificate = lookupCertificate(this, certificateParameterStoreName);
 
@@ -33,20 +35,20 @@ export class AssetBucketStack extends cdk.Stack {
       ],
     });
 
+    const hostedZone = route53.HostedZone.fromLookup(this, `HostedZone`, {
+      domainName: tldDomainName,
+    });
+
     const distribution = new cloudfront.Distribution(this, "Distribution", {
       defaultBehavior: {
         origin: new cloudfront_origins.S3Origin(bucket),
       },
-      domainNames: [domainName],
+      domainNames: [fullDomainName],
       certificate: certificate,
     });
 
-    const hostedZone = route53.HostedZone.fromLookup(this, `HostedZone`, {
-      domainName: domainName,
-    });
-
     new route53.ARecord(this, "CDNARecord", {
-      recordName: domainName,
+      recordName: fullDomainName,
       zone: hostedZone,
       target: route53.RecordTarget.fromAlias(
         new targets.CloudFrontTarget(distribution)

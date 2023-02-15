@@ -90,7 +90,8 @@ if (flagMainApp === "true") {
       account: process.env.CDK_DEFAULT_ACCOUNT,
       region: process.env.CDK_DEFAULT_REGION,
     },
-    domainName: `${DOMAIN_NAMES.ASSETS_SUBDOMAIN}.${DOMAIN_NAMES.TLD_NAME}`,
+    tldDomainName: DOMAIN_NAMES.TLD_NAME,
+    fullDomainName: `${DOMAIN_NAMES.ASSETS_SUBDOMAIN}.${DOMAIN_NAMES.TLD_NAME}`,
     certificateParameterStoreName:
       CONFIG.assetBucket.certificateParameterStoreName,
   });
