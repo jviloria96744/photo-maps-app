@@ -201,7 +201,7 @@ jobs:
         run: npm ci
       - name: Set Environment Variables
         run: |
-          echo "FLAG_IMAGE_DELETER=${{ needs.change-detector.outputs.image-deleter == 'true' }}" >> $GITHUB_ENV &&
+          echo "FLAG_IMAGE_DELETER=${{ needs.change-detector.outputs.image-deleter == 'true' || env.PIPELINE_TESTING == 'true' }}" >> $GITHUB_ENV &&
           echo "FLAG_IMAGE_PROCESSOR=${{ needs.change-detector.outputs.image-processor == 'true' || env.PIPELINE_TESTING == 'true' }}" >> $GITHUB_ENV
       - name: Deploy Stack
         if: github.ref == 'refs/heads/main'
