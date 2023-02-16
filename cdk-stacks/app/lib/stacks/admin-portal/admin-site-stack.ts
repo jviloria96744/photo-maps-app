@@ -1,10 +1,10 @@
 import * as cdk from "aws-cdk-lib";
 import * as acm from "aws-cdk-lib/aws-certificatemanager";
 import * as route53 from "aws-cdk-lib/aws-route53";
-import * as ssm from "aws-cdk-lib/aws-ssm";
 import { Construct } from "constructs";
 import { StaticSite } from "../../../constructs/static-site";
 import { AdminAuthFlow } from "../../../constructs/admin-portal/admin-auth-flow";
+import { lookupResource } from "../../../utils/utils";
 
 interface AdminSiteStackProps extends cdk.StackProps {
   siteDomain: string;
@@ -30,8 +30,11 @@ export class AdminSiteStack extends cdk.Stack {
       domainName: domainName,
     });
 
-    const adminPortalCertificate = this.lookupCertificate(
-      certificateParameterStoreName
+    const adminPortalCertificate = lookupResource(
+      this,
+      "AdminPortalCertificate",
+      certificateParameterStoreName,
+      acm.Certificate.fromCertificateArn
     );
 
     const adminSite = new StaticSite(this, "StaticSite", {
@@ -47,19 +50,5 @@ export class AdminSiteStack extends cdk.Stack {
 
     this.adminSite = adminSite;
     this.adminAuthFlow = adminAuthFlow;
-  }
-  private lookupCertificate(certName: string): acm.ICertificate {
-    const certArn = ssm.StringParameter.fromStringParameterName(
-      this,
-      `${certName}Arn`,
-      `/certificates/${certName}/arn`
-    );
-    const certificate = acm.Certificate.fromCertificateArn(
-      this,
-      `${certName}Certificate`,
-      certArn.stringValue
-    );
-
-    return certificate;
   }
 }

@@ -8,7 +8,7 @@ import {
   PythonLambda,
   PythonLambdaProps,
 } from "../../../constructs/lambda-functions";
-import { createPathName } from "../../../utils/utils";
+import { createPathName, lookupResource } from "../../../utils/utils";
 
 interface ImageDeleterStackProps extends cdk.StackProps {
   dynamoTableParameterStoreName: string;
@@ -25,15 +25,17 @@ export class ImageDeleterStack extends cdk.Stack {
       deleteQueueParameterStoreName,
     } = props;
 
-    const dynamoTable = dynamodb.Table.fromTableArn(
+    const dynamoTable = lookupResource(
       this,
-      `${id}LookupTable`,
-      dynamoTableParameterStoreName
+      "DynamoTable",
+      dynamoTableParameterStoreName,
+      dynamodb.Table.fromTableArn
     );
-    const deleteQueue = sqs.Queue.fromQueueArn(
+    const deleteQueue = lookupResource(
       this,
-      `${id}LookupQueue`,
-      deleteQueueParameterStoreName
+      "DeleteQueue",
+      deleteQueueParameterStoreName,
+      sqs.Queue.fromQueueArn
     );
 
     const imageDeleterProps: PythonLambdaProps = {

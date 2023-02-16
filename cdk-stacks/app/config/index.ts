@@ -40,8 +40,8 @@ export enum PARAMETER_STORE_NAMES {
   DELETE_QUEUE = "/queue/delete-queue/arn",
   UPLOAD_QUEUE = "/queue/upload-queue/arn",
   DYNAMODB_TABLE = "/dynamodb/app-db/arn",
-  ASSET_BUCKET_CERTIFICATE = "assetCDN",
-  ADMIN_PORTAL_CERTIFICATE = "adminPortal",
+  ASSET_BUCKET_CERTIFICATE = "/certificates/assetCDN/arn",
+  ADMIN_PORTAL_CERTIFICATE = "/certificates/adminPortal/arn",
 }
 
 const removeTests = "rm -rf /asset-output/tests";

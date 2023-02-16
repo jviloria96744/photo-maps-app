@@ -35,6 +35,7 @@ if (flagObservability === "true") {
       account: process.env.CDK_DEFAULT_ACCOUNT,
       region: process.env.CDK_DEFAULT_REGION,
     },
+    deadLetterQueueParameterStoreName: PARAMETER_STORE_NAMES.DEAD_LETTER_QUEUE,
   });
 }
 

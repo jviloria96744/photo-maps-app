@@ -1,5 +1,4 @@
 import * as ssm from "aws-cdk-lib/aws-ssm";
-import * as acm from "aws-cdk-lib/aws-certificatemanager";
 import { Construct } from "constructs";
 import * as path from "path";
 
@@ -10,20 +9,29 @@ export function createPathName(
   return path.resolve(basePath, "lambdas", codeDirectory);
 }
 
-export function lookupCertificate(
+type LookupFunctionType<T> = (
   scope: Construct,
-  certName: string
-): acm.ICertificate {
-  const certArn = ssm.StringParameter.fromStringParameterName(
+  resourceId: string,
+  arn: string
+) => T;
+
+export function lookupResource<T>(
+  scope: Construct,
+  resourceId: string,
+  arnLookupValue: string,
+  lookupFunction: LookupFunctionType<T>
+): T {
+  const resourceArn = ssm.StringParameter.fromStringParameterName(
     scope,
-    `${certName}Arn`,
-    `/certificates/${certName}/arn`
-  );
-  const certificate = acm.Certificate.fromCertificateArn(
-    scope,
-    `${certName}Certificate`,
-    certArn.stringValue
+    `${resourceId}Arn`,
+    arnLookupValue
   );
 
-  return certificate;
+  const resource = lookupFunction(
+    scope,
+    `${resourceId}Lookup`,
+    resourceArn.stringValue
+  );
+
+  return resource;
 }

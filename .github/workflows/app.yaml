@@ -164,7 +164,6 @@ jobs:
         working-directory: cdk-stacks/app
         run: npm ci
       - name: Deploy Stack
-        if: github.ref == 'refs/heads/main'
         working-directory: cdk-stacks/app
         run: cdk deploy CertificateParameters -c FLAG_CERTIFICATE=true --require-approval "never"
   deploy-admin-portal:

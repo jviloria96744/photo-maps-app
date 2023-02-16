@@ -6,6 +6,7 @@ import { Construct } from "constructs";
 import { IConfig } from "../../../config";
 import { ImageProcessorLambdasStack } from "./image-processor-lambdas-stack";
 import { ImageProcessorStepFunctionStack } from "./image-processor-step-function-stack";
+import { lookupResource } from "../../../utils/utils";
 
 interface ImageProcessorStackProps extends cdk.StackProps {
   assetBucketParameterStoreName: string;
@@ -25,20 +26,23 @@ export class ImageProcessorStack extends cdk.Stack {
       uploadQueueParameterStoreName,
     } = props;
 
-    const assetBucket = s3.Bucket.fromBucketArn(
+    const assetBucket = lookupResource(
       this,
-      `${id}LookupBucket`,
-      assetBucketParameterStoreName
+      "AssetBucket",
+      assetBucketParameterStoreName,
+      s3.Bucket.fromBucketArn
     );
-    const dynamoTable = dynamodb.Table.fromTableArn(
+    const dynamoTable = lookupResource(
       this,
-      `${id}LookupTable`,
-      dynamoTableParameterStoreName
+      "DynamoTable",
+      dynamoTableParameterStoreName,
+      dynamodb.Table.fromTableArn
     );
-    const uploadQueue = sqs.Queue.fromQueueArn(
+    const uploadQueue = lookupResource(
       this,
-      `${id}Queue`,
-      uploadQueueParameterStoreName
+      "UploadQueue",
+      uploadQueueParameterStoreName,
+      sqs.Queue.fromQueueArn
     );
 
     const imageProcessorLambdas = new ImageProcessorLambdasStack(

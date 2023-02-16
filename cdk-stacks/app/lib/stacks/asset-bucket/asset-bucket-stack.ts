@@ -1,13 +1,14 @@
 import * as cdk from "aws-cdk-lib";
 import * as s3 from "aws-cdk-lib/aws-s3";
 import * as sqs from "aws-cdk-lib/aws-sqs";
+import * as acm from "aws-cdk-lib/aws-certificatemanager";
 import * as cloudfront from "aws-cdk-lib/aws-cloudfront";
 import * as cloudfront_origins from "aws-cdk-lib/aws-cloudfront-origins";
 import * as route53 from "aws-cdk-lib/aws-route53";
 import * as targets from "aws-cdk-lib/aws-route53-targets";
 import * as ssm from "aws-cdk-lib/aws-ssm";
 import { Construct } from "constructs";
-import { lookupCertificate } from "../../../utils/utils";
+import { lookupResource } from "../../../utils/utils";
 
 interface AssetBucketStackProps extends cdk.StackProps {
   tldDomainName: string;
@@ -36,8 +37,11 @@ export class AssetBucketStack extends cdk.Stack {
       uploadQueueParameterStoreName,
     } = props;
 
-    const deadLetterQueue = this.getDeadLetterQueue(
-      deadLetterQueueParameterStoreName
+    const deadLetterQueue = lookupResource(
+      this,
+      "AssetBucketDLQ",
+      deadLetterQueueParameterStoreName,
+      sqs.Queue.fromQueueArn
     );
 
     const bucket = new s3.Bucket(this, "Bucket", {
@@ -88,7 +92,12 @@ export class AssetBucketStack extends cdk.Stack {
     fullDomainName: string,
     certificateParameterStoreName: string
   ): void {
-    const certificate = lookupCertificate(this, certificateParameterStoreName);
+    const certificate = lookupResource(
+      this,
+      "AssetCdnCertificate",
+      certificateParameterStoreName,
+      acm.Certificate.fromCertificateArn
+    );
 
     const hostedZone = route53.HostedZone.fromLookup(this, `HostedZone`, {
       domainName: tldDomainName,
@@ -171,21 +180,5 @@ export class AssetBucketStack extends cdk.Stack {
     );
 
     return deleteQueue;
-  }
-
-  private getDeadLetterQueue(deadLetterQueueParameterStoreName: string) {
-    const dlqArn = ssm.StringParameter.fromStringParameterName(
-      this,
-      "DLQArn",
-      deadLetterQueueParameterStoreName
-    );
-
-    const deadLetterQueue = sqs.Queue.fromQueueArn(
-      this,
-      "DeadLetterQueue",
-      dlqArn.stringValue
-    );
-
-    return deadLetterQueue;
   }
 }
