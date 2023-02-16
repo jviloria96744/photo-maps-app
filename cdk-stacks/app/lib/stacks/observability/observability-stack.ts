@@ -13,7 +13,7 @@ export class ObservabilityStack extends cdk.Stack {
     });
 
     new ssm.StringParameter(this, `${id}Parameter`, {
-      parameterName: "queue/app-dlq/arn",
+      parameterName: "/queue/app-dlq/arn",
       stringValue: deadLetterQueue.queueArn,
     });
 
