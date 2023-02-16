@@ -24,7 +24,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       pipeline-testing: ${{ env.PIPELINE_TESTING }}
-      observability: ${{ [env.PIPELINE_TESTING == 'true'] && echo 'true' || steps.filter.outputs.observability }}
+      observability: ${{ (env.PIPELINE_TESTING == 'true') && 'true' || steps.filter.outputs.observability }}
       certificates: ${{ steps.filter.outputs.certificates }}
       stateful-resources: ${{ steps.filter.outputs.stateful-resources }}
       web-client: ${{ steps.filter.outputs.web-client }}
