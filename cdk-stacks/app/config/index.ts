@@ -42,6 +42,8 @@ export enum PARAMETER_STORE_NAMES {
   DYNAMODB_TABLE = "/dynamodb/app-db/arn",
   ASSET_BUCKET_CERTIFICATE = "/certificates/assetCDN/arn",
   ADMIN_PORTAL_CERTIFICATE = "/certificates/adminPortal/arn",
+  WEB_CLIENT_CERTIFICATE = "/certificates/webClient/arn",
+  WEB_CLIENT_COGNITO_USER_POOL = "/userpool/webclient/arn",
 }
 
 const removeTests = "rm -rf /asset-output/tests";

@@ -3,7 +3,7 @@ import * as acm from "aws-cdk-lib/aws-certificatemanager";
 import * as route53 from "aws-cdk-lib/aws-route53";
 import { Construct } from "constructs";
 import { DynamoDBTable } from "../constructs/dynamo-db-table";
-import { WebClientStack } from "./stacks/web-client-stack";
+import { WebClientStack } from "./stacks/web-client/web-client-stack";
 import { ImageProcessorWorkflowStack } from "./stacks/image-processor-workflow-stack";
 import { AppApiStack } from "./stacks/app-api-stack";
 import { WebSocketStack } from "./stacks/websocket-stack";

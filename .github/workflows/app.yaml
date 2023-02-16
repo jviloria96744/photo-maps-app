@@ -50,6 +50,8 @@ jobs:
               - 'cdk-stacks/app/lib/stacks/dynamodb/**'
             web-client:
               - 'client-web/**'
+              - 'cdk-stacks/app/lib/stacks/web-client/**'
+              - 'cdk-stacks/app/constructs/web-client/**'
             admin-portal:
               - 'admin-portal/**'
               - 'cdk-stacks/app/lib/stacks/admin-portal/**'
@@ -198,6 +200,39 @@ jobs:
       - name: Deploy Stack
         working-directory: cdk-stacks/app
         run: cdk deploy AdminPortal -c FLAG_ADMIN_PORTAL=true  --require-approval "never"
+  deploy-web-client:
+    needs: [change-detector, deploy-certificate-stack]
+    if: |
+      always() &&
+      (needs.change-detector.outputs.web-client == 'true') &&
+      !contains(needs.*.result, 'failure') &&
+      !contains(needs.*.result, 'cancelled')
+    name: Deploy Web Client Front-End
+    timeout-minutes: 20
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v3
+      - name: Configure AWS CLI and Credentials
+        uses: ./.github/actions/configure-aws-cli
+        with:
+          account_id: ${{ env.AWS_ACCOUNT_ID }}
+          default_region: ${{ env.AWS_DEFAULT_REGION }}
+      - name: Build Artifact
+        uses: ./.github/actions/build-web-artifact
+        with:
+          directory: "client-web"
+      - name: Install CDK
+        run: npm install -g aws-cdk
+      - name: Install Dependencies
+        working-directory: cdk-stacks/app
+        run: npm ci
+      - name: Deploy Stack
+        working-directory: cdk-stacks/app
+        run: cdk deploy WebClient -c FLAG_WEB_CLIENT=true  --require-approval "never"
   deploy-stateful-resources:
     needs:
       [change-detector, deploy-certificate-stack, deploy-observability-stack]

@@ -12,11 +12,13 @@ import { DynamoDbStack } from "../lib/stacks/dynamodb/dynamodb-stack";
 import { ImageDeleterStack } from "../lib/stacks/image-deleter/image-deleter-stack";
 import { ObservabilityStack } from "../lib/stacks/observability/observability-stack";
 import { ImageProcessorStack } from "../lib/stacks/image-processor/image-processor-stack";
+import { WebClientStack } from "../lib/stacks/web-client/web-client-stack";
 import {
   DOMAIN_NAMES,
   CONFIG,
   BUILD_DIRECTORIES,
   PARAMETER_STORE_NAMES,
+  OAUTH_GOOGLE_KEYS,
 } from "../config";
 import * as path from "path";
 
@@ -28,6 +30,7 @@ const flagAdminPortal = app.node.tryGetContext("FLAG_ADMIN_PORTAL");
 const flagStateful = app.node.tryGetContext("FLAG_STATEFUL");
 const flagImageDeleter = app.node.tryGetContext("FLAG_IMAGE_DELETER");
 const flagImageProcessor = app.node.tryGetContext("FLAG_IMAGE_PROCESSOR");
+const flagWebClient = app.node.tryGetContext("FLAG_WEB_CLIENT");
 
 if (flagObservability === "true") {
   const observabilityStack = new ObservabilityStack(app, "Observability", {
@@ -92,6 +95,24 @@ if (flagAdminPortal === "true") {
     authCallbackUrls: CONFIG.adminPortal.callbackUrls,
     certificateParameterStoreName:
       PARAMETER_STORE_NAMES.ADMIN_PORTAL_CERTIFICATE,
+  });
+}
+
+if (flagWebClient === "true") {
+  const webClientStack = new WebClientStack(app, "WebClient", {
+    domainName: DOMAIN_NAMES.TLD_NAME,
+    certificateParameterStoreName: PARAMETER_STORE_NAMES.WEB_CLIENT_CERTIFICATE,
+    siteDomain: `${DOMAIN_NAMES.WEBCLIENT_SUBDOMAIN}.${DOMAIN_NAMES.TLD_NAME}`,
+    pathName: path.resolve(
+      CONFIG.environment.basePath,
+      BUILD_DIRECTORIES.WEB_CLIENT,
+      BUILD_DIRECTORIES.STATIC_SITE_BUILD
+    ),
+    authCallbackUrls: CONFIG.webClient.callbackUrls,
+    clientIdKey: OAUTH_GOOGLE_KEYS.CLIENT_ID_KEY,
+    clientSecretKey: OAUTH_GOOGLE_KEYS.CLIENT_SECRET_KEY,
+    userpoolParameterStoreName:
+      PARAMETER_STORE_NAMES.WEB_CLIENT_COGNITO_USER_POOL,
   });
 }
 
