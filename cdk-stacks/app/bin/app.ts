@@ -100,6 +100,10 @@ if (flagAdminPortal === "true") {
 
 if (flagWebClient === "true") {
   const webClientStack = new WebClientStack(app, "WebClient", {
+    env: {
+      account: process.env.CDK_DEFAULT_ACCOUNT,
+      region: process.env.CDK_DEFAULT_REGION,
+    },
     domainName: DOMAIN_NAMES.TLD_NAME,
     certificateParameterStoreName: PARAMETER_STORE_NAMES.WEB_CLIENT_CERTIFICATE,
     siteDomain: `${DOMAIN_NAMES.WEBCLIENT_SUBDOMAIN}.${DOMAIN_NAMES.TLD_NAME}`,

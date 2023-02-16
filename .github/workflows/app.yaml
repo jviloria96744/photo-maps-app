@@ -52,6 +52,7 @@ jobs:
               - 'client-web/**'
               - 'cdk-stacks/app/lib/stacks/web-client/**'
               - 'cdk-stacks/app/constructs/web-client/**'
+              - 'cdk-stacks/app/**'
             admin-portal:
               - 'admin-portal/**'
               - 'cdk-stacks/app/lib/stacks/admin-portal/**'
