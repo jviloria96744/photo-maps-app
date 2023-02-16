@@ -117,7 +117,7 @@ jobs:
           directory: "image_label_filter"
   deploy-observability-stack:
     needs: change-detector
-    if: ${{ needs.change-detector.outputs.observability == 'true' }}
+    if: ${{ needs.change-detector.outputs.observability == 'true' || needs.change-detector.outputs.pipeline-testing == 'true' }}
     name: Deploy Dead Letter Queue
     runs-on: ubuntu-latest
     permissions:
