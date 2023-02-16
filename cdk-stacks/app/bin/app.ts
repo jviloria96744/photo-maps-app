@@ -1,19 +1,18 @@
 #!/usr/bin/env node
 import "source-map-support/register";
 import * as cdk from "aws-cdk-lib";
-import { AppStack } from "../lib/app-stack";
 import {
   CertificateStack,
   CertificateParameterStoreStack,
-} from "../lib/stacks/certificates";
-import { AdminSiteStack } from "../lib/stacks/admin-portal/admin-site-stack";
-import { AssetBucketStack } from "../lib/stacks/asset-bucket/asset-bucket-stack";
-import { DynamoDbStack } from "../lib/stacks/dynamodb/dynamodb-stack";
-import { ImageDeleterStack } from "../lib/stacks/image-deleter/image-deleter-stack";
-import { ObservabilityStack } from "../lib/stacks/observability/observability-stack";
-import { ImageProcessorStack } from "../lib/stacks/image-processor/image-processor-stack";
-import { WebClientStack } from "../lib/stacks/web-client/web-client-stack";
-import { AppApiStack } from "../lib/stacks/app-api/app-api-stack";
+  AdminSiteStack,
+  AssetBucketStack,
+  DynamoDbStack,
+  ImageDeleterStack,
+  ObservabilityStack,
+  ImageProcessorStack,
+  WebClientStack,
+  AppApiStack,
+} from "../lib/stacks";
 import {
   DOMAIN_NAMES,
   CONFIG,
@@ -193,58 +192,3 @@ if (flagAppApi) {
     appSyncSchemaPathName: `${CONFIG.environment.basePath}/${CONFIG.websocket.pathName}`,
   });
 }
-
-// const certStack = new CertificateStack(app, "Certificate", {
-//   env: {
-//     account: process.env.CDK_DEFAULT_ACCOUNT,
-//     region: "us-east-1",
-//   },
-//   crossRegionReferences: true,
-//   domainName: DOMAIN_NAMES.TLD_NAME,
-//   adminPortalSubDomain: DOMAIN_NAMES.ADMIN_PORTAL_SUBDOMAIN,
-//   webClientSubDomain: DOMAIN_NAMES.WEBCLIENT_SUBDOMAIN,
-//   apiSubDomain: DOMAIN_NAMES.API_SUBDOMAIN,
-//   assetSubDomain: DOMAIN_NAMES.ASSETS_SUBDOMAIN,
-//   appSyncSubDomain: DOMAIN_NAMES.APPSYNC_SUBDOMAIN,
-// });
-
-// const certParameterStoreStack = new CertificateParameterStoreStack(
-//   app,
-//   "CertificateParameters",
-//   {
-//     env: {
-//       account: process.env.CDK_DEFAULT_ACCOUNT,
-//       region: process.env.CDK_DEFAULT_REGION,
-//     },
-//     crossRegionReferences: true,
-//     certificates: {
-//       adminPortalCertificate: certStack.adminPortalCertificate,
-//       webClientCertificate: certStack.webClientCertificate,
-//       restApiCertificate: certStack.restApiCertificate,
-//       assetCDNCertificate: certStack.assetCDNCertificate,
-//       appSyncCertificate: certStack.appSyncCertificate,
-//     },
-//   }
-// );
-
-// certParameterStoreStack.addDependency(certStack);
-
-// const appStack = new AppStack(app, "App", {
-//   env: {
-//     account: process.env.CDK_DEFAULT_ACCOUNT,
-//     region: process.env.CDK_DEFAULT_REGION,
-//   },
-//   crossRegionReferences: true,
-//   certificates: {
-//     adminPortalCertificate: certStack.adminPortalCertificate,
-//     webClientCertificate: certStack.webClientCertificate,
-//     restApiCertificate: certStack.restApiCertificate,
-//     assetCDNCertificate: certStack.assetCDNCertificate,
-//     appSyncCertificate: certStack.appSyncCertificate,
-//     hostedZone: certStack.hostedZone,
-//   },
-
-//   /* For more information, see https://docs.aws.amazon.com/cdk/latest/guide/environments.html */
-// });
-
-// appStack.addDependency(certStack);
