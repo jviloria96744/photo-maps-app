@@ -116,7 +116,7 @@ jobs:
           directory: "image_label_filter"
   deploy-observability-stack:
     needs: change-detector
-    if: ${{ needs.change-detector.outputs.observability == 'true' }}
+    if: ${{ needs.change-detector.outputs.observability == 'true' || 'true' == 'true' }}
     name: Deploy Dead Letter Queue
     runs-on: ubuntu-latest
     permissions:
@@ -133,14 +133,20 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: 16.17.0
-      - name: Install CDK
-        run: npm install -g aws-cdk
-      - name: Install Dependencies
-        working-directory: cdk-stacks/app
-        run: npm ci
-      - name: Deploy Stack
-        working-directory: cdk-stacks/app
-        run: cdk deploy Observability -c FLAG_OBSERVABILITY=true --require-approval "never"
+      - name: Deploy Observability Stack
+        uses: ./.github/actions/cdk-deploy
+        with:
+          directory: "cdk-stacks/app"
+          cdk_stacks: "Observability"
+          cdk_context: "-c FLAG_OBSERVABILITY=true"
+      # - name: Install CDK
+      #   run: npm install -g aws-cdk
+      # - name: Install Dependencies
+      #   working-directory: cdk-stacks/app
+      #   run: npm ci
+      # - name: Deploy Stack
+      #   working-directory: cdk-stacks/app
+      #   run: cdk deploy Observability -c FLAG_OBSERVABILITY=true --require-approval "never"
   deploy-certificate-stack:
     needs: change-detector
     if: ${{ needs.change-detector.outputs.certificates == 'true' }}

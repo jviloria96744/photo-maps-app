@@ -1,0 +1,30 @@
+name: "Deploy Stack to CDK"
+description: "Create build artifacts for react app"
+inputs:
+  directory:
+    description: "Directory of CDK Application"
+    required: true
+    default: ""
+  cdk_stacks:
+    description: "List of Stacks to Deploy"
+    required: true
+    default: ""
+  cdk_context:
+    description: "Context Flags to include"
+    required: true
+    default: ""
+
+runs:
+  using: "composite"
+  steps:
+    - name: Install CDK
+      run: npm install -g aws-cdk
+      shell: bash
+    - name: Install Dependencies
+      working-directory: ${{ inputs.directory }}
+      run: npm ci
+      shell: bash
+    - name: Deploy Stack
+      working-directory: ${{ inputs.directory }}
+      run: cdk deploy ${{ inputs.cdk_stacks }} ${{ inputs.cdk_context }} --require-approval "never"
+      shell: bash
