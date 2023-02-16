@@ -13,6 +13,7 @@ import { ImageDeleterStack } from "../lib/stacks/image-deleter/image-deleter-sta
 import { ObservabilityStack } from "../lib/stacks/observability/observability-stack";
 import { ImageProcessorStack } from "../lib/stacks/image-processor/image-processor-stack";
 import { WebClientStack } from "../lib/stacks/web-client/web-client-stack";
+import { AppApiStack } from "../lib/stacks/app-api/app-api-stack";
 import {
   DOMAIN_NAMES,
   CONFIG,
@@ -31,6 +32,7 @@ const flagStateful = app.node.tryGetContext("FLAG_STATEFUL");
 const flagImageDeleter = app.node.tryGetContext("FLAG_IMAGE_DELETER");
 const flagImageProcessor = app.node.tryGetContext("FLAG_IMAGE_PROCESSOR");
 const flagWebClient = app.node.tryGetContext("FLAG_WEB_CLIENT");
+const flagAppApi = app.node.tryGetContext("FLAG_APP_API");
 
 if (flagObservability === "true") {
   const observabilityStack = new ObservabilityStack(app, "Observability", {
@@ -167,6 +169,28 @@ if (flagImageProcessor === "true") {
     dynamoTableParameterStoreName: PARAMETER_STORE_NAMES.DYNAMODB_TABLE,
     uploadQueueParameterStoreName: PARAMETER_STORE_NAMES.UPLOAD_QUEUE,
     Config: CONFIG,
+  });
+}
+
+if (flagAppApi) {
+  const appApiStack = new AppApiStack(app, "AppApi", {
+    env: {
+      account: process.env.CDK_DEFAULT_ACCOUNT,
+      region: process.env.CDK_DEFAULT_REGION,
+    },
+    dynamoTableParameterStoreName: PARAMETER_STORE_NAMES.DYNAMODB_TABLE,
+    assetBucketParameterStoreName: PARAMETER_STORE_NAMES.ASSET_BUCKET,
+    cognitoUserPoolParameterStoreName:
+      PARAMETER_STORE_NAMES.WEB_CLIENT_COGNITO_USER_POOL,
+    restApiCertificateParameterStoreName:
+      PARAMETER_STORE_NAMES.REST_API_CERTIFICATE,
+    Config: CONFIG,
+    domainName: DOMAIN_NAMES.TLD_NAME,
+    apiGatewayDomain: `${DOMAIN_NAMES.API_SUBDOMAIN}.${DOMAIN_NAMES.TLD_NAME}`,
+    appSyncCertificateParameterStoreName:
+      PARAMETER_STORE_NAMES.APPSYNC_CERTIFICATE,
+    appSyncDomain: DOMAIN_NAMES.APPSYNC_SUBDOMAIN,
+    appSyncSchemaPathName: `${CONFIG.environment.basePath}/${CONFIG.websocket.pathName}`,
   });
 }
 

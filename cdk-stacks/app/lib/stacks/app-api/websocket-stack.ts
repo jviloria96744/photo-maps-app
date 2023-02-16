@@ -5,12 +5,12 @@ import * as cognito from "aws-cdk-lib/aws-cognito";
 import * as appsync from "aws-cdk-lib/aws-appsync";
 import { Construct } from "constructs";
 
-interface WebSocketStackProps extends cdk.StackProps {
+interface WebSocketStackProps extends cdk.NestedStackProps {
   pathName: string;
-  cognitoUserPool: cognito.UserPool;
+  cognitoUserPool: cognito.IUserPool;
   subDomainName: string;
   domainName: string;
-  certificate: acm.Certificate;
+  certificate: acm.ICertificate;
   hostedZone: route53.IHostedZone;
 }
 

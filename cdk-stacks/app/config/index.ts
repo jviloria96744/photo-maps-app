@@ -44,6 +44,8 @@ export enum PARAMETER_STORE_NAMES {
   ADMIN_PORTAL_CERTIFICATE = "/certificates/adminPortal/arn",
   WEB_CLIENT_CERTIFICATE = "/certificates/webClient/arn",
   WEB_CLIENT_COGNITO_USER_POOL = "/userpool/webclient/arn",
+  REST_API_CERTIFICATE = "/certificates/restApi/arn",
+  APPSYNC_CERTIFICATE = "/certificates/appSync/arn",
 }
 
 const removeTests = "rm -rf /asset-output/tests";

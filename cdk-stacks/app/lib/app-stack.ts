@@ -6,7 +6,7 @@ import { DynamoDBTable } from "../constructs/dynamo-db-table";
 import { WebClientStack } from "./stacks/web-client/web-client-stack";
 import { ImageProcessorWorkflowStack } from "./stacks/image-processor-workflow-stack";
 import { AppApiStack } from "./stacks/app-api-stack";
-import { WebSocketStack } from "./stacks/websocket-stack";
+import { WebSocketStack } from "./stacks/app-api/websocket-stack";
 import * as path from "path";
 import {
   CONFIG,

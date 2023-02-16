@@ -9,20 +9,17 @@ import * as s3 from "aws-cdk-lib/aws-s3";
 import * as cognito from "aws-cdk-lib/aws-cognito";
 import { LambdaRestApi } from "aws-cdk-lib/aws-apigateway";
 import { Construct } from "constructs";
-import {
-  PythonLambda,
-  PythonLambdaProps,
-} from "./lambda-functions/python-lambda";
+import { PythonLambdaProps, PythonLambda } from "./lambda-functions";
 import { IConfig } from "../config";
 import * as path from "path";
 
 export interface LambdaApiProps {
   Config: IConfig;
   apiDomain: string;
-  dynamoTable: dynamodb.Table;
-  assetBucket: s3.Bucket;
-  cognitoUserPool: cognito.UserPool;
-  certificate: acm.Certificate;
+  dynamoTable: dynamodb.ITable;
+  assetBucket: s3.IBucket;
+  cognitoUserPool: cognito.IUserPool;
+  certificate: acm.ICertificate;
   hostedZone: route53.IHostedZone;
 }
 
