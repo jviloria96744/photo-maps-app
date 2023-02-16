@@ -350,10 +350,6 @@ jobs:
         with:
           account_id: ${{ env.AWS_ACCOUNT_ID }}
           default_region: ${{ env.AWS_DEFAULT_REGION }}
-      - name: Build Artifact
-        uses: ./.github/actions/build-web-artifact
-        with:
-          directory: "client-web"
       - name: Install CDK
         run: npm install -g aws-cdk
       - name: Install Dependencies

@@ -10,8 +10,8 @@ projects:
         codeGenTarget: typescript
         generatedFileName: src/graphql/API.ts
         docsFilePath: src/graphql
-        region: us-east-1
-        apiId: xwf7aseuvbdmjmv4rraoe7ya4y
+        region: us-west-2
+        apiId: 4i44nyqyvneizblh2equekmeni
         frontend: javascript
         framework: react
         maxDepth: 2
