@@ -206,7 +206,7 @@ jobs:
       needs.change-detector.outputs.stateful-resources == 'true' && 
       !contains(needs.*.result, 'failure') &&
       !contains(needs.*.result, 'cancelled')
-    name: Deploy Stateful/Image Processing Resources
+    name: Deploy Stateful Resources
     timeout-minutes: 20
     runs-on: ubuntu-latest
     permissions:
@@ -247,7 +247,7 @@ jobs:
       (needs.change-detector.outputs.image-deleter == 'true' || needs.change-detector.outputs.image-processor == 'true') && 
       !contains(needs.*.result, 'failure') &&
       !contains(needs.*.result, 'cancelled')
-    name: Deploy Stateful/Image Processing Resources
+    name: Deploy Image Processing Resources
     timeout-minutes: 20
     runs-on: ubuntu-latest
     permissions:
