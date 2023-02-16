@@ -23,7 +23,8 @@ jobs:
     name: Detect File Changes And Artifact Existence
     runs-on: ubuntu-latest
     outputs:
-      observability: ${{ steps.filter.outputs.observability || env.PIPELINE_TESTING }}
+      pipeline-testing: ${{ env.PIPELINE_TESTING }}
+      observability: ${{ steps.filter.outputs.observability }}
       certificates: ${{ steps.filter.outputs.certificates }}
       stateful-resources: ${{ steps.filter.outputs.stateful-resources }}
       web-client: ${{ steps.filter.outputs.web-client }}
