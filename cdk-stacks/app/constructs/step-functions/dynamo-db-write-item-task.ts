@@ -5,7 +5,7 @@ import { Construct } from "constructs";
 import { JsonPath } from "aws-cdk-lib/aws-stepfunctions";
 
 interface DynamoDbPutItemTaskProps {
-  dynamoTable: dynamodb.Table;
+  dynamoTable: dynamodb.ITable;
 }
 
 export class DynamoDbWriteItemTask extends Construct {

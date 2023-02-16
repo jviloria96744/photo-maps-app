@@ -12,7 +12,12 @@ import { DynamoDbStack } from "../lib/stacks/dynamodb/dynamodb-stack";
 import { ImageDeleterStack } from "../lib/stacks/image-deleter/image-deleter-stack";
 import { ObservabilityStack } from "../lib/stacks/observability/observability-stack";
 import { ImageProcessorStack } from "../lib/stacks/image-processor/image-processor-stack";
-import { DOMAIN_NAMES, CONFIG, BUILD_DIRECTORIES } from "../config";
+import {
+  DOMAIN_NAMES,
+  CONFIG,
+  BUILD_DIRECTORIES,
+  PARAMETER_STORE_NAMES,
+} from "../config";
 import * as path from "path";
 
 const app = new cdk.App();
@@ -85,7 +90,7 @@ if (flagAdminPortal === "true") {
     domainName: DOMAIN_NAMES.TLD_NAME,
     authCallbackUrls: CONFIG.adminPortal.callbackUrls,
     certificateParameterStoreName:
-      CONFIG.adminPortal.certificateParameterStoreName,
+      PARAMETER_STORE_NAMES.ADMIN_PORTAL_CERTIFICATE,
   });
 }
 
@@ -98,7 +103,11 @@ if (flagStateful === "true") {
     tldDomainName: DOMAIN_NAMES.TLD_NAME,
     fullDomainName: `${DOMAIN_NAMES.ASSETS_SUBDOMAIN}.${DOMAIN_NAMES.TLD_NAME}`,
     certificateParameterStoreName:
-      CONFIG.assetBucket.certificateParameterStoreName,
+      PARAMETER_STORE_NAMES.ASSET_BUCKET_CERTIFICATE,
+    deadLetterQueueParameterStoreName: PARAMETER_STORE_NAMES.DEAD_LETTER_QUEUE,
+    assetBucketParameterStoreName: PARAMETER_STORE_NAMES.ASSET_BUCKET,
+    deleteQueueParameterStoreName: PARAMETER_STORE_NAMES.DELETE_QUEUE,
+    uploadQueueParameterStoreName: PARAMETER_STORE_NAMES.UPLOAD_QUEUE,
   });
 
   const dynamoDbStack = new DynamoDbStack(app, "DynamoDB", {
@@ -106,57 +115,34 @@ if (flagStateful === "true") {
       account: process.env.CDK_DEFAULT_ACCOUNT,
       region: process.env.CDK_DEFAULT_REGION,
     },
+    tableParameterStoreName: PARAMETER_STORE_NAMES.DYNAMODB_TABLE,
   });
-
-  // if (flagImageDeleter === "true") {
-  //   const imageDeleterStack = new ImageDeleterStack(app, "ImageDelete", {
-  //     env: {
-  //       account: process.env.CDK_DEFAULT_ACCOUNT,
-  //       region: process.env.CDK_DEFAULT_REGION,
-  //     },
-  //     assetBucket: assetBucketStack.bucket,
-  //     Config: CONFIG,
-  //     dynamoTable: dynamoDbStack.table,
-  //     deleteQueue: assetBucketStack.deleteQueue,
-  //   });
-
-  //   imageDeleterStack.addDependency(dynamoDbStack);
-  //   imageDeleterStack.addDependency(assetBucketStack);
-  // }
-
-  // if (flagImageProcessor === "true") {
-  //   const imageProcessorStack = new ImageProcessorStack(app, "ImageProcessor", {
-  //     env: {
-  //       account: process.env.CDK_DEFAULT_ACCOUNT,
-  //       region: process.env.CDK_DEFAULT_REGION,
-  //     },
-  //     assetBucket: assetBucketStack.bucket,
-  //     Config: CONFIG,
-  //     dynamoTable: dynamoDbStack.table,
-  //     uploadQueue: assetBucketStack.uploadQueue,
-  //   });
-
-  //   imageProcessorStack.addDependency(dynamoDbStack);
-  //   imageProcessorStack.addDependency(assetBucketStack);
-  // }
 }
 
-// if (flagImageDeleter === "true") {
-//   const imageDeleterStack = new ImageDeleterStack(app, "ImageDelete", {
-//     env: {
-//       account: process.env.CDK_DEFAULT_ACCOUNT,
-//       region: process.env.CDK_DEFAULT_REGION,
-//     },
-//     assetBucket: assetBucketStack.bucket,
-//     Config: CONFIG,
-//     dynamoTable: dynamoDbStack.table,
-//     deleteQueue: assetBucketStack.deleteQueue,
-//   });
+if (flagImageDeleter === "true") {
+  const imageDeleterStack = new ImageDeleterStack(app, "ImageDelete", {
+    env: {
+      account: process.env.CDK_DEFAULT_ACCOUNT,
+      region: process.env.CDK_DEFAULT_REGION,
+    },
+    dynamoTableParameterStoreName: PARAMETER_STORE_NAMES.DYNAMODB_TABLE,
+    deleteQueueParameterStoreName: PARAMETER_STORE_NAMES.DELETE_QUEUE,
+    Config: CONFIG,
+  });
+}
 
-//   imageDeleterStack.addDependency(observabilityStack);
-//   imageDeleterStack.addDependency(dynamoDbStack);
-//   imageDeleterStack.addDependency(assetBucketStack);
-// }
+if (flagImageProcessor === "true") {
+  const imageProcessorStack = new ImageProcessorStack(app, "ImageProcessor", {
+    env: {
+      account: process.env.CDK_DEFAULT_ACCOUNT,
+      region: process.env.CDK_DEFAULT_REGION,
+    },
+    assetBucketParameterStoreName: PARAMETER_STORE_NAMES.ASSET_BUCKET,
+    dynamoTableParameterStoreName: PARAMETER_STORE_NAMES.DYNAMODB_TABLE,
+    uploadQueueParameterStoreName: PARAMETER_STORE_NAMES.UPLOAD_QUEUE,
+    Config: CONFIG,
+  });
+}
 
 // const certStack = new CertificateStack(app, "Certificate", {
 //   env: {

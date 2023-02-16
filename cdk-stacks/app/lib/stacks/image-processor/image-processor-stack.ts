@@ -8,17 +8,38 @@ import { ImageProcessorLambdasStack } from "./image-processor-lambdas-stack";
 import { ImageProcessorStepFunctionStack } from "./image-processor-step-function-stack";
 
 interface ImageProcessorStackProps extends cdk.StackProps {
-  assetBucket: s3.Bucket;
+  assetBucketParameterStoreName: string;
+  dynamoTableParameterStoreName: string;
+  uploadQueueParameterStoreName: string;
   Config: IConfig;
-  dynamoTable: dynamodb.Table;
-  uploadQueue: sqs.Queue;
 }
 
 export class ImageProcessorStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props: ImageProcessorStackProps) {
     super(scope, id, props);
 
-    const { assetBucket, Config, dynamoTable, uploadQueue } = props;
+    const {
+      Config,
+      assetBucketParameterStoreName,
+      dynamoTableParameterStoreName,
+      uploadQueueParameterStoreName,
+    } = props;
+
+    const assetBucket = s3.Bucket.fromBucketArn(
+      this,
+      `${id}LookupBucket`,
+      assetBucketParameterStoreName
+    );
+    const dynamoTable = dynamodb.Table.fromTableArn(
+      this,
+      `${id}LookupTable`,
+      dynamoTableParameterStoreName
+    );
+    const uploadQueue = sqs.Queue.fromQueueArn(
+      this,
+      `${id}Queue`,
+      uploadQueueParameterStoreName
+    );
 
     const imageProcessorLambdas = new ImageProcessorLambdasStack(
       this,

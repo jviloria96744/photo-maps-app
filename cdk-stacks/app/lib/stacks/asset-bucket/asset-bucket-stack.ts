@@ -13,6 +13,10 @@ interface AssetBucketStackProps extends cdk.StackProps {
   tldDomainName: string;
   fullDomainName: string;
   certificateParameterStoreName: string;
+  deadLetterQueueParameterStoreName: string;
+  assetBucketParameterStoreName: string;
+  deleteQueueParameterStoreName: string;
+  uploadQueueParameterStoreName: string;
 }
 
 export class AssetBucketStack extends cdk.Stack {
@@ -22,13 +26,18 @@ export class AssetBucketStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props: AssetBucketStackProps) {
     super(scope, id, props);
 
-    const { tldDomainName, fullDomainName, certificateParameterStoreName } =
-      props;
+    const {
+      tldDomainName,
+      fullDomainName,
+      certificateParameterStoreName,
+      deadLetterQueueParameterStoreName,
+      assetBucketParameterStoreName,
+      deleteQueueParameterStoreName,
+      uploadQueueParameterStoreName,
+    } = props;
 
-    const deadLetterQueue = sqs.Queue.fromQueueArn(
-      this,
-      "DeadLetterQueue",
-      "queue/app-dlq/arn"
+    const deadLetterQueue = this.getDeadLetterQueue(
+      deadLetterQueueParameterStoreName
     );
 
     const bucket = new s3.Bucket(this, "Bucket", {
@@ -52,6 +61,21 @@ export class AssetBucketStack extends cdk.Stack {
 
     const uploadQueue = this.createUploadQueueTrigger(deadLetterQueue, bucket);
     const deleteQueue = this.createDeleteQueueTrigger(deadLetterQueue, bucket);
+
+    new ssm.StringParameter(this, `BucketParameter`, {
+      parameterName: assetBucketParameterStoreName,
+      stringValue: bucket.bucketArn,
+    });
+
+    new ssm.StringParameter(this, `DeleteQueueParameter`, {
+      parameterName: deleteQueueParameterStoreName,
+      stringValue: deleteQueue.queueArn,
+    });
+
+    new ssm.StringParameter(this, `UploadQueueParameter`, {
+      parameterName: uploadQueueParameterStoreName,
+      stringValue: uploadQueue.queueArn,
+    });
 
     this.bucket = bucket;
     this.deleteQueue = deleteQueue;
@@ -147,5 +171,21 @@ export class AssetBucketStack extends cdk.Stack {
     );
 
     return deleteQueue;
+  }
+
+  private getDeadLetterQueue(deadLetterQueueParameterStoreName: string) {
+    const dlqArn = ssm.StringParameter.fromStringParameterName(
+      this,
+      "DLQArn",
+      deadLetterQueueParameterStoreName
+    );
+
+    const deadLetterQueue = sqs.Queue.fromQueueArn(
+      this,
+      "DeadLetterQueue",
+      dlqArn.stringValue
+    );
+
+    return deadLetterQueue;
   }
 }

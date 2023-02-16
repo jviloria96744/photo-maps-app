@@ -1,6 +1,5 @@
 import * as step_function from "aws-cdk-lib/aws-stepfunctions";
 import * as dynamodb from "aws-cdk-lib/aws-dynamodb";
-import * as events from "aws-cdk-lib/aws-events";
 import { Stack } from "aws-cdk-lib";
 import { Construct } from "constructs";
 import { PythonLambda } from "../lambda-functions/python-lambda";
@@ -14,7 +13,7 @@ interface ImageUploadStepFunctionProps {
   imageLabelFilterLambda: PythonLambda;
   imageGeotaggerLambda: PythonLambda;
   appsyncMessengerLambda: NodeLambda;
-  dynamoTable: dynamodb.Table;
+  dynamoTable: dynamodb.ITable;
 }
 
 export class ImageUploadStepFunction extends Construct {

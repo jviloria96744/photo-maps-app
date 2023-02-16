@@ -25,6 +25,7 @@ jobs:
     outputs:
       observability: ${{ steps.filter.outputs.observability }}
       certificates: ${{ steps.filter.outputs.certificates }}
+      stateful-resources: ${{ steps.filter.outputs.stateful-resources }}
       web-client: ${{ steps.filter.outputs.web-client }}
       admin-portal: ${{ steps.filter.outputs.admin-portal }}
       image-processor: ${{ steps.filter.outputs.image-processor }}
@@ -44,6 +45,9 @@ jobs:
               - 'cdk-stacks/app/lib/stacks/observability/**'
             certificates:
               - 'cdk-stacks/app/lib/stacks/certificates/**'
+            stateful-resources:
+              - 'cdk-stacks/app/lib/stacks/asset-bucket/**'
+              - 'cdk-stacks/app/lib/stacks/dynamodb/**'
             web-client:
               - 'client-web/**'
             admin-portal:
@@ -196,48 +200,51 @@ jobs:
       - name: Deploy Stack
         working-directory: cdk-stacks/app
         run: cdk deploy AdminPortal -c FLAG_ADMIN_PORTAL=true  --require-approval "never"
-  # deploy-main-app:
-  #   needs:
-  #     [
-  #       change-detector,
-  #       deploy-certificate-stack,
-  #       test-image-geotagger-lambda,
-  #       test-image-labeller-lambda,
-  #     ]
-  #   if: |
-  #     always() &&
-  #     !contains(needs.*.result, 'failure') &&
-  #     !contains(needs.*.result, 'cancelled')
-  #   name: Deploy Main App Resources
-  #   timeout-minutes: 20
-  #   runs-on: ubuntu-latest
-  #   permissions:
-  #     actions: write
-  #     contents: read
-  #     id-token: write
-  #   steps:
-  #     - uses: actions/checkout@v3
-  #     - name: Configure AWS CLI and Credentials
-  #       uses: ./.github/actions/configure-aws-cli
-  #       with:
-  #         account_id: ${{ env.AWS_ACCOUNT_ID }}
-  #         default_region: ${{ env.AWS_DEFAULT_REGION }}
-  #     - uses: actions/setup-node@v3
-  #       with:
-  #         node-version: 16.17.0
-  #     - name: Install CDK
-  #       run: npm install -g aws-cdk
-  #     - name: Install Dependencies
-  #       working-directory: cdk-stacks/app
-  #       run: npm ci
-  #     - name: Set Environment Variables
-  #       run: |
-  #         echo "FLAG_IMAGE_DELETER=${{ needs.change-detector.outputs.image-deleter == 'true' || env.PIPELINE_TESTING == 'true' }}" >> $GITHUB_ENV &&
-  #         echo "FLAG_IMAGE_PROCESSOR=${{ needs.change-detector.outputs.image-processor == 'true' || env.PIPELINE_TESTING == 'true' }}" >> $GITHUB_ENV
-  #     - name: Deploy Stack
-  #       if: github.ref == 'refs/heads/main'
-  #       working-directory: cdk-stacks/app
-  #       run: cdk deploy --all -c FLAG_MAIN_APP=true -c FLAG_IMAGE_DELETER=${{ env.FLAG_IMAGE_DELETER }} -c FLAG_IMAGE_PROCESSOR=${{ env.FLAG_IMAGE_PROCESSOR }} --require-approval "never"
+  deploy-main-app:
+    needs:
+      [
+        change-detector,
+        deploy-certificate-stack,
+        test-image-geotagger-lambda,
+        test-image-labeller-lambda,
+      ]
+    if: |
+      always() &&
+      !contains(needs.*.result, 'failure') &&
+      !contains(needs.*.result, 'cancelled')
+    name: Deploy Stateful/Image Processing Resources
+    timeout-minutes: 20
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v3
+      - name: Configure AWS CLI and Credentials
+        uses: ./.github/actions/configure-aws-cli
+        with:
+          account_id: ${{ env.AWS_ACCOUNT_ID }}
+          default_region: ${{ env.AWS_DEFAULT_REGION }}
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16.17.0
+      - name: Install CDK
+        run: npm install -g aws-cdk
+      - name: Install Dependencies
+        working-directory: cdk-stacks/app
+        run: npm ci
+      - name: Set Environment Variables
+        run: |
+          echo "FLAG_STATEFUL=${{ needs.change-detector.outputs.stateful-resources == 'true' || env.PIPELINE_TESTING == 'true' }}" >> $GITHUB_ENV &&
+          echo "FLAG_IMAGE_DELETER=${{ needs.change-detector.outputs.image-deleter == 'true' || env.PIPELINE_TESTING == 'true' }}" >> $GITHUB_ENV &&
+          echo "FLAG_IMAGE_PROCESSOR=${{ needs.change-detector.outputs.image-processor == 'true' || env.PIPELINE_TESTING == 'true' }}" >> $GITHUB_ENV
+      - name: Deploy Stateful Resources
+        working-directory: cdk-stacks/app
+        run: cdk deploy --all -c FLAG_STATEFUL=${{ env.FLAG_STATEFUL }} --require-approval "never"
+      - name: Deploy Image Deleting/Processing Workflow
+        working-directory: cdk-stacks/app
+        run: cdk deploy --all -c FLAG_IMAGE_DELETER=${{ env.FLAG_IMAGE_DELETER }} -c FLAG_IMAGE_PROCESSOR=${{ env.FLAG_IMAGE_PROCESSOR }} --require-approval "never"
 
   # build-client-web:
   #   needs: change-detector

@@ -1,5 +1,4 @@
 import * as cdk from "aws-cdk-lib";
-import * as s3 from "aws-cdk-lib/aws-s3";
 import * as dynamodb from "aws-cdk-lib/aws-dynamodb";
 import * as sqs from "aws-cdk-lib/aws-sqs";
 import { SqsEventSource } from "aws-cdk-lib/aws-lambda-event-sources";
@@ -12,16 +11,30 @@ import {
 import { createPathName } from "../../../utils/utils";
 
 interface ImageDeleterStackProps extends cdk.StackProps {
-  assetBucket: s3.Bucket;
+  dynamoTableParameterStoreName: string;
+  deleteQueueParameterStoreName: string;
   Config: IConfig;
-  dynamoTable: dynamodb.Table;
-  deleteQueue: sqs.Queue;
 }
 
 export class ImageDeleterStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props: ImageDeleterStackProps) {
     super(scope, id, props);
-    const { Config, dynamoTable, deleteQueue } = props;
+    const {
+      Config,
+      dynamoTableParameterStoreName,
+      deleteQueueParameterStoreName,
+    } = props;
+
+    const dynamoTable = dynamodb.Table.fromTableArn(
+      this,
+      `${id}LookupTable`,
+      dynamoTableParameterStoreName
+    );
+    const deleteQueue = sqs.Queue.fromQueueArn(
+      this,
+      `${id}LookupQueue`,
+      deleteQueueParameterStoreName
+    );
 
     const imageDeleterProps: PythonLambdaProps = {
       pathName: createPathName(

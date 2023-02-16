@@ -13,9 +13,9 @@ interface ImageProcessorStepFunctionStackProps extends cdk.NestedStackProps {
   imageGeotaggerLambda: PythonLambda;
   imageLabelFilterLambda: PythonLambda;
   appsyncMessengerLambda: NodeLambda;
-  dynamoTable: dynamodb.Table;
+  dynamoTable: dynamodb.ITable;
   Config: IConfig;
-  uploadQueue: sqs.Queue;
+  uploadQueue: sqs.IQueue;
 }
 
 export class ImageProcessorStepFunctionStack extends cdk.NestedStack {

@@ -34,6 +34,16 @@ enum IMAGE_PROCESSOR_SECRETS {
   NAME = "sandbox/photo-maps-app/secrets",
 }
 
+export enum PARAMETER_STORE_NAMES {
+  DEAD_LETTER_QUEUE = "/queue/app-dlq/arn",
+  ASSET_BUCKET = "/bucket/assets/arn",
+  DELETE_QUEUE = "/queue/delete-queue/arn",
+  UPLOAD_QUEUE = "/queue/upload-queue/arn",
+  DYNAMODB_TABLE = "/dynamodb/app-db/arn",
+  ASSET_BUCKET_CERTIFICATE = "assetCDN",
+  ADMIN_PORTAL_CERTIFICATE = "adminPortal",
+}
+
 const removeTests = "rm -rf /asset-output/tests";
 const removeDevRequirements = "rm -f requirements_dev.txt";
 const removeEventsDirectory = "rm -rf /asset-output/events";
@@ -45,10 +55,6 @@ export interface IConfig {
   };
   adminPortal: {
     callbackUrls: string[];
-    certificateParameterStoreName: string;
-  };
-  assetBucket: {
-    certificateParameterStoreName: string;
   };
   webClient: {
     callbackUrls: string[];
@@ -78,10 +84,6 @@ export const CONFIG: IConfig = {
       "http://localhost:5173/",
       `https://${DOMAIN_NAMES.ADMIN_PORTAL_SUBDOMAIN}.${DOMAIN_NAMES.TLD_NAME}/`,
     ],
-    certificateParameterStoreName: "adminPortal",
-  },
-  assetBucket: {
-    certificateParameterStoreName: "assetCDN",
   },
   webClient: {
     callbackUrls: [

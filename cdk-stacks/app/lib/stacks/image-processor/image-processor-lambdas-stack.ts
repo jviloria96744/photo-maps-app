@@ -7,7 +7,7 @@ import { PythonLambda, NodeLambda } from "../../../constructs/lambda-functions";
 import { createPathName } from "../../../utils/utils";
 
 interface ImageProcessorLambdasStackProps extends cdk.NestedStackProps {
-  assetBucket: s3.Bucket;
+  assetBucket: s3.IBucket;
   Config: IConfig;
 }
 
