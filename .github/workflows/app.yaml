@@ -6,7 +6,7 @@ env:
   ARTIFACT_BUCKET: ${{ vars.ARTIFACT_BUCKET }}
   IMAGE_PROCESSOR_SECRET_NAME: ${{ secrets.IMAGE_PROCESSOR_SECRET_NAME }}
   IMAGE_PROCESSOR_SECRET_KEY: ${{ secrets.IMAGE_PROCESSOR_SECRET_KEY }}
-  PIPELINE_TESTING: "true"
+  PIPELINE_TESTING: "false"
 on:
   push:
     branches:
@@ -193,7 +193,7 @@ jobs:
         uses: ./.github/actions/cdk-deploy
         with:
           directory: "cdk-stacks/app"
-          cdk_stacks: "Admin Portal"
+          cdk_stacks: "AdminPortal"
           cdk_context: "-c FLAG_ADMIN_PORTAL=true"
   deploy-web-client:
     needs: [change-detector, deploy-certificate-stack]
