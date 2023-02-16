@@ -198,7 +198,7 @@ jobs:
       - name: Deploy Stack
         working-directory: cdk-stacks/app
         run: cdk deploy AdminPortal -c FLAG_ADMIN_PORTAL=true  --require-approval "never"
-  deploy-main-app:
+  deploy-stateful-resources-image-processing-compute:
     needs:
       [
         change-detector,
@@ -209,6 +209,7 @@ jobs:
       ]
     if: |
       always() &&
+      (needs.change-detector.outputs.stateful-resources == 'true' || needs.change-detector.outputs.image-deleter == 'true' || needs.change-detector.outputs.image-processor == 'true')
       !contains(needs.*.result, 'failure') &&
       !contains(needs.*.result, 'cancelled')
     name: Deploy Stateful/Image Processing Resources
