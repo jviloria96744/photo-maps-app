@@ -235,9 +235,10 @@ jobs:
         working-directory: cdk-stacks/app
         run: cdk deploy --all -c FLAG_STATEFUL=${{ env.FLAG_STATEFUL }} --require-approval "never"
   deploy-image-processing-compute:
-    needs: [
+    needs:
+      [
         change-detector,
-        deploy-stateful-resources
+        deploy-stateful-resources,
         test-image-geotagger-lambda,
         test-image-labeller-lambda,
       ]
