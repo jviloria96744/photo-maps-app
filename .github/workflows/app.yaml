@@ -136,7 +136,6 @@ jobs:
         working-directory: cdk-stacks/app
         run: npm ci
       - name: Deploy Stack
-        if: github.ref == 'refs/heads/main'
         working-directory: cdk-stacks/app
         run: cdk deploy Observability -c FLAG_OBSERVABILITY=true --require-approval "never"
   deploy-certificate-stack:
@@ -204,6 +203,7 @@ jobs:
       [
         change-detector,
         deploy-certificate-stack,
+        deploy-observability-stack,
         test-image-geotagger-lambda,
         test-image-labeller-lambda,
       ]
@@ -235,13 +235,15 @@ jobs:
         run: npm ci
       - name: Set Environment Variables
         run: |
-          echo "FLAG_STATEFUL=${{ needs.change-detector.outputs.stateful-resources == 'true' || env.PIPELINE_TESTING == 'true' }}" >> $GITHUB_ENV &&
-          echo "FLAG_IMAGE_DELETER=${{ needs.change-detector.outputs.image-deleter == 'true' || env.PIPELINE_TESTING == 'true' }}" >> $GITHUB_ENV &&
-          echo "FLAG_IMAGE_PROCESSOR=${{ needs.change-detector.outputs.image-processor == 'true' || env.PIPELINE_TESTING == 'true' }}" >> $GITHUB_ENV
+          echo "FLAG_STATEFUL=${{ needs.change-detector.outputs.stateful-resources == 'true' }}" >> $GITHUB_ENV &&
+          echo "FLAG_IMAGE_DELETER=${{ needs.change-detector.outputs.image-deleter == 'true' }}" >> $GITHUB_ENV &&
+          echo "FLAG_IMAGE_PROCESSOR=${{ needs.change-detector.outputs.image-processor == 'true' }}" >> $GITHUB_ENV
       - name: Deploy Stateful Resources
+        if: env.FLAG_STATEFUL == 'true'
         working-directory: cdk-stacks/app
         run: cdk deploy --all -c FLAG_STATEFUL=${{ env.FLAG_STATEFUL }} --require-approval "never"
       - name: Deploy Image Deleting/Processing Workflow
+        if: env.FLAG_IMAGE_DELETER == 'true' || env.FLAG_IMAGE_PROCESSOR == 'true'
         working-directory: cdk-stacks/app
         run: cdk deploy --all -c FLAG_IMAGE_DELETER=${{ env.FLAG_IMAGE_DELETER }} -c FLAG_IMAGE_PROCESSOR=${{ env.FLAG_IMAGE_PROCESSOR }} --require-approval "never"
 
