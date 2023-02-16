@@ -23,7 +23,7 @@ jobs:
     name: Detect File Changes And Artifact Existence
     runs-on: ubuntu-latest
     outputs:
-      observability: ${{ steps.filter.outputs.observability }}
+      observability: ${{ steps.filter.outputs.observability || env.PIPELINE_TESTING }}
       certificates: ${{ steps.filter.outputs.certificates }}
       stateful-resources: ${{ steps.filter.outputs.stateful-resources }}
       web-client: ${{ steps.filter.outputs.web-client }}
@@ -116,7 +116,7 @@ jobs:
           directory: "image_label_filter"
   deploy-observability-stack:
     needs: change-detector
-    if: ${{ needs.change-detector.outputs.observability == 'true' || 'true' == 'true' }}
+    if: ${{ needs.change-detector.outputs.observability == 'true' }}
     name: Deploy Dead Letter Queue
     runs-on: ubuntu-latest
     permissions:
