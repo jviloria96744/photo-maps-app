@@ -18,10 +18,20 @@ import * as path from "path";
 const app = new cdk.App();
 
 const flagCertificate = app.node.tryGetContext("FLAG_CERTIFICATE");
+const flagObservability = app.node.tryGetContext("FLAG_OBSERVABILITY");
 const flagAdminPortal = app.node.tryGetContext("FLAG_ADMIN_PORTAL");
-const flagMainApp = app.node.tryGetContext("FLAG_MAIN_APP");
+const flagStateful = app.node.tryGetContext("FLAG_STATEFUL");
 const flagImageDeleter = app.node.tryGetContext("FLAG_IMAGE_DELETER");
 const flagImageProcessor = app.node.tryGetContext("FLAG_IMAGE_PROCESSOR");
+
+if (flagObservability === "true") {
+  const observabilityStack = new ObservabilityStack(app, "Observability", {
+    env: {
+      account: process.env.CDK_DEFAULT_ACCOUNT,
+      region: process.env.CDK_DEFAULT_REGION,
+    },
+  });
+}
 
 if (flagCertificate === "true") {
   const certStack = new CertificateStack(app, "Certificate", {
@@ -79,14 +89,7 @@ if (flagAdminPortal === "true") {
   });
 }
 
-if (flagMainApp === "true") {
-  const observabilityStack = new ObservabilityStack(app, "Observability", {
-    env: {
-      account: process.env.CDK_DEFAULT_ACCOUNT,
-      region: process.env.CDK_DEFAULT_REGION,
-    },
-  });
-
+if (flagStateful === "true") {
   const assetBucketStack = new AssetBucketStack(app, "AssetBucket", {
     env: {
       account: process.env.CDK_DEFAULT_ACCOUNT,
@@ -96,10 +99,7 @@ if (flagMainApp === "true") {
     fullDomainName: `${DOMAIN_NAMES.ASSETS_SUBDOMAIN}.${DOMAIN_NAMES.TLD_NAME}`,
     certificateParameterStoreName:
       CONFIG.assetBucket.certificateParameterStoreName,
-    deadLetterQueue: observabilityStack.deadLetterQueue,
   });
-
-  assetBucketStack.addDependency(observabilityStack);
 
   const dynamoDbStack = new DynamoDbStack(app, "DynamoDB", {
     env: {
@@ -108,39 +108,55 @@ if (flagMainApp === "true") {
     },
   });
 
-  if (flagImageDeleter === "true") {
-    const imageDeleterStack = new ImageDeleterStack(app, "ImageDelete", {
-      env: {
-        account: process.env.CDK_DEFAULT_ACCOUNT,
-        region: process.env.CDK_DEFAULT_REGION,
-      },
-      assetBucket: assetBucketStack.bucket,
-      Config: CONFIG,
-      dynamoTable: dynamoDbStack.table,
-      deleteQueue: assetBucketStack.deleteQueue,
-    });
+  // if (flagImageDeleter === "true") {
+  //   const imageDeleterStack = new ImageDeleterStack(app, "ImageDelete", {
+  //     env: {
+  //       account: process.env.CDK_DEFAULT_ACCOUNT,
+  //       region: process.env.CDK_DEFAULT_REGION,
+  //     },
+  //     assetBucket: assetBucketStack.bucket,
+  //     Config: CONFIG,
+  //     dynamoTable: dynamoDbStack.table,
+  //     deleteQueue: assetBucketStack.deleteQueue,
+  //   });
 
-    imageDeleterStack.addDependency(observabilityStack);
-    imageDeleterStack.addDependency(dynamoDbStack);
-    imageDeleterStack.addDependency(assetBucketStack);
-  }
+  //   imageDeleterStack.addDependency(dynamoDbStack);
+  //   imageDeleterStack.addDependency(assetBucketStack);
+  // }
 
-  if (flagImageProcessor === "true") {
-    const imageProcessorStack = new ImageProcessorStack(app, "ImageProcessor", {
-      env: {
-        account: process.env.CDK_DEFAULT_ACCOUNT,
-        region: process.env.CDK_DEFAULT_REGION,
-      },
-      assetBucket: assetBucketStack.bucket,
-      Config: CONFIG,
-      dynamoTable: dynamoDbStack.table,
-      uploadQueue: assetBucketStack.uploadQueue,
-    });
+  // if (flagImageProcessor === "true") {
+  //   const imageProcessorStack = new ImageProcessorStack(app, "ImageProcessor", {
+  //     env: {
+  //       account: process.env.CDK_DEFAULT_ACCOUNT,
+  //       region: process.env.CDK_DEFAULT_REGION,
+  //     },
+  //     assetBucket: assetBucketStack.bucket,
+  //     Config: CONFIG,
+  //     dynamoTable: dynamoDbStack.table,
+  //     uploadQueue: assetBucketStack.uploadQueue,
+  //   });
 
-    imageProcessorStack.addDependency(dynamoDbStack);
-    imageProcessorStack.addDependency(assetBucketStack);
-  }
+  //   imageProcessorStack.addDependency(dynamoDbStack);
+  //   imageProcessorStack.addDependency(assetBucketStack);
+  // }
 }
+
+// if (flagImageDeleter === "true") {
+//   const imageDeleterStack = new ImageDeleterStack(app, "ImageDelete", {
+//     env: {
+//       account: process.env.CDK_DEFAULT_ACCOUNT,
+//       region: process.env.CDK_DEFAULT_REGION,
+//     },
+//     assetBucket: assetBucketStack.bucket,
+//     Config: CONFIG,
+//     dynamoTable: dynamoDbStack.table,
+//     deleteQueue: assetBucketStack.deleteQueue,
+//   });
+
+//   imageDeleterStack.addDependency(observabilityStack);
+//   imageDeleterStack.addDependency(dynamoDbStack);
+//   imageDeleterStack.addDependency(assetBucketStack);
+// }
 
 // const certStack = new CertificateStack(app, "Certificate", {
 //   env: {

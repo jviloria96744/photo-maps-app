@@ -5,6 +5,7 @@ import * as cloudfront from "aws-cdk-lib/aws-cloudfront";
 import * as cloudfront_origins from "aws-cdk-lib/aws-cloudfront-origins";
 import * as route53 from "aws-cdk-lib/aws-route53";
 import * as targets from "aws-cdk-lib/aws-route53-targets";
+import * as ssm from "aws-cdk-lib/aws-ssm";
 import { Construct } from "constructs";
 import { lookupCertificate } from "../../../utils/utils";
 
@@ -12,7 +13,6 @@ interface AssetBucketStackProps extends cdk.StackProps {
   tldDomainName: string;
   fullDomainName: string;
   certificateParameterStoreName: string;
-  deadLetterQueue: sqs.Queue;
 }
 
 export class AssetBucketStack extends cdk.Stack {
@@ -22,12 +22,14 @@ export class AssetBucketStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props: AssetBucketStackProps) {
     super(scope, id, props);
 
-    const {
-      tldDomainName,
-      fullDomainName,
-      certificateParameterStoreName,
-      deadLetterQueue,
-    } = props;
+    const { tldDomainName, fullDomainName, certificateParameterStoreName } =
+      props;
+
+    const deadLetterQueue = sqs.Queue.fromQueueArn(
+      this,
+      "DeadLetterQueue",
+      "queue/app-dlq/arn"
+    );
 
     const bucket = new s3.Bucket(this, "Bucket", {
       removalPolicy: cdk.RemovalPolicy.RETAIN,
@@ -86,7 +88,7 @@ export class AssetBucketStack extends cdk.Stack {
   }
 
   private createUploadQueueTrigger(
-    deadLetterQueue: sqs.Queue,
+    deadLetterQueue: sqs.IQueue,
     bucket: s3.Bucket
   ): sqs.Queue {
     const uploadQueue = new sqs.Queue(this, "EventQueue", {
@@ -114,7 +116,7 @@ export class AssetBucketStack extends cdk.Stack {
   }
 
   private createDeleteQueueTrigger(
-    deadLetterQueue: sqs.Queue,
+    deadLetterQueue: sqs.IQueue,
     bucket: s3.Bucket
   ): sqs.Queue {
     const deleteQueue = new sqs.Queue(this, "ImageDeleteQueue", {

@@ -23,6 +23,7 @@ jobs:
     name: Detect File Changes And Artifact Existence
     runs-on: ubuntu-latest
     outputs:
+      observability: ${{ steps.filter.outputs.observability }}
       certificates: ${{ steps.filter.outputs.certificates }}
       web-client: ${{ steps.filter.outputs.web-client }}
       admin-portal: ${{ steps.filter.outputs.admin-portal }}
@@ -39,6 +40,8 @@ jobs:
         id: filter
         with:
           filters: |
+            observability:
+              - 'cdk-stacks/app/lib/stacks/observability/**'
             certificates:
               - 'cdk-stacks/app/lib/stacks/certificates/**'
             web-client:
@@ -104,6 +107,34 @@ jobs:
         uses: ./.github/actions/run-python-lambda-tests
         with:
           directory: "image_label_filter"
+  deploy-observability-stack:
+    needs: change-detector
+    if: ${{ needs.change-detector.outputs.observability == 'true' }}
+    name: Deploy Dead Letter Queue
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v3
+      - name: Configure AWS CLI and Credentials
+        uses: ./.github/actions/configure-aws-cli
+        with:
+          account_id: ${{ env.AWS_ACCOUNT_ID }}
+          default_region: ${{ env.AWS_DEFAULT_REGION }}
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16.17.0
+      - name: Install CDK
+        run: npm install -g aws-cdk
+      - name: Install Dependencies
+        working-directory: cdk-stacks/app
+        run: npm ci
+      - name: Deploy Stack
+        if: github.ref == 'refs/heads/main'
+        working-directory: cdk-stacks/app
+        run: cdk deploy Observability -c FLAG_OBSERVABILITY=true --require-approval "never"
   deploy-certificate-stack:
     needs: change-detector
     if: ${{ needs.change-detector.outputs.certificates == 'true' }}
@@ -165,48 +196,48 @@ jobs:
       - name: Deploy Stack
         working-directory: cdk-stacks/app
         run: cdk deploy AdminPortal -c FLAG_ADMIN_PORTAL=true  --require-approval "never"
-  deploy-main-app:
-    needs:
-      [
-        change-detector,
-        deploy-certificate-stack,
-        test-image-geotagger-lambda,
-        test-image-labeller-lambda,
-      ]
-    if: |
-      always() &&
-      !contains(needs.*.result, 'failure') &&
-      !contains(needs.*.result, 'cancelled')
-    name: Deploy Main App Resources
-    timeout-minutes: 20
-    runs-on: ubuntu-latest
-    permissions:
-      actions: write
-      contents: read
-      id-token: write
-    steps:
-      - uses: actions/checkout@v3
-      - name: Configure AWS CLI and Credentials
-        uses: ./.github/actions/configure-aws-cli
-        with:
-          account_id: ${{ env.AWS_ACCOUNT_ID }}
-          default_region: ${{ env.AWS_DEFAULT_REGION }}
-      - uses: actions/setup-node@v3
-        with:
-          node-version: 16.17.0
-      - name: Install CDK
-        run: npm install -g aws-cdk
-      - name: Install Dependencies
-        working-directory: cdk-stacks/app
-        run: npm ci
-      - name: Set Environment Variables
-        run: |
-          echo "FLAG_IMAGE_DELETER=${{ needs.change-detector.outputs.image-deleter == 'true' || env.PIPELINE_TESTING == 'true' }}" >> $GITHUB_ENV &&
-          echo "FLAG_IMAGE_PROCESSOR=${{ needs.change-detector.outputs.image-processor == 'true' || env.PIPELINE_TESTING == 'true' }}" >> $GITHUB_ENV
-      - name: Deploy Stack
-        if: github.ref == 'refs/heads/main'
-        working-directory: cdk-stacks/app
-        run: cdk deploy --all -c FLAG_MAIN_APP=true -c FLAG_IMAGE_DELETER=${{ env.FLAG_IMAGE_DELETER }} -c FLAG_IMAGE_PROCESSOR=${{ env.FLAG_IMAGE_PROCESSOR }} --require-approval "never"
+  # deploy-main-app:
+  #   needs:
+  #     [
+  #       change-detector,
+  #       deploy-certificate-stack,
+  #       test-image-geotagger-lambda,
+  #       test-image-labeller-lambda,
+  #     ]
+  #   if: |
+  #     always() &&
+  #     !contains(needs.*.result, 'failure') &&
+  #     !contains(needs.*.result, 'cancelled')
+  #   name: Deploy Main App Resources
+  #   timeout-minutes: 20
+  #   runs-on: ubuntu-latest
+  #   permissions:
+  #     actions: write
+  #     contents: read
+  #     id-token: write
+  #   steps:
+  #     - uses: actions/checkout@v3
+  #     - name: Configure AWS CLI and Credentials
+  #       uses: ./.github/actions/configure-aws-cli
+  #       with:
+  #         account_id: ${{ env.AWS_ACCOUNT_ID }}
+  #         default_region: ${{ env.AWS_DEFAULT_REGION }}
+  #     - uses: actions/setup-node@v3
+  #       with:
+  #         node-version: 16.17.0
+  #     - name: Install CDK
+  #       run: npm install -g aws-cdk
+  #     - name: Install Dependencies
+  #       working-directory: cdk-stacks/app
+  #       run: npm ci
+  #     - name: Set Environment Variables
+  #       run: |
+  #         echo "FLAG_IMAGE_DELETER=${{ needs.change-detector.outputs.image-deleter == 'true' || env.PIPELINE_TESTING == 'true' }}" >> $GITHUB_ENV &&
+  #         echo "FLAG_IMAGE_PROCESSOR=${{ needs.change-detector.outputs.image-processor == 'true' || env.PIPELINE_TESTING == 'true' }}" >> $GITHUB_ENV
+  #     - name: Deploy Stack
+  #       if: github.ref == 'refs/heads/main'
+  #       working-directory: cdk-stacks/app
+  #       run: cdk deploy --all -c FLAG_MAIN_APP=true -c FLAG_IMAGE_DELETER=${{ env.FLAG_IMAGE_DELETER }} -c FLAG_IMAGE_PROCESSOR=${{ env.FLAG_IMAGE_PROCESSOR }} --require-approval "never"
 
   # build-client-web:
   #   needs: change-detector
