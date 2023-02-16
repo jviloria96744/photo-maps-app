@@ -1,5 +1,6 @@
 import { Stack, Duration } from "aws-cdk-lib";
 import * as lambda from "aws-cdk-lib/aws-lambda";
+import * as logs from "aws-cdk-lib/aws-logs";
 import { NodejsFunction } from "aws-cdk-lib/aws-lambda-nodejs";
 import { Construct } from "constructs";
 import { NodeLambdaProps } from "./types";
@@ -20,6 +21,7 @@ export class NodeLambda extends Construct {
       timeout: Duration.seconds(duration ?? 10),
       memorySize: memorySize ?? 128,
       retryAttempts: retryAttempts ?? 0,
+      logRetention: logs.RetentionDays.ONE_MONTH,
       environment: {
         ...environment,
       },

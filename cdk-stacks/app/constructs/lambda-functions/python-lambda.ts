@@ -1,5 +1,6 @@
 import { Stack, Duration } from "aws-cdk-lib";
 import * as lambda from "aws-cdk-lib/aws-lambda";
+import * as logs from "aws-cdk-lib/aws-logs";
 import * as iam from "aws-cdk-lib/aws-iam";
 import { Construct } from "constructs";
 import { PythonLambdaProps } from "./types";
@@ -35,6 +36,7 @@ export class PythonLambda extends Construct {
         ...environment,
       },
       retryAttempts: retryAttempts ?? 0,
+      logRetention: logs.RetentionDays.ONE_MONTH,
     });
 
     const fnRole = baseFunction.role as iam.IRole;

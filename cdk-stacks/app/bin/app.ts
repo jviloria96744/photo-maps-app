@@ -11,6 +11,7 @@ import { AssetBucketStack } from "../lib/stacks/asset-bucket/asset-bucket-stack"
 import { DynamoDbStack } from "../lib/stacks/dynamodb/dynamodb-stack";
 import { ImageDeleterStack } from "../lib/stacks/image-deleter/image-deleter-stack";
 import { ObservabilityStack } from "../lib/stacks/observability/observability-stack";
+import { ImageProcessorStack } from "../lib/stacks/image-processor/image-processor-stack";
 import { DOMAIN_NAMES, CONFIG, BUILD_DIRECTORIES } from "../config";
 import * as path from "path";
 
@@ -20,6 +21,7 @@ const flagCertificate = app.node.tryGetContext("FLAG_CERTIFICATE");
 const flagAdminPortal = app.node.tryGetContext("FLAG_ADMIN_PORTAL");
 const flagMainApp = app.node.tryGetContext("FLAG_MAIN_APP");
 const flagImageDeleter = app.node.tryGetContext("FLAG_IMAGE_DELETER");
+const flagImageProcessor = app.node.tryGetContext("FLAG_IMAGE_PROCESSOR");
 
 if (flagCertificate === "true") {
   const certStack = new CertificateStack(app, "Certificate", {
@@ -121,6 +123,22 @@ if (flagMainApp === "true") {
     imageDeleterStack.addDependency(observabilityStack);
     imageDeleterStack.addDependency(dynamoDbStack);
     imageDeleterStack.addDependency(assetBucketStack);
+  }
+
+  if (flagImageProcessor === "true") {
+    const imageProcessorStack = new ImageProcessorStack(app, "ImageProcessor", {
+      env: {
+        account: process.env.CDK_DEFAULT_ACCOUNT,
+        region: process.env.CDK_DEFAULT_REGION,
+      },
+      assetBucket: assetBucketStack.bucket,
+      Config: CONFIG,
+      dynamoTable: dynamoDbStack.table,
+      uploadQueue: assetBucketStack.uploadQueue,
+    });
+
+    imageProcessorStack.addDependency(dynamoDbStack);
+    imageProcessorStack.addDependency(assetBucketStack);
   }
 }
 

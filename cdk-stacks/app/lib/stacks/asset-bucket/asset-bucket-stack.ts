@@ -18,6 +18,7 @@ interface AssetBucketStackProps extends cdk.StackProps {
 export class AssetBucketStack extends cdk.Stack {
   bucket: s3.Bucket;
   deleteQueue: sqs.Queue;
+  uploadQueue: sqs.Queue;
   constructor(scope: Construct, id: string, props: AssetBucketStackProps) {
     super(scope, id, props);
 
@@ -47,10 +48,12 @@ export class AssetBucketStack extends cdk.Stack {
       certificateParameterStoreName
     );
 
+    const uploadQueue = this.createUploadQueueTrigger(deadLetterQueue, bucket);
     const deleteQueue = this.createDeleteQueueTrigger(deadLetterQueue, bucket);
 
     this.bucket = bucket;
     this.deleteQueue = deleteQueue;
+    this.uploadQueue = uploadQueue;
   }
 
   private createCloudfrontDistributionResources(
@@ -80,6 +83,34 @@ export class AssetBucketStack extends cdk.Stack {
         new targets.CloudFrontTarget(distribution)
       ),
     });
+  }
+
+  private createUploadQueueTrigger(
+    deadLetterQueue: sqs.Queue,
+    bucket: s3.Bucket
+  ): sqs.Queue {
+    const uploadQueue = new sqs.Queue(this, "EventQueue", {
+      visibilityTimeout: cdk.Duration.seconds(15),
+      deadLetterQueue: {
+        queue: deadLetterQueue,
+        maxReceiveCount: 1,
+      },
+    });
+
+    const uploadQueueNotification = new cdk.aws_s3_notifications.SqsDestination(
+      uploadQueue
+    );
+
+    bucket.addEventNotification(
+      s3.EventType.OBJECT_CREATED,
+      uploadQueueNotification,
+      {
+        prefix: "image_manifest/",
+        suffix: ".json",
+      }
+    );
+
+    return uploadQueue;
   }
 
   private createDeleteQueueTrigger(

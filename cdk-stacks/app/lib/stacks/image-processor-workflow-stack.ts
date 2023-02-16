@@ -30,8 +30,6 @@ export class ImageProcessorWorkflowStack extends cdk.NestedStack {
   assetBucket: S3ToSQS;
   imageGeotaggerLambda: lambda.Function;
   imageGeotaggerRole: iam.IRole;
-  imageDeleterLambda: lambda.Function;
-  imageDeleterRole: iam.IRole;
   appsyncMessenger: NodeLambda;
 
   constructor(
@@ -163,46 +161,11 @@ export class ImageProcessorWorkflowStack extends cdk.NestedStack {
 
     stepFunctionOrchestrator.function.addEventSource(imageManifestEventTrigger);
 
-    const imageDeleterProps: PythonLambdaProps = {
-      pathName: this.createPathName(
-        Config.environment.basePath,
-        Config.pythonLambdas.imageDeleter.codeDirectory
-      ),
-      duration: Config.pythonLambdas.imageDeleter.duration,
-      environment: {
-        DDB_TABLE_NAME: dynamoTable.tableName,
-        LOG_LEVEL: Config.pythonLambdas.imageDeleter.logLevel,
-        POWERTOOLS_SERVICE_NAME:
-          Config.pythonLambdas.imageDeleter.codeDirectory,
-      },
-      lambdaBuildCommands: Config.pythonLambdas.buildCommands,
-    };
-
-    const imageDeleter = new PythonLambda(
-      this,
-      "DeleterLambda",
-      imageDeleterProps
-    );
-
-    dynamoTable.grantReadWriteData(imageDeleter.fnRole);
-
-    const imageDeleterEventTrigger = new SqsEventSource(
-      assetBucket.deleteQueue,
-      {
-        batchSize: Config.pythonLambdas.imageDeleter.batchSize,
-        maxConcurrency: Config.pythonLambdas.imageDeleter.maxConcurrency,
-      }
-    );
-
-    imageDeleter.function.addEventSource(imageDeleterEventTrigger);
-
     stepFunction.machine.grantStartExecution(stepFunctionOrchestrator.function);
 
     this.assetBucket = assetBucket;
     this.imageGeotaggerLambda = imageGeotagger.function;
     this.imageGeotaggerRole = imageGeotagger.fnRole;
-    this.imageDeleterLambda = imageDeleter.function;
-    this.imageDeleterRole = imageDeleter.fnRole;
     this.appsyncMessenger = appsyncMessenger;
   }
 

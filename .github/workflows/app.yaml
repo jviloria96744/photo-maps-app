@@ -49,14 +49,63 @@ jobs:
               - 'admin-portal/**'
               - 'cdk-stacks/app/lib/stacks/admin-portal/**'
               - 'cdk-stacks/app/constructs/admin-portal/**'
+            image-processor:
+              - 'lambdas/image_geotagger/**'
+              - 'lambdas/image_label_filter/**'
+              - 'lambdas/step_function_orchestrator/**'
+              - 'lambdas/upload-photo-notifications/**'
+              - 'cdk-stacks/app/constructs/lambda-functions/**'
+              - 'cdk-stacks/app/lib/stacks/image-processor/**'
             image-geotagger:
               - 'lambdas/image_geotagger/**'
             image-labeller:
               - 'lambdas/image_label_filter/**'
             image-deleter:
               - 'lambdas/image_deleter/**'
+              - 'cdk-stacks/app/constructs/lambda-functions/**'
+              - 'cdk-stacks/app/lib/stacks/image-deleter/**'
             app-server:
               - 'lambdas/app_server/**'
+  test-image-geotagger-lambda:
+    needs: change-detector
+    if: ${{ needs.change-detector.outputs.image-geotagger == 'true' || needs.change-detector.outputs.pipeline == 'true'}}
+    name: Run Image Geotagger Unit Tests
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v3
+      - name: Configure AWS CLI and Credentials
+        uses: ./.github/actions/configure-aws-cli
+        with:
+          account_id: ${{ env.AWS_ACCOUNT_ID }}
+          default_region: ${{ env.AWS_DEFAULT_REGION }}
+      - name: Run Unit Tests
+        uses: ./.github/actions/run-python-lambda-tests
+        with:
+          directory: "image_geotagger"
+  test-image-labeller-lambda:
+    needs: change-detector
+    if: ${{ needs.change-detector.outputs.image-labeller == 'true' || needs.change-detector.outputs.pipeline == 'true'}}
+    name: Run Image Label Filter Unit Tests
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v3
+      - name: Configure AWS CLI and Credentials
+        uses: ./.github/actions/configure-aws-cli
+        with:
+          account_id: ${{ env.AWS_ACCOUNT_ID }}
+          default_region: ${{ env.AWS_DEFAULT_REGION }}
+      - name: Run Unit Tests
+        uses: ./.github/actions/run-python-lambda-tests
+        with:
+          directory: "image_label_filter"
   deploy-certificate-stack:
     needs: change-detector
     if: ${{ needs.change-detector.outputs.certificates == 'true' }}
@@ -119,7 +168,13 @@ jobs:
         working-directory: cdk-stacks/app
         run: cdk deploy AdminPortal -c FLAG_ADMIN_PORTAL=true  --require-approval "never"
   deploy-main-app:
-    needs: [change-detector, deploy-certificate-stack]
+    needs:
+      [
+        change-detector,
+        deploy-certificate-stack,
+        test-image-geotagger-lambda,
+        test-image-labeller-lambda,
+      ]
     if: |
       always() &&
       !contains(needs.*.result, 'failure') &&
@@ -148,11 +203,12 @@ jobs:
         run: npm ci
       - name: Set Environment Variables
         run: |
-          echo "FLAG_IMAGE_DELETER=${{ needs.change-detector.outputs.image-deleter == 'true' || env.PIPELINE_TESTING == 'true' }}" >> $GITHUB_ENV
+          echo "FLAG_IMAGE_DELETER=${{ needs.change-detector.outputs.image-deleter == 'true' }}" >> $GITHUB_ENV &&
+          echo "FLAG_IMAGE_PROCESSOR=${{ needs.change-detector.outputs.image-processor == 'true' }}" >> $GITHUB_ENV
       - name: Deploy Stack
         if: github.ref == 'refs/heads/main'
         working-directory: cdk-stacks/app
-        run: cdk deploy --all -c FLAG_MAIN_APP=true -c FLAG_IMAGE_DELETER=${{ env.FLAG_IMAGE_DELETER }} --require-approval "never"
+        run: cdk deploy --all -c FLAG_MAIN_APP=true -c FLAG_IMAGE_DELETER=${{ env.FLAG_IMAGE_DELETER }} -c FLAG_IMAGE_PROCESSOR=${{ env.FLAG_IMAGE_PROCESSOR }} --require-approval "never"
 
   # build-client-web:
   #   needs: change-detector
@@ -175,46 +231,6 @@ jobs:
   #       with:
   #         directory: "client-web"
   #         artifact_bucket: $ARTIFACT_BUCKET
-  # test-image-geotagger-lambda:
-  #   needs: change-detector
-  #   if: ${{ needs.change-detector.outputs.image-geotagger == 'true' || needs.change-detector.outputs.pipeline == 'true'}}
-  #   name: Run Image Geotagger Unit Tests
-  #   runs-on: ubuntu-latest
-  #   permissions:
-  #     actions: write
-  #     contents: read
-  #     id-token: write
-  #   steps:
-  #     - uses: actions/checkout@v3
-  #     - name: Configure AWS CLI and Credentials
-  #       uses: ./.github/actions/configure-aws-cli
-  #       with:
-  #         account_id: ${{ env.AWS_ACCOUNT_ID }}
-  #         default_region: ${{ env.AWS_DEFAULT_REGION }}
-  #     - name: Run Unit Tests
-  #       uses: ./.github/actions/run-python-lambda-tests
-  #       with:
-  #         directory: "image_geotagger"
-  # test-image-labeller-lambda:
-  #   needs: change-detector
-  #   if: ${{ needs.change-detector.outputs.image-labeller == 'true' || needs.change-detector.outputs.pipeline == 'true'}}
-  #   name: Run Image Label Filter Unit Tests
-  #   runs-on: ubuntu-latest
-  #   permissions:
-  #     actions: write
-  #     contents: read
-  #     id-token: write
-  #   steps:
-  #     - uses: actions/checkout@v3
-  #     - name: Configure AWS CLI and Credentials
-  #       uses: ./.github/actions/configure-aws-cli
-  #       with:
-  #         account_id: ${{ env.AWS_ACCOUNT_ID }}
-  #         default_region: ${{ env.AWS_DEFAULT_REGION }}
-  #     - name: Run Unit Tests
-  #       uses: ./.github/actions/run-python-lambda-tests
-  #       with:
-  #         directory: "image_label_filter"
   # test-app-server-lambda:
   #   needs: change-detector
   #   if: ${{ needs.change-detector.outputs.app-server == 'true' || needs.change-detector.outputs.pipeline == 'true'}}
