@@ -19,7 +19,7 @@ export class NodeLambda extends Construct {
       runtime: lambda.Runtime.NODEJS_16_X,
       architecture: lambda.Architecture.X86_64,
       timeout: Duration.seconds(duration ?? 10),
-      memorySize: memorySize ?? 128,
+      memorySize: memorySize ?? 768,
       retryAttempts: retryAttempts ?? 0,
       logRetention: logs.RetentionDays.ONE_MONTH,
       environment: {
