@@ -102,7 +102,7 @@ export const CONFIG: IConfig = {
       imageProcessorSecretName: IMAGE_PROCESSOR_SECRETS.NAME,
       imageProcessorSecretKey: IMAGE_PROCESSOR_SECRETS.KEY,
       duration: 15,
-      memorySize: 512,
+      memorySize: 1024,
       logLevel: LOG_LEVELS.INFO,
     },
     imageDeleter: {
