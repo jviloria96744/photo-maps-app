@@ -1,6 +1,7 @@
 import { useState, useRef } from "react";
 import Map, { NavigationControl, MapRef } from "react-map-gl";
 import { usePhotos } from "../../hooks/use-photos";
+import { useLocation } from "../../hooks/use-location";
 import { ENV, MAP_CONFIG } from "../../config";
 import ClusterMarker from "./ClusterMarker";
 import Supercluster from "supercluster";
@@ -12,10 +13,11 @@ interface ViewPort {
 }
 
 const MapView = () => {
+  const { latitude, longitude, zoom } = useLocation();
   const initialViewPort: ViewPort = {
-    longitude: 12.492922222222221,
-    latitude: 41.88994,
-    zoom: 15,
+    longitude: longitude,
+    latitude: latitude,
+    zoom: zoom,
   };
   const [viewPort, setViewPort] = useState<ViewPort>(initialViewPort);
   const mapRef = useRef<MapRef>(null);

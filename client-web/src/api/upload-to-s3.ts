@@ -34,24 +34,26 @@ export const uploadPhotosToS3 = (photos: FileList, user: User): void => {
   });
 };
 
-const uploadPhotoToS3 = (
+const uploadPhotoToS3 = async (
   photo: File,
   photoId: string,
   photoExtension: string,
   photoIdArray: string[]
 ): Promise<any> => {
-  return getPreSignedPost({
+  const res: PresignedPostResponse = await getPreSignedPost({
     asset_uuid: photoId,
     asset_extension: photoExtension,
     endpoint: "/photo",
-  }).then((res: PresignedPostResponse) => {
-    photoIdArray.push(res.fields.key);
-
-    constructAndPostForm(res, photo);
   });
+
+  photoIdArray.push(res.fields.key);
+  return constructAndPostForm(res, photo);
 };
 
-const constructAndPostForm = (data: PresignedPostResponse, file: any): void => {
+const constructAndPostForm = (
+  data: PresignedPostResponse,
+  file: any
+): Promise<any> => {
   const { url, fields } = data;
   const formData = new FormData();
   let k: keyof PresignedPostResponseFields;
@@ -60,7 +62,7 @@ const constructAndPostForm = (data: PresignedPostResponse, file: any): void => {
   }
   formData.append("file", file);
 
-  axios({
+  return axios({
     method: "post",
     url: url,
     data: formData,

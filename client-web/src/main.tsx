@@ -1,10 +1,10 @@
 import ReactDOM from "react-dom/client";
 import App from "./App";
 import { ChakraProvider } from "@chakra-ui/react";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Amplify } from "aws-amplify";
 import { amplifyConfigurationOptions, graphqlConfiguration } from "./config";
 import { ProvideAuth } from "./hooks/use-auth";
+import { ProvideLocation } from "./hooks/use-location";
 import "./index.css";
 
 Amplify.configure({
@@ -14,24 +14,12 @@ Amplify.configure({
 
 // Amplify.Logger.LOG_LEVEL = "DEBUG";
 
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      refetchOnWindowFocus: false,
-      refetchOnMount: false,
-      refetchOnReconnect: false,
-      retry: false,
-      staleTime: Infinity,
-    },
-  },
-});
-
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
-  <ProvideAuth>
-    <ChakraProvider>
-      <QueryClientProvider client={queryClient}>
+  <ProvideLocation>
+    <ProvideAuth>
+      <ChakraProvider>
         <App />
-      </QueryClientProvider>
-    </ChakraProvider>
-  </ProvideAuth>
+      </ChakraProvider>
+    </ProvideAuth>
+  </ProvideLocation>
 );

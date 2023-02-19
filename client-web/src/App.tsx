@@ -1,11 +1,19 @@
+import { Suspense, lazy } from "react";
+import StaticMapView from "./components/map/StaticMapView";
 import MapView from "./components/map/MapView";
 import UserMenu from "./components/UserMenu";
-import UploadPhotoIconButton from "./components/UploadPhotoButton";
-import PhotoContainerModal from "./components/photos/PhotoContainerModal";
 import { useAuth } from "./hooks/use-auth";
 import { useSubscription } from "./hooks/use-subscription";
 import { usePhotosQuery } from "./hooks/use-photos-query";
 import { User } from "./models/user";
+
+const PhotoContainerModal = lazy(
+  () => import("./components/photos/PhotoContainerModal")
+);
+
+const UploadPhotoIconButton = lazy(
+  () => import("./components/UploadPhotoButton")
+);
 
 function App() {
   const { isSignedIn, user } = useAuth();
@@ -18,10 +26,16 @@ function App() {
 
   return (
     <div style={{ height: "100%", width: "100%" }}>
-      <MapView />
+      {isSignedIn ? <MapView /> : <StaticMapView />}
       <UserMenu />
-      {isSignedIn && <UploadPhotoIconButton />}
-      <PhotoContainerModal />
+      {isSignedIn && (
+        <Suspense fallback={null}>
+          <UploadPhotoIconButton />
+        </Suspense>
+      )}
+      <Suspense fallback={<div>Loading...</div>}>
+        <PhotoContainerModal />
+      </Suspense>
     </div>
   );
 }

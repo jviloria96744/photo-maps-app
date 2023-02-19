@@ -1,5 +1,4 @@
 import { useEffect } from "react";
-// import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { usePhotoStore } from "../stores/photo-store";
 import { useAuth } from "./use-auth";
 import { getPhotosByUser } from "../api/base-endpoints";
