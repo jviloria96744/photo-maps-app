@@ -1,6 +1,6 @@
 import { Suspense, lazy } from "react";
 import StaticMapView from "./components/map/StaticMapView";
-import MapView from "./components/map/MapView";
+// import MapView from "./components/map/MapView";
 import UserMenu from "./components/UserMenu";
 import { useAuth } from "./hooks/use-auth";
 import { useSubscription } from "./hooks/use-subscription";
@@ -15,6 +15,8 @@ const UploadPhotoIconButton = lazy(
   () => import("./components/UploadPhotoButton")
 );
 
+const MapView = lazy(() => import("./components/map/MapView"));
+
 function App() {
   const { isSignedIn, user } = useAuth();
   const { refreshData } = usePhotosQuery();
@@ -26,7 +28,13 @@ function App() {
 
   return (
     <div style={{ height: "100%", width: "100%" }}>
-      {isSignedIn ? <MapView /> : <StaticMapView />}
+      {isSignedIn ? (
+        <Suspense fallback={<StaticMapView />}>
+          <MapView />
+        </Suspense>
+      ) : (
+        <StaticMapView />
+      )}
       <UserMenu />
       {isSignedIn && (
         <Suspense fallback={null}>
