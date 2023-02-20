@@ -6,8 +6,7 @@ import { usePhotoStore } from "../../stores/photo-store";
 import { ENV } from "../../config";
 
 const PhotoView = () => {
-  const { userSelectedPhoto, setUserSelectedPhoto, deletePhoto } =
-    usePhotoStore();
+  const { userSelectedPhoto, setUserSelectedPhoto } = usePhotoStore();
 
   return (
     <ModalBody>
