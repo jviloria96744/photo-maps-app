@@ -66,3 +66,19 @@ def get_photos_by_user():
             status_code=500,
             body="Error Fetching Photos"
         )
+    
+@router.delete("/photo")
+def delete_photo():
+    try:
+        body = router.current_event.json_body
+        object_name = body["object_name"]
+
+        response = asset_bucket.delete_item(object_name)
+
+        return response
+    except Exception:
+        logger.exception("Error on object delete")
+        return Response(
+            status_code=500,
+            body="Error on object delete"
+        )

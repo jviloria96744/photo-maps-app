@@ -20,6 +20,18 @@ class S3:
             raise
 
         return response
+    
+    def delete_item(self, object_name: str):
+        try:
+            response = self.s3_client.delete_object(
+                Bucket=self.bucket_name,
+                Key=object_name
+            )
+        except Exception:
+            logger.exception("Error when deleting photo from bucket")
+            raise
+
+        return response
 
 
 s3_client = boto3.client("s3")

@@ -127,12 +127,12 @@ export class LambdaApi extends Construct {
         resourceName: "photos",
         // GET Get All Photos By User
         // DELETE Delete photo from user account
-        methods: ["GET", "DELETE"],
+        methods: ["GET"],
       },
       {
         resourceName: "photo",
         // POST Generate pre-signed URL for photo upload
-        methods: ["POST"],
+        methods: ["POST", "DELETE"],
       },
       {
         resourceName: "photo_manifest",
