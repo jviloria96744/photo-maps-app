@@ -45,7 +45,7 @@ export class DynamoDbWriteItemTask extends Construct {
           ":object_key": tasks.DynamoAttributeValue.fromString(
             JsonPath.stringAt("$.imageId")
           ),
-          ":image_labels": tasks.DynamoAttributeValue.fromString(
+          ":image_labels": tasks.DynamoAttributeValue.listFromJsonPath(
             JsonPath.stringAt("$.result[1].result.labels")
           ),
         },
@@ -89,7 +89,7 @@ export class DynamoDbWriteItemTask extends Construct {
     ];
     return {
       ...this.keysFromStringList(itemKeys, "$.Attributes"),
-      "image_labels.$": "States.StringToJson($.Attributes.image_labels.S)",
+      "image_labels.$": "$.Attributes.image_labels.L)",
       geo_data: {
         ...this.keysFromStringList(geoDataKeys, "$.Attributes.geo_data.M"),
       },

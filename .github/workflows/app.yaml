@@ -63,6 +63,7 @@ jobs:
               - 'lambdas/upload-photo-notifications/**'
               - 'cdk-stacks/app/constructs/lambda-functions/**'
               - 'cdk-stacks/app/lib/stacks/image-processor/**'
+              - 'cdk-stacks/app/constructs/step-functions/**'
             image-geotagger:
               - 'lambdas/image_geotagger/**'
             image-labeller:

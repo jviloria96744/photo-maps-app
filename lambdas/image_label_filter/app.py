@@ -1,14 +1,16 @@
-import json
+def label_filter(labels: list[dict]) -> list[str]:
+    filtered_labels = set()
 
-def label_filter(labels: list[dict]) -> list[dict]:
-    filtered_labels = [{
-        "label_name": label.get("Name", ""),
-        "label_parents": label.get("Parents", []),
-        "label_aliases": label.get("Aliases", []),
-        "label_categories": label.get("Categories", [])
-    } for label in labels if (label["Confidence"] > 90 or is_landmark(label)) and label.get("Name", "") != 'Person']
+    for label in labels:
+        if label["Confidence"] > 90 or is_landmark(label):
+            filtered_labels.add(label.get("Name", ""))
+            
+            for label_type in ["Parents", "Aliases", "Categories"]:
+                for item in label.get(label_type, []):
+                    filtered_labels.add(item.get("Name", ""))
     
-    return filtered_labels
+    filtered_labels.discard("")
+    return list(filtered_labels)
 
 def is_landmark(label_object: dict) -> bool:
     try:
@@ -28,7 +30,6 @@ def is_landmark(label_object: dict) -> bool:
 
 def handler(event, context):
     try:
-        # This is necessary because the task definition is not able to handle complex list objects
-        return json.dumps(label_filter(event["result"]["imageLabels"]))
+        return label_filter(event["result"]["imageLabels"])
     except:
         return []
