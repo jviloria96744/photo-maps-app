@@ -1,11 +1,13 @@
 import { Box, ModalBody, Image } from "@chakra-ui/react";
 import IconButton from "../base/utility/IconButton";
 import { MdChevronLeft } from "react-icons/md";
+import DeletePhotoButton from "./DeletePhotoButton";
 import { usePhotoStore } from "../../stores/photo-store";
 import { ENV } from "../../config";
 
 const PhotoView = () => {
-  const { userSelectedPhoto, setUserSelectedPhoto } = usePhotoStore();
+  const { userSelectedPhoto, setUserSelectedPhoto, deletePhoto } =
+    usePhotoStore();
 
   return (
     <ModalBody>
@@ -20,6 +22,7 @@ const PhotoView = () => {
           color="white"
         />
       </Box>
+      <DeletePhotoButton photoKey={userSelectedPhoto as string} />
       <Image
         src={`${ENV.VITE_ASSETS_BASE_URL}${userSelectedPhoto}`}
         alt={userSelectedPhoto || ""}

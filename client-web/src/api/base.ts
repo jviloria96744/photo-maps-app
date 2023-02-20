@@ -55,7 +55,7 @@ export async function putCall(endpoint: string, body: any = {}) {
 
 export async function deleteCall(endpoint: string, body: any = {}) {
   return baseApi
-    .delete(endpoint, body)
+    .delete(endpoint, { data: body })
     .then((res) => {
       return res.data;
     })

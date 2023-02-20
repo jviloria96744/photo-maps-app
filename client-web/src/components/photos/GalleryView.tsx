@@ -1,9 +1,16 @@
+import { Fragment } from "react";
 import { ModalBody, Image } from "@chakra-ui/react";
+import DeletePhotoButton from "./DeletePhotoButton";
 import { usePhotoStore } from "../../stores/photo-store";
 import { ENV } from "../../config";
 
 const GalleryView = () => {
-  const { selectedPhotoKeys, setUserSelectedPhoto } = usePhotoStore();
+  const {
+    selectedPhotoKeys,
+    setUserSelectedPhoto,
+    deletePhoto,
+    userSelectedPhoto,
+  } = usePhotoStore();
   const calculatedColumnCount = () => {
     if (selectedPhotoKeys.length === 1) {
       return [1];
@@ -23,17 +30,21 @@ const GalleryView = () => {
       }}
     >
       {selectedPhotoKeys.map((key) => (
-        <Image
-          src={`${ENV.VITE_ASSETS_BASE_URL}${key}`}
-          alt={key}
-          key={key}
-          maxWidth="100%"
-          maxHeight="80vh"
-          // Added to handle multi-photos
-          mb={2}
-          onClick={() => setUserSelectedPhoto(key)}
-          _hover={{ cursor: "pointer" }}
-        />
+        <Fragment key={key}>
+          {selectedPhotoKeys.length === 1 && (
+            <DeletePhotoButton photoKey={key} />
+          )}
+          <Image
+            src={`${ENV.VITE_ASSETS_BASE_URL}${key}`}
+            alt={key}
+            maxWidth="100%"
+            maxHeight="80vh"
+            // Added to handle multi-photos
+            mb={2}
+            onClick={() => setUserSelectedPhoto(key)}
+            _hover={{ cursor: "pointer" }}
+          />
+        </Fragment>
       ))}
     </ModalBody>
   );

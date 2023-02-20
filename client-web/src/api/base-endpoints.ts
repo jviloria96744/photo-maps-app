@@ -26,3 +26,7 @@ export function getPreSignedPost(body: {
 export function getPhotosByUser() {
   return getCall("/photos");
 }
+
+export function deletePhoto(body: { object_name: string }) {
+  return deleteCall("/photo", body);
+}
