@@ -9,7 +9,15 @@ const DeletePhotoButton = ({ photoKey }: { photoKey: string }) => {
   const { deletePhoto } = usePhotoStore();
   const { isMobile } = useMedia();
   return (
-    <Box pos="absolute" top={isMobile ? "10" : "5"} right="5">
+    <Box
+      pos="absolute"
+      top={
+        isMobile
+          ? STYLING_CONFIG.MOBILE_DRAWER_TOP_BUTTON_OFFSET
+          : STYLING_CONFIG.WEB_MODAL_TOP_BUTTON_OFFSET
+      }
+      right={STYLING_CONFIG.MOBILE_DRAWER_LEFT_RIGHT_BUTTON_OFFSET}
+    >
       <IconButton
         tooltipLabel="Delete Photo"
         ariaLabel="Delete Photo"

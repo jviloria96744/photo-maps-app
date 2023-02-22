@@ -36,7 +36,11 @@ const DrawerGalleryView = ({
 
   return (
     <DrawerContent background="black">
-      <Box pos="absolute" top="10" left="5">
+      <Box
+        pos="absolute"
+        top={STYLING_CONFIG.MOBILE_DRAWER_TOP_BUTTON_OFFSET}
+        left={STYLING_CONFIG.MOBILE_DRAWER_LEFT_RIGHT_BUTTON_OFFSET}
+      >
         <IconButton
           tooltipLabel={null}
           ariaLabel="Close Photo Drawer"
@@ -47,7 +51,10 @@ const DrawerGalleryView = ({
           color={STYLING_CONFIG.MOBILE_ICON_COLOR}
         />
       </Box>
-      <Box pos="absolute" bottom="5">
+      <Box
+        pos="absolute"
+        bottom={STYLING_CONFIG.MOBILE_DRAWER_BOTTOM_BUTTON_OFFSET}
+      >
         <IconButton
           tooltipLabel={null}
           ariaLabel="Move Left"
@@ -58,7 +65,11 @@ const DrawerGalleryView = ({
           color={STYLING_CONFIG.MOBILE_ICON_COLOR}
         />
       </Box>
-      <Box pos="absolute" bottom="5" right="5">
+      <Box
+        pos="absolute"
+        bottom={STYLING_CONFIG.MOBILE_DRAWER_BOTTOM_BUTTON_OFFSET}
+        right={STYLING_CONFIG.MOBILE_DRAWER_LEFT_RIGHT_BUTTON_OFFSET}
+      >
         <IconButton
           tooltipLabel={null}
           ariaLabel="Move Left"
