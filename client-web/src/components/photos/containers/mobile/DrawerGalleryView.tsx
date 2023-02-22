@@ -36,7 +36,7 @@ const DrawerGalleryView = ({
 
   return (
     <DrawerContent background="black">
-      <Box pos="absolute" top="5" left="5">
+      <Box pos="absolute" top="10" left="5">
         <IconButton
           tooltipLabel={null}
           ariaLabel="Close Photo Drawer"
