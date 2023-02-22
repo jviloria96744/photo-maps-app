@@ -1,0 +1,5 @@
+export enum STYLING_CONFIG {
+  MOBILE_ICON_BOX_SIZE = "38",
+  MOBILE_ICON_VARIANT = "ghost",
+  MOBILE_ICON_COLOR = "white",
+}

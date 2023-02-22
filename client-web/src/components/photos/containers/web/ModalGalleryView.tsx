@@ -1,8 +1,8 @@
 import { Fragment } from "react";
 import { ModalBody, Image } from "@chakra-ui/react";
-import DeletePhotoButton from "./DeletePhotoButton";
-import { usePhotoStore } from "../../stores/photo-store";
-import { ENV } from "../../config";
+import DeletePhotoButton from "../../buttons/DeletePhotoButton";
+import { usePhotoStore } from "../../../../stores/photo-store";
+import { ENV } from "../../../../config";
 
 const GalleryView = () => {
   const { selectedPhotoKeys, setUserSelectedPhoto } = usePhotoStore();

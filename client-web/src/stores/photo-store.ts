@@ -11,7 +11,7 @@ interface PhotoStoreState {
   openContainer: (selectedKeys: string[]) => void;
   setUserSelectedPhoto: (selectedPhoto: string | null) => void;
   setPhotos: (newPhotos: PhotoObject[]) => void;
-  deletePhoto: (photoToDelete: string) => void;
+  deletePhoto: (photoToDelete: string, isMobile: boolean) => void;
 }
 
 export const usePhotoStore = create<PhotoStoreState>()((set, get) => ({
@@ -36,20 +36,26 @@ export const usePhotoStore = create<PhotoStoreState>()((set, get) => ({
       };
     });
   },
-  deletePhoto: (photoToDelete: string) => {
+  deletePhoto: (photoToDelete: string, isMobile: boolean) => {
     deletePhoto({ object_name: photoToDelete });
 
     // The ternary operator conditions are basically
     // (1) The photo view was from an individual photo marker click event
     // (2) The photo view was from an individual photo clicked within a gallery
-    set(({ userSelectedPhoto, photos, selectedPhotoKeys }) => {
+
+    const newSelectedPhotoKeys =
+      get().userSelectedPhoto || isMobile
+        ? get().selectedPhotoKeys.filter((key) => key !== photoToDelete)
+        : [];
+    set(({ userSelectedPhoto, photos }) => {
       return {
         photos: photos?.filter((photo) => photo.object_key !== photoToDelete),
-        selectedPhotoKeys: userSelectedPhoto
-          ? selectedPhotoKeys.filter((key) => key !== photoToDelete)
-          : [],
+        selectedPhotoKeys: newSelectedPhotoKeys,
         userSelectedPhoto: null,
-        isContainerOpen: userSelectedPhoto ? true : false,
+        isContainerOpen:
+          (userSelectedPhoto || isMobile) && newSelectedPhotoKeys.length > 0
+            ? true
+            : false,
       };
     });
   },

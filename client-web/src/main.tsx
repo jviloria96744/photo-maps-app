@@ -5,6 +5,7 @@ import { Amplify } from "aws-amplify";
 import { amplifyConfigurationOptions, graphqlConfiguration } from "./config";
 import { ProvideAuth } from "./hooks/use-auth";
 import { ProvideLocation } from "./hooks/use-location";
+import { ProvideMedia } from "./hooks/use-media";
 import "./index.css";
 
 Amplify.configure({
@@ -16,10 +17,12 @@ Amplify.configure({
 
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
   <ProvideLocation>
-    <ProvideAuth>
-      <ChakraProvider>
-        <App />
-      </ChakraProvider>
-    </ProvideAuth>
+    <ProvideMedia>
+      <ProvideAuth>
+        <ChakraProvider>
+          <App />
+        </ChakraProvider>
+      </ProvideAuth>
+    </ProvideMedia>
   </ProvideLocation>
 );

@@ -1,9 +1,9 @@
 import { Box, ModalBody, Image } from "@chakra-ui/react";
-import IconButton from "../base/utility/IconButton";
+import IconButton from "../../../base/utility/IconButton";
 import { MdChevronLeft } from "react-icons/md";
-import DeletePhotoButton from "./DeletePhotoButton";
-import { usePhotoStore } from "../../stores/photo-store";
-import { ENV } from "../../config";
+import DeletePhotoButton from "../../buttons/DeletePhotoButton";
+import { usePhotoStore } from "../../../../stores/photo-store";
+import { ENV } from "../../../../config";
 
 const PhotoView = () => {
   const { userSelectedPhoto, setUserSelectedPhoto } = usePhotoStore();

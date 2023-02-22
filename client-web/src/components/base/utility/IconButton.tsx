@@ -50,8 +50,18 @@ const IconButton = ({
     return (
       <ChakraIconButton
         aria-label={ariaLabel}
+        onClick={clickHandler}
+        variant={variant || "outline"}
+        _hover={{
+          textDecoration: "None",
+        }}
         icon={
-          <Icon as={IconComponent} boxSize={boxSize ?? "10"} focusable={true} />
+          <Icon
+            as={IconComponent}
+            boxSize={boxSize ?? "10"}
+            focusable={true}
+            color={color || "currentcolor"}
+          />
         }
       />
     );

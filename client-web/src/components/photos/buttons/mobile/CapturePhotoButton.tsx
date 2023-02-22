@@ -1,12 +1,12 @@
 import { ChangeEvent, useRef } from "react";
 import { Box } from "@chakra-ui/react";
-import IconButton from "./base/utility/IconButton";
-import { MdImage } from "react-icons/md";
-import { uploadPhotosToS3 } from "../api/upload-to-s3";
-import { useAuth } from "../hooks/use-auth";
-import { User } from "../models/user";
+import IconButton from "../../../base/utility/IconButton";
+import { MdPhotoCamera } from "react-icons/md";
+import { uploadPhotosToS3 } from "../../../../api/upload-to-s3";
+import { useAuth } from "../../../../hooks/use-auth";
+import { User } from "../../../../models/user";
 
-const UploadPhotoIconButton = () => {
+const CapturePhotoButton = () => {
   const inputRef = useRef<HTMLInputElement | null>(null);
   const { user } = useAuth();
 
@@ -27,11 +27,11 @@ const UploadPhotoIconButton = () => {
   };
 
   return (
-    <Box pos="absolute" bottom="5" right="5" _hover={{ cursor: "pointer" }}>
+    <Box pos="absolute" top="5" left="5" _hover={{ cursor: "pointer" }}>
       <IconButton
-        tooltipLabel="Upload Photo"
-        IconComponent={MdImage}
-        ariaLabel="Upload Photo"
+        tooltipLabel="Capture Photo"
+        IconComponent={MdPhotoCamera}
+        ariaLabel="Capture Photo"
         clickHandler={handleUploadClick}
         photoUploadRef={inputRef}
       />
@@ -43,9 +43,10 @@ const UploadPhotoIconButton = () => {
         style={{ display: "none" }}
         accept="image/jpg,image/jpeg"
         multiple={true}
+        capture
       />
     </Box>
   );
 };
 
-export default UploadPhotoIconButton;
+export default CapturePhotoButton;

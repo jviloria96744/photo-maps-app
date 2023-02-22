@@ -1,8 +1,8 @@
 import { Modal, ModalOverlay, ModalContent } from "@chakra-ui/react";
-import PhotoView from "./PhotoView";
-import GalleryView from "./GalleryView";
-import { usePhotoStore } from "../../stores/photo-store";
-import { PHOTO_CONFIG } from "../../config";
+import ModalPhotoView from "./ModalPhotoView";
+import ModalGalleryView from "./ModalGalleryView";
+import { usePhotoStore } from "../../../../stores/photo-store";
+import { PHOTO_CONFIG } from "../../../../config";
 
 const PhotoContainerModal = () => {
   const { isContainerOpen, closeContainer, userSelectedPhoto } =
@@ -20,7 +20,7 @@ const PhotoContainerModal = () => {
     >
       <ModalOverlay />
       <ModalContent alignItems="center" width="auto">
-        {userSelectedPhoto ? <PhotoView /> : <GalleryView />}
+        {userSelectedPhoto ? <ModalPhotoView /> : <ModalGalleryView />}
       </ModalContent>
     </Modal>
   );
