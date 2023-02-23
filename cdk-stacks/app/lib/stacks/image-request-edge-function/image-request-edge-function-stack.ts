@@ -28,11 +28,7 @@ export class ImageRequestEdgeFunctionStack extends cdk.Stack {
       memorySize: Config.nodeLambdas.imageRequestEdgeFunction.memorySize,
     });
 
-    const edgeFunctionVersion = new lambda.Version(this, "LambdaVersion", {
-      lambda: edgeFunction.function,
-    });
-
     this.edgeFunction = edgeFunction;
-    this.edgeFunctionVersion = edgeFunctionVersion;
+    this.edgeFunctionVersion = edgeFunction.function.currentVersion;
   }
 }
