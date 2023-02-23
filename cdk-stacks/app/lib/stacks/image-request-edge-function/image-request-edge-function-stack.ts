@@ -25,6 +25,7 @@ export class ImageRequestEdgeFunctionStack extends cdk.Stack {
         Config.environment.basePath,
         Config.nodeLambdas.imageRequestEdgeFunction.codeDirectory
       ),
+      memorySize: Config.nodeLambdas.imageRequestEdgeFunction.memorySize,
     });
 
     const edgeFunctionVersion = new lambda.Version(this, "LambdaVersion", {

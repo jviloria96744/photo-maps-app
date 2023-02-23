@@ -147,6 +147,7 @@ export const CONFIG: IConfig = {
     imageRequestEdgeFunction: {
       codeDirectory: "image-request-handler",
       logLevel: LOG_LEVELS.INFO,
+      memorySize: 128,
     },
   },
   websocket: {
