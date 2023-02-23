@@ -25,7 +25,7 @@ jobs:
     outputs:
       observability: ${{ (env.PIPELINE_TESTING == 'true') && 'true' || steps.filter.outputs.observability }}
       certificates: ${{ (env.PIPELINE_TESTING == 'true') && 'true' || steps.filter.outputs.certificates }}
-      stateful-resources: ${{ (env.PIPELINE_TESTING == 'false') && 'true' || steps.filter.outputs.stateful-resources }}
+      stateful-resources: ${{ (env.PIPELINE_TESTING == 'true') && 'true' || steps.filter.outputs.stateful-resources }}
       web-client: ${{ (env.PIPELINE_TESTING == 'true') && 'true' || steps.filter.outputs.web-client }}
       admin-portal: ${{ (env.PIPELINE_TESTING == 'true') && 'true' || steps.filter.outputs.admin-portal }}
       image-processor: ${{ (env.PIPELINE_TESTING == 'true') && 'true' || steps.filter.outputs.image-processor }}
