@@ -25,7 +25,7 @@ jobs:
     outputs:
       observability: ${{ (env.PIPELINE_TESTING == 'true') && 'true' || steps.filter.outputs.observability }}
       certificates: ${{ (env.PIPELINE_TESTING == 'true') && 'true' || steps.filter.outputs.certificates }}
-      stateful-resources: ${{ (env.PIPELINE_TESTING == 'false') && 'true' || steps.filter.outputs.stateful-resources }}
+      stateful-resources: ${{ (env.PIPELINE_TESTING == 'true') && 'true' || steps.filter.outputs.stateful-resources }}
       web-client: ${{ (env.PIPELINE_TESTING == 'true') && 'true' || steps.filter.outputs.web-client }}
       admin-portal: ${{ (env.PIPELINE_TESTING == 'true') && 'true' || steps.filter.outputs.admin-portal }}
       image-processor: ${{ (env.PIPELINE_TESTING == 'true') && 'true' || steps.filter.outputs.image-processor }}
@@ -48,7 +48,6 @@ jobs:
             stateful-resources:
               - 'cdk-stacks/app/lib/stacks/asset-bucket/**'
               - 'cdk-stacks/app/lib/stacks/dynamodb/**'
-              - 'lambdas/image_request_handler/**'
             web-client:
               - 'client-web/**'
               - 'cdk-stacks/app/lib/stacks/web-client/**'

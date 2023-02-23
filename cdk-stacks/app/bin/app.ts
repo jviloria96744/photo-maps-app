@@ -135,7 +135,6 @@ if (flagStateful === "true") {
     assetBucketParameterStoreName: PARAMETER_STORE_NAMES.ASSET_BUCKET,
     deleteQueueParameterStoreName: PARAMETER_STORE_NAMES.DELETE_QUEUE,
     uploadQueueParameterStoreName: PARAMETER_STORE_NAMES.UPLOAD_QUEUE,
-    Config: CONFIG,
   });
 
   const dynamoDbStack = new DynamoDbStack(app, "DynamoDB", {

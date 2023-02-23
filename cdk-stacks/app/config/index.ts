@@ -70,7 +70,6 @@ export interface IConfig {
     imageLabelFilter: AppLambda;
     appServer: AppLambda;
     stepFunctionOrchestrator: ImageLambda;
-    imageRequestEdgeFunction: AppLambda;
     buildCommands: string[];
   };
   nodeLambdas: {
@@ -128,12 +127,6 @@ export const CONFIG: IConfig = {
       batchSize: 1,
       maxConcurrency: 100,
       duration: 10,
-    },
-    imageRequestEdgeFunction: {
-      codeDirectory: "image_request_handler",
-      logLevel: LOG_LEVELS.INFO,
-      memorySize: 128,
-      duration: 5,
     },
     buildCommands: [
       "bash",
