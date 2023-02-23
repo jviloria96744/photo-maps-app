@@ -148,6 +148,7 @@ export const CONFIG: IConfig = {
       codeDirectory: "image-request-handler",
       logLevel: LOG_LEVELS.INFO,
       memorySize: 128,
+      duration: 5,
     },
   },
   websocket: {

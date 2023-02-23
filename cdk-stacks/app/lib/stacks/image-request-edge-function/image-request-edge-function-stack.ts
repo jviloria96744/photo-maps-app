@@ -26,6 +26,7 @@ export class ImageRequestEdgeFunctionStack extends cdk.Stack {
         Config.nodeLambdas.imageRequestEdgeFunction.codeDirectory
       ),
       memorySize: Config.nodeLambdas.imageRequestEdgeFunction.memorySize,
+      duration: Config.nodeLambdas.imageRequestEdgeFunction.duration,
     });
 
     this.edgeFunction = edgeFunction;

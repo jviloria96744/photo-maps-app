@@ -33,7 +33,7 @@ jobs:
       image-labeller: ${{ (env.PIPELINE_TESTING == 'true') && 'true' || steps.filter.outputs.image-labeller }}
       image-deleter: ${{ (env.PIPELINE_TESTING == 'true') && 'true' || steps.filter.outputs.image-deleter }}
       app-server: ${{ (env.PIPELINE_TESTING == 'true') && 'true' || steps.filter.outputs.app-server }}
-      image-request-handler: ${{ (env.PIPELINE_TESTING == 'true') && 'true' || steps.filter.outputs.image-request-edge-handler }}
+      image-request-handler: ${{ (env.PIPELINE_TESTING == 'false') && 'true' || steps.filter.outputs.image-request-edge-handler }}
     steps:
       - uses: actions/checkout@v3
         with:
