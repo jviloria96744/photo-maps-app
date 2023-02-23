@@ -12,6 +12,8 @@ import {
   ImageProcessorStack,
   WebClientStack,
   AppApiStack,
+  ImageRequestEdgeFunctionStack,
+  ImageRequestEdgeFunctionParameterStack,
 } from "../lib/stacks";
 import {
   DOMAIN_NAMES,
@@ -32,6 +34,9 @@ const flagImageDeleter = app.node.tryGetContext("FLAG_IMAGE_DELETER");
 const flagImageProcessor = app.node.tryGetContext("FLAG_IMAGE_PROCESSOR");
 const flagWebClient = app.node.tryGetContext("FLAG_WEB_CLIENT");
 const flagAppApi = app.node.tryGetContext("FLAG_APP_API");
+const flagImageRequestEdgeFunction = app.node.tryGetContext(
+  "FLAG_IMAGE_REQUEST_EDGE_FUNCTION"
+);
 
 if (flagObservability === "true") {
   const observabilityStack = new ObservabilityStack(app, "Observability", {
@@ -78,6 +83,38 @@ if (flagCertificate === "true") {
   );
 
   certParameterStoreStack.addDependency(certStack);
+}
+
+if (flagImageRequestEdgeFunction) {
+  const cfEdgeFunction = new ImageRequestEdgeFunctionStack(
+    app,
+    "CFEdgeFunction",
+    {
+      env: {
+        account: process.env.CDK_DEFAULT_ACCOUNT,
+        region: "us-east-1",
+      },
+      crossRegionReferences: true,
+      Config: CONFIG,
+    }
+  );
+
+  const cfEdgeFunctionParameters = new ImageRequestEdgeFunctionParameterStack(
+    app,
+    "CFEdgeFunctionParameter",
+    {
+      env: {
+        account: process.env.CDK_DEFAULT_ACCOUNT,
+        region: process.env.CDK_DEFAULT_REGION,
+      },
+      crossRegionReferences: true,
+      edgeFunctionVersion: cfEdgeFunction.edgeFunctionVersion,
+      functionVersionParameterStoreName:
+        PARAMETER_STORE_NAMES.IMAGE_REQUEST_EDGE_FUNCTION,
+    }
+  );
+
+  cfEdgeFunctionParameters.addDependency(cfEdgeFunction);
 }
 
 if (flagAdminPortal === "true") {
@@ -135,6 +172,8 @@ if (flagStateful === "true") {
     assetBucketParameterStoreName: PARAMETER_STORE_NAMES.ASSET_BUCKET,
     deleteQueueParameterStoreName: PARAMETER_STORE_NAMES.DELETE_QUEUE,
     uploadQueueParameterStoreName: PARAMETER_STORE_NAMES.UPLOAD_QUEUE,
+    edgeFunctionParameterStoreName:
+      PARAMETER_STORE_NAMES.IMAGE_REQUEST_EDGE_FUNCTION,
   });
 
   const dynamoDbStack = new DynamoDbStack(app, "DynamoDB", {

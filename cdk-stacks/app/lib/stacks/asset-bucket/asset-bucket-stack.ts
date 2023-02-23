@@ -6,6 +6,7 @@ import * as cloudfront from "aws-cdk-lib/aws-cloudfront";
 import * as cloudfront_origins from "aws-cdk-lib/aws-cloudfront-origins";
 import * as route53 from "aws-cdk-lib/aws-route53";
 import * as targets from "aws-cdk-lib/aws-route53-targets";
+import * as lambda from "aws-cdk-lib/aws-lambda";
 import * as ssm from "aws-cdk-lib/aws-ssm";
 import { Construct } from "constructs";
 import { lookupResource } from "../../../utils/utils";
@@ -18,6 +19,7 @@ interface AssetBucketStackProps extends cdk.StackProps {
   assetBucketParameterStoreName: string;
   deleteQueueParameterStoreName: string;
   uploadQueueParameterStoreName: string;
+  edgeFunctionParameterStoreName: string;
 }
 
 export class AssetBucketStack extends cdk.Stack {
@@ -35,6 +37,7 @@ export class AssetBucketStack extends cdk.Stack {
       assetBucketParameterStoreName,
       deleteQueueParameterStoreName,
       uploadQueueParameterStoreName,
+      edgeFunctionParameterStoreName,
     } = props;
 
     const deadLetterQueue = lookupResource(
@@ -60,7 +63,8 @@ export class AssetBucketStack extends cdk.Stack {
       tldDomainName,
       bucket,
       fullDomainName,
-      certificateParameterStoreName
+      certificateParameterStoreName,
+      edgeFunctionParameterStoreName
     );
 
     const uploadQueue = this.createUploadQueueTrigger(deadLetterQueue, bucket);
@@ -90,7 +94,8 @@ export class AssetBucketStack extends cdk.Stack {
     tldDomainName: string,
     bucket: s3.Bucket,
     fullDomainName: string,
-    certificateParameterStoreName: string
+    certificateParameterStoreName: string,
+    edgeFunctionParameterStoreName: string
   ): void {
     const certificate = lookupResource(
       this,
@@ -103,9 +108,22 @@ export class AssetBucketStack extends cdk.Stack {
       domainName: tldDomainName,
     });
 
+    const cfEdgeFunction = lookupResource(
+      this,
+      "EdgeFunctionLookup",
+      edgeFunctionParameterStoreName,
+      lambda.Version.fromVersionArn
+    );
+
     const distribution = new cloudfront.Distribution(this, "Distribution", {
       defaultBehavior: {
         origin: new cloudfront_origins.S3Origin(bucket),
+        edgeLambdas: [
+          {
+            functionVersion: cfEdgeFunction,
+            eventType: cloudfront.LambdaEdgeEventType.VIEWER_REQUEST,
+          },
+        ],
       },
       domainNames: [fullDomainName],
       certificate: certificate,

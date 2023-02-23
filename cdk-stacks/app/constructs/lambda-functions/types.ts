@@ -1,10 +1,8 @@
-import { IConfig } from "../../config";
-
 interface LambdaProps {
   pathName: string;
   duration?: number;
   memorySize?: number;
-  environment: {
+  environment?: {
     [key: string]: string;
   };
   retryAttempts?: number;

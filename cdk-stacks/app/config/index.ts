@@ -46,6 +46,7 @@ export enum PARAMETER_STORE_NAMES {
   WEB_CLIENT_COGNITO_USER_POOL = "/userpool/webclient/arn",
   REST_API_CERTIFICATE = "/certificates/restApi/arn",
   APPSYNC_CERTIFICATE = "/certificates/appSync/arn",
+  IMAGE_REQUEST_EDGE_FUNCTION = "/function/imageRequestEdgeFunction/arn",
 }
 
 const removeTests = "rm -rf /asset-output/tests";
@@ -73,6 +74,7 @@ export interface IConfig {
   };
   nodeLambdas: {
     appsyncMessenger: AppsyncMessengerLambda;
+    imageRequestEdgeFunction: AppLambda;
   };
   websocket: {
     pathName: string;
@@ -141,6 +143,10 @@ export const CONFIG: IConfig = {
       appSyncAuthType: "API_KEY",
       apiKeySecretKey: "API_KEY",
       apiKeySecretName: "sandbox/appsync_api_key",
+    },
+    imageRequestEdgeFunction: {
+      codeDirectory: "image-request-handler",
+      logLevel: LOG_LEVELS.INFO,
     },
   },
   websocket: {

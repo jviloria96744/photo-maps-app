@@ -33,6 +33,7 @@ jobs:
       image-labeller: ${{ (env.PIPELINE_TESTING == 'true') && 'true' || steps.filter.outputs.image-labeller }}
       image-deleter: ${{ (env.PIPELINE_TESTING == 'true') && 'true' || steps.filter.outputs.image-deleter }}
       app-server: ${{ (env.PIPELINE_TESTING == 'true') && 'true' || steps.filter.outputs.app-server }}
+      image-request-handler: ${{ (env.PIPELINE_TESTING == 'true') && 'true' || steps.filter.outputs.image-request-edge-handler }}
     steps:
       - uses: actions/checkout@v3
         with:
@@ -75,6 +76,9 @@ jobs:
             app-server:
               - 'lambdas/app_server/**'
               - 'cdk-stacks/app/lib/stacks/app-api/**'
+            image-request-handler:
+              - 'lambdas/image-request-handler/**'
+              - 'cdk-stacks/app/lib/stacks/image-request-edge-function/**'
   test-image-geotagger-lambda:
     needs: change-detector
     if: ${{ needs.change-detector.outputs.image-geotagger == 'true'}}
@@ -115,6 +119,31 @@ jobs:
         uses: ./.github/actions/run-python-lambda-tests
         with:
           directory: "image_label_filter"
+  deploy-edge-function:
+    needs: change-detector
+    if: ${{ needs.change-detector.outputs.image-request-handler == 'true' }}
+    name: Deploy Edge Function
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v3
+      - name: Configure AWS CLI and Credentials
+        uses: ./.github/actions/configure-aws-cli
+        with:
+          account_id: ${{ env.AWS_ACCOUNT_ID }}
+          default_region: ${{ env.AWS_DEFAULT_REGION }}
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16.17.0
+      - name: Deploy Edge Function
+        uses: ./.github/actions/cdk-deploy
+        with:
+          directory: "cdk-stacks/app"
+          cdk_stacks: "CFEdgeFunctionParameter"
+          cdk_context: "-c FLAG_IMAGE_REQUEST_EDGE_FUNCTION"=true"
   deploy-observability-stack:
     needs: change-detector
     if: ${{ needs.change-detector.outputs.observability == 'true' }}
@@ -229,7 +258,7 @@ jobs:
           cdk_context: "-c FLAG_WEB_CLIENT=true"
   deploy-stateful-resources:
     needs:
-      [change-detector, deploy-certificate-stack, deploy-observability-stack]
+      [change-detector, deploy-certificate-stack, deploy-observability-stack, deploy-edge-function]
     if: |
       always() &&
       needs.change-detector.outputs.stateful-resources == 'true' && 
