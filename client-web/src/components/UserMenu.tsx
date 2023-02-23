@@ -10,7 +10,7 @@ import { useAuth } from "../hooks/use-auth";
 import UserIconButton from "./UserIconButton";
 
 const UserMenu = () => {
-  const { isSignedIn, signIn, signOut, signOutAndDelete } = useAuth();
+  const { signIn, signOut, signOutAndDelete, user } = useAuth();
   return (
     <Box pos="absolute" top="5" right="5" _hover={{ cursor: "pointer" }}>
       <Menu>
@@ -18,7 +18,7 @@ const UserMenu = () => {
           <UserIconButton />
         </MenuButton>
         <MenuList>
-          {isSignedIn ? (
+          {user ? (
             <>
               <MenuItem onClick={signOut}>
                 <Text fontSize="lg">Logout</Text>

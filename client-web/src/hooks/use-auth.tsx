@@ -13,7 +13,6 @@ export const useAuth = () => useContext(AuthContext);
 
 function useProvideAuth() {
   const [user, setUser] = useState<User | null>(null);
-  const [isSignedIn, setIsSignedIn] = useState(false);
 
   useEffect(() => {
     if (user) {
@@ -31,7 +30,9 @@ function useProvideAuth() {
           userCreatedDate: userData.datetime_created,
         };
 
-        setIsSignedIn(true);
+        // This cookie is used to authenticate against img src network calls
+        document.cookie = `userId=${user.id}`;
+
         setUser(user);
       })
       .catch((err) => {
@@ -47,14 +48,12 @@ function useProvideAuth() {
 
   const signOut = () =>
     Auth.signOut().then(() => {
-      setIsSignedIn(false);
       setUser(null);
     });
 
   const signOutAndDelete = async () => {
     deleteUser().then(() => {
       Auth.signOut().then(() => {
-        setIsSignedIn(false);
         setUser(null);
       });
     });
@@ -62,7 +61,6 @@ function useProvideAuth() {
 
   return {
     user,
-    isSignedIn,
     signIn,
     signOut,
     signOutAndDelete,

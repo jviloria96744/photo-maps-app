@@ -3,7 +3,6 @@ import { User } from "../models/user";
 
 interface IAuthContext {
   user: User | null;
-  isSignedIn?: boolean;
   signIn: () => Promise<void>;
   signOut: () => Promise<void>;
   signOutAndDelete: () => Promise<void>;
@@ -11,7 +10,6 @@ interface IAuthContext {
 
 export const AuthContext = createContext<IAuthContext>({
   user: null,
-  isSignedIn: false,
   signIn: async () => {},
   signOut: async () => {},
   signOutAndDelete: async () => {},

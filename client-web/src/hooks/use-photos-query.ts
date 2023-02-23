@@ -6,11 +6,11 @@ import { PhotoObject } from "../models/photo";
 import { CallbackFunctionType } from "./use-subscription";
 
 export const usePhotosQuery = () => {
-  const { isSignedIn } = useAuth();
+  const { user } = useAuth();
   const { photos, setPhotos } = usePhotoStore();
 
   useEffect(() => {
-    if (!isSignedIn) {
+    if (!user) {
       return;
     }
 
@@ -19,7 +19,7 @@ export const usePhotosQuery = () => {
     });
 
     return () => setPhotos([]);
-  }, [isSignedIn]);
+  }, [user]);
 
   const refreshData: CallbackFunctionType = (event) => {
     const incomingPhotos: PhotoObject[] = JSON.parse(

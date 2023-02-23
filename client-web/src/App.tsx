@@ -11,7 +11,7 @@ import { User } from "./models/user";
 const MapView = lazy(() => import("./components/map/MapView"));
 
 function App() {
-  const { isSignedIn, user } = useAuth();
+  const { user } = useAuth();
   const { refreshData } = usePhotosQuery();
   useSubscription({
     channel: "channel",
@@ -21,10 +21,10 @@ function App() {
 
   return (
     <div style={{ height: "100%", width: "100%" }}>
-      {isSignedIn ? <MapView /> : <StaticMapView />}
+      {user ? <MapView /> : <StaticMapView />}
       <UserMenu />
-      {isSignedIn && <PhotoUploadButton />}
-      {isSignedIn && <PhotoContainer />}
+      {user && <PhotoUploadButton />}
+      {user && <PhotoContainer />}
     </div>
   );
 }
