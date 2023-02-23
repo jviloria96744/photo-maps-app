@@ -12,6 +12,7 @@ import * as ssm from "aws-cdk-lib/aws-ssm";
 import { Construct } from "constructs";
 import { lookupResource, createPathName } from "../../../utils/utils";
 import { IConfig } from "../../../config";
+import { OriginRequestCookieBehavior } from "aws-cdk-lib/aws-cloudfront";
 
 interface AssetBucketStackProps extends cdk.StackProps {
   tldDomainName: string;
@@ -141,6 +142,13 @@ export class AssetBucketStack extends cdk.Stack {
             eventType: cloudfront.LambdaEdgeEventType.VIEWER_REQUEST,
           },
         ],
+        originRequestPolicy: new cloudfront.OriginRequestPolicy(
+          this,
+          "DistributionRequestPolicy",
+          {
+            cookieBehavior: cloudfront.OriginRequestCookieBehavior.all(),
+          }
+        ),
       },
       domainNames: [fullDomainName],
       certificate: certificate,
