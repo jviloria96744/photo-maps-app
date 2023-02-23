@@ -143,7 +143,7 @@ jobs:
         with:
           directory: "cdk-stacks/app"
           cdk_stacks: "CFEdgeFunctionParameter"
-          cdk_context: "-c FLAG_IMAGE_REQUEST_EDGE_FUNCTION"=true"
+          cdk_context: "-c FLAG_IMAGE_REQUEST_EDGE_FUNCTION=true"
   deploy-observability-stack:
     needs: change-detector
     if: ${{ needs.change-detector.outputs.observability == 'true' }}
@@ -258,7 +258,12 @@ jobs:
           cdk_context: "-c FLAG_WEB_CLIENT=true"
   deploy-stateful-resources:
     needs:
-      [change-detector, deploy-certificate-stack, deploy-observability-stack, deploy-edge-function]
+      [
+        change-detector,
+        deploy-certificate-stack,
+        deploy-observability-stack,
+        deploy-edge-function,
+      ]
     if: |
       always() &&
       needs.change-detector.outputs.stateful-resources == 'true' && 
