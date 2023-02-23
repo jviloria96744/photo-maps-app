@@ -70,11 +70,11 @@ export interface IConfig {
     imageLabelFilter: AppLambda;
     appServer: AppLambda;
     stepFunctionOrchestrator: ImageLambda;
+    imageRequestEdgeFunction: AppLambda;
     buildCommands: string[];
   };
   nodeLambdas: {
     appsyncMessenger: AppsyncMessengerLambda;
-    imageRequestEdgeFunction: AppLambda;
   };
   websocket: {
     pathName: string;
@@ -129,6 +129,12 @@ export const CONFIG: IConfig = {
       maxConcurrency: 100,
       duration: 10,
     },
+    imageRequestEdgeFunction: {
+      codeDirectory: "image_request_handler",
+      logLevel: LOG_LEVELS.INFO,
+      memorySize: 128,
+      duration: 5,
+    },
     buildCommands: [
       "bash",
       "-c",
@@ -143,12 +149,6 @@ export const CONFIG: IConfig = {
       appSyncAuthType: "API_KEY",
       apiKeySecretKey: "API_KEY",
       apiKeySecretName: "sandbox/appsync_api_key",
-    },
-    imageRequestEdgeFunction: {
-      codeDirectory: "image-request-handler",
-      logLevel: LOG_LEVELS.INFO,
-      memorySize: 128,
-      duration: 5,
     },
   },
   websocket: {

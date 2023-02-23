@@ -33,7 +33,6 @@ jobs:
       image-labeller: ${{ (env.PIPELINE_TESTING == 'true') && 'true' || steps.filter.outputs.image-labeller }}
       image-deleter: ${{ (env.PIPELINE_TESTING == 'true') && 'true' || steps.filter.outputs.image-deleter }}
       app-server: ${{ (env.PIPELINE_TESTING == 'true') && 'true' || steps.filter.outputs.app-server }}
-      image-request-handler: ${{ (env.PIPELINE_TESTING == 'false') && 'true' || steps.filter.outputs.image-request-edge-handler }}
     steps:
       - uses: actions/checkout@v3
         with:
@@ -49,6 +48,7 @@ jobs:
             stateful-resources:
               - 'cdk-stacks/app/lib/stacks/asset-bucket/**'
               - 'cdk-stacks/app/lib/stacks/dynamodb/**'
+              - 'lambdas/image_request_handler/**'
             web-client:
               - 'client-web/**'
               - 'cdk-stacks/app/lib/stacks/web-client/**'
@@ -76,9 +76,6 @@ jobs:
             app-server:
               - 'lambdas/app_server/**'
               - 'cdk-stacks/app/lib/stacks/app-api/**'
-            image-request-handler:
-              - 'lambdas/image-request-handler/**'
-              - 'cdk-stacks/app/lib/stacks/image-request-edge-function/**'
   test-image-geotagger-lambda:
     needs: change-detector
     if: ${{ needs.change-detector.outputs.image-geotagger == 'true'}}

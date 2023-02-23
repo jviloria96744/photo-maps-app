@@ -7,9 +7,11 @@ import * as cloudfront_origins from "aws-cdk-lib/aws-cloudfront-origins";
 import * as route53 from "aws-cdk-lib/aws-route53";
 import * as targets from "aws-cdk-lib/aws-route53-targets";
 import * as lambda from "aws-cdk-lib/aws-lambda";
+import * as logs from "aws-cdk-lib/aws-logs";
 import * as ssm from "aws-cdk-lib/aws-ssm";
 import { Construct } from "constructs";
-import { lookupResource } from "../../../utils/utils";
+import { lookupResource, createPathName } from "../../../utils/utils";
+import { IConfig } from "../../../config";
 
 interface AssetBucketStackProps extends cdk.StackProps {
   tldDomainName: string;
@@ -19,7 +21,7 @@ interface AssetBucketStackProps extends cdk.StackProps {
   assetBucketParameterStoreName: string;
   deleteQueueParameterStoreName: string;
   uploadQueueParameterStoreName: string;
-  edgeFunctionParameterStoreName: string;
+  Config: IConfig;
 }
 
 export class AssetBucketStack extends cdk.Stack {
@@ -37,7 +39,7 @@ export class AssetBucketStack extends cdk.Stack {
       assetBucketParameterStoreName,
       deleteQueueParameterStoreName,
       uploadQueueParameterStoreName,
-      edgeFunctionParameterStoreName,
+      Config,
     } = props;
 
     const deadLetterQueue = lookupResource(
@@ -64,7 +66,7 @@ export class AssetBucketStack extends cdk.Stack {
       bucket,
       fullDomainName,
       certificateParameterStoreName,
-      edgeFunctionParameterStoreName
+      Config
     );
 
     const uploadQueue = this.createUploadQueueTrigger(deadLetterQueue, bucket);
@@ -95,7 +97,7 @@ export class AssetBucketStack extends cdk.Stack {
     bucket: s3.Bucket,
     fullDomainName: string,
     certificateParameterStoreName: string,
-    edgeFunctionParameterStoreName: string
+    Config: IConfig
   ): void {
     const certificate = lookupResource(
       this,
@@ -108,11 +110,26 @@ export class AssetBucketStack extends cdk.Stack {
       domainName: tldDomainName,
     });
 
-    const cfEdgeFunction = lookupResource(
+    const cfEdgeFunction = new cloudfront.experimental.EdgeFunction(
       this,
-      "EdgeFunctionLookup",
-      edgeFunctionParameterStoreName,
-      lambda.Version.fromVersionArn
+      "CFEdgeFunction",
+      {
+        runtime: lambda.Runtime.PYTHON_3_7,
+        handler: "app.handler",
+        logRetention: logs.RetentionDays.ONE_MONTH,
+        code: lambda.Code.fromAsset(
+          createPathName(
+            Config.environment.basePath,
+            Config.pythonLambdas.imageRequestEdgeFunction.codeDirectory
+          ),
+          {
+            bundling: {
+              image: lambda.Runtime.PYTHON_3_7.bundlingImage,
+              command: Config.pythonLambdas.buildCommands,
+            },
+          }
+        ),
+      }
     );
 
     const distribution = new cloudfront.Distribution(this, "Distribution", {
@@ -120,7 +137,7 @@ export class AssetBucketStack extends cdk.Stack {
         origin: new cloudfront_origins.S3Origin(bucket),
         edgeLambdas: [
           {
-            functionVersion: cfEdgeFunction,
+            functionVersion: cfEdgeFunction.currentVersion,
             eventType: cloudfront.LambdaEdgeEventType.VIEWER_REQUEST,
           },
         ],
