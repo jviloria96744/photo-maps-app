@@ -9,7 +9,6 @@ import * as targets from "aws-cdk-lib/aws-route53-targets";
 import * as ssm from "aws-cdk-lib/aws-ssm";
 import { Construct } from "constructs";
 import { lookupResource } from "../../../utils/utils";
-import { IConfig } from "../../../config";
 
 interface AssetBucketStackProps extends cdk.StackProps {
   tldDomainName: string;
