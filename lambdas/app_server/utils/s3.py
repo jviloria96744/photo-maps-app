@@ -13,7 +13,10 @@ class S3:
             response = self.s3_client.generate_presigned_post(
                 Bucket=self.bucket_name,
                 Key=object_name,
-                ExpiresIn=expiration
+                ExpiresIn=expiration,
+                Fields={
+                    "x-amz-meta-test": "TestValue"
+                }
             )
         except Exception:
             logger.exception("Error When Getting Presigned URL")
