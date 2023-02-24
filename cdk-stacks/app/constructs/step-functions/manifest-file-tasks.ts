@@ -20,6 +20,7 @@ export class ManifestFileTasks extends Construct {
         iamResources: ["*"],
         resultSelector: {
           "manifestData.$": "States.StringToJson($.Body)",
+          "raw_output.$": "$",
         },
         resultPath: "$.result",
         comment:
