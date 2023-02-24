@@ -16,7 +16,10 @@ class S3:
                 ExpiresIn=expiration,
                 Fields={
                     "x-amz-meta-test": "TestValue"
-                }
+                },
+                Conditions=[
+                {"x-amz-meta-test": "TestValue"}
+                ]
             )
         except Exception:
             logger.exception("Error When Getting Presigned URL")
