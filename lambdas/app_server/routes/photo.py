@@ -13,12 +13,13 @@ def get_presigned_post():
         body = router.current_event.json_body
         asset_uuid = body["asset_uuid"]
         asset_extension = body["asset_extension"]
+        custom_fields = body["custom_fields"]
         
         user_id, _ = get_user_data_from_event(router.current_event)
         
         object_key = f"{user_id}/images/{asset_uuid}.{asset_extension}"
         
-        presigned_post_object = asset_bucket.create_presigned_url(object_key)
+        presigned_post_object = asset_bucket.create_presigned_url(object_name=object_key, fields=custom_fields)
 
         return presigned_post_object
     except Exception:

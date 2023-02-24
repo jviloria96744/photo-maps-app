@@ -8,17 +8,15 @@ class S3:
         self.bucket_name = bucket_name
         self.s3_client = s3_client
 
-    def create_presigned_url(self, object_name: str, expiration: int = 120):
+    def create_presigned_url(self, object_name: str, expiration: int = 120, fields: dict={}):
         try:
             response = self.s3_client.generate_presigned_post(
                 Bucket=self.bucket_name,
                 Key=object_name,
                 ExpiresIn=expiration,
-                Fields={
-                    "x-amz-meta-test": "TestValue"
-                },
+                Fields=fields,
                 Conditions=[
-                {"x-amz-meta-test": "TestValue"}
+                {key: value} for key, value in fields.items()
                 ]
             )
         except Exception:
