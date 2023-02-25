@@ -51,27 +51,27 @@ export class ImageUploadStepFunction extends Construct {
 
     // parallelImageProcessingTask.task.next(dynamoDbWriteItemTask.task);
 
-    const mapImages = new step_function.Map(this, "Process Images", {
-      parameters: {
-        "Bucket.$": "$.bucket_name",
-        "imageId.$": "$$.Map.Item.Value",
-        "userId.$": "$.result.manifestData.userId",
-      },
-      itemsPath: "$.result.manifestData.imageIds",
-      resultPath: "$.result",
-      maxConcurrency: 0,
-    });
-    mapImages.iterator(parallelImageProcessingTask.task);
+    // const mapImages = new step_function.Map(this, "Process Images", {
+    //   parameters: {
+    //     "Bucket.$": "$.bucket_name",
+    //     "imageId.$": "$$.Map.Item.Value",
+    //     "userId.$": "$.result.manifestData.userId",
+    //   },
+    //   itemsPath: "$.result.manifestData.imageIds",
+    //   resultPath: "$.result",
+    //   maxConcurrency: 0,
+    // });
+    // mapImages.iterator(parallelImageProcessingTask.task);
 
-    const manifestTasks = new ManifestFileTasks(parent, "ManifestFileTasks");
+    // const manifestTasks = new ManifestFileTasks(parent, "ManifestFileTasks");
 
-    const appsyncMutationTask = new AppsyncMutationTask(
-      parent,
-      "SendMessageTask",
-      {
-        lambda: appsyncMessengerLambda,
-      }
-    );
+    // const appsyncMutationTask = new AppsyncMutationTask(
+    //   parent,
+    //   "SendMessageTask",
+    //   {
+    //     lambda: appsyncMessengerLambda,
+    //   }
+    // );
 
     // const definition = manifestTasks.uploadTask
     //   .next(mapImages)
