@@ -6,7 +6,6 @@ import { PythonLambda } from "../lambda-functions/python-lambda";
 import { NodeLambda } from "../lambda-functions/node-lambda";
 import { DynamoDbWriteItemTask } from "./dynamo-db-write-item-task";
 import { ParallelImageProcessingTask } from "./parallel-image-processing-task";
-import { ManifestFileTasks } from "./manifest-file-tasks";
 import { AppsyncMutationTask } from "./appsync-mutation-task";
 
 interface ImageUploadStepFunctionProps {
@@ -49,20 +48,6 @@ export class ImageUploadStepFunction extends Construct {
       }
     );
 
-    // const mapImages = new step_function.Map(this, "Process Images", {
-    //   parameters: {
-    //     "Bucket.$": "$.bucket_name",
-    //     "imageId.$": "$$.Map.Item.Value",
-    //     "userId.$": "$.result.manifestData.userId",
-    //   },
-    //   itemsPath: "$.result.manifestData.imageIds",
-    //   resultPath: "$.result",
-    //   maxConcurrency: 0,
-    // });
-    // mapImages.iterator(parallelImageProcessingTask.task);
-
-    // const manifestTasks = new ManifestFileTasks(parent, "ManifestFileTasks");
-
     const appsyncMutationTask = new AppsyncMutationTask(
       parent,
       "SendMessageTask",
@@ -70,11 +55,6 @@ export class ImageUploadStepFunction extends Construct {
         lambda: appsyncMessengerLambda,
       }
     );
-
-    // const definition = manifestTasks.uploadTask
-    //   .next(mapImages)
-    //   .next(appsyncMutationTask.task)
-    //   .next(manifestTasks.deleteTask);
 
     const definition = parallelImageProcessingTask.task
       .next(dynamoDbWriteItemTask.task)
