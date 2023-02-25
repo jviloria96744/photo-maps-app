@@ -39,19 +39,10 @@ export class ParallelImageProcessingTask extends Construct {
       "geoData"
     );
 
-    // geoTaggingTask.addRetry({
-    //   interval: Duration.seconds(1),
-    //   maxAttempts: 3,
-    // });
     // Left Branch
 
     // Right Branch
     const rekognitionBranch = this.createRekognitionTask();
-
-    // rekognitionBranch.addRetry({
-    //   interval: Duration.seconds(1),
-    //   maxAttempts: 3,
-    // });
 
     const imageLabelFilterTask = this.createLambdaInvokeTask(
       "Filter Image Labels",

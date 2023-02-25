@@ -49,8 +49,6 @@ export class ImageUploadStepFunction extends Construct {
       }
     );
 
-    // parallelImageProcessingTask.task.next(dynamoDbWriteItemTask.task);
-
     // const mapImages = new step_function.Map(this, "Process Images", {
     //   parameters: {
     //     "Bucket.$": "$.bucket_name",
@@ -78,7 +76,9 @@ export class ImageUploadStepFunction extends Construct {
     //   .next(appsyncMutationTask.task)
     //   .next(manifestTasks.deleteTask);
 
-    const definition = parallelImageProcessingTask.task;
+    const definition = parallelImageProcessingTask.task.next(
+      dynamoDbWriteItemTask.task
+    );
 
     const machine = new step_function.StateMachine(this, "StateMachine", {
       definition,

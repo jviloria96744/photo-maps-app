@@ -23,7 +23,7 @@ export class DynamoDbWriteItemTask extends Construct {
         returnValues: tasks.DynamoReturnValues.ALL_NEW,
         key: {
           pk: tasks.DynamoAttributeValue.fromString(
-            JsonPath.stringAt("$.userId")
+            JsonPath.format("USER_{}", JsonPath.stringAt("$.user_id"))
           ),
           sk: tasks.DynamoAttributeValue.fromString(
             JsonPath.format(
@@ -39,23 +39,31 @@ export class DynamoDbWriteItemTask extends Construct {
           ":datetime_updated": tasks.DynamoAttributeValue.fromString(
             JsonPath.stringAt("$$.State.EnteredTime")
           ),
-          ":geo_data": tasks.DynamoAttributeValue.mapFromJsonPath(
-            "$.result[0].result.geoData"
+          ":geo_point": tasks.DynamoAttributeValue.mapFromJsonPath(
+            "$.result[0].result.geoData.geoPoint"
           ),
-          ":object_key": tasks.DynamoAttributeValue.fromString(
-            JsonPath.stringAt("$.imageId")
+          ":location_data": tasks.DynamoAttributeValue.mapFromJsonPath(
+            "$.result[0].result.geoData.locationData"
+          ),
+          ":image_properties": tasks.DynamoAttributeValue.mapFromJsonPath(
+            "$.result[0].result.geoData.imageProperties"
           ),
           ":image_labels": tasks.DynamoAttributeValue.listFromJsonPath(
             JsonPath.stringAt("$.result[1].result.labels")
+          ),
+          ":object_key": tasks.DynamoAttributeValue.fromString(
+            JsonPath.stringAt("$.object_key")
           ),
         },
         updateExpression: `
           SET 
             datetime_created=:datetime_created,
             datetime_updated=:datetime_updated,
-            geo_data=:geo_data,
-            object_key=:object_key,
-            image_labels=:image_labels
+            geo_point=:geo_point,
+            location_data=:location_data,
+            image_properties=:image_properties,
+            image_labels=:image_labels,
+            object_key=:object_key
         `,
         resultSelector: {
           "statusCode.$": "$.SdkHttpMetadata.HttpStatusCode",
@@ -76,22 +84,27 @@ export class DynamoDbWriteItemTask extends Construct {
       "datetime_updated",
       "object_key",
     ];
-    const geoDataKeys = [
-      "date",
-      "country",
-      "country_code",
-      "image_length",
-      "image_width",
-      "lng",
-      "lat",
-      "city",
-      "image_id",
-    ];
+    const geoPointKeys = ["object_key", "lat", "lng"];
+    const locationDataKeys = ["city", "country", "country_code"];
+    const imagePropertiesKeys = ["date", "image_width", "image_heigh", "owner"];
+
     return {
       ...this.keysFromStringList(itemKeys, "$.Attributes"),
       "image_labels.$": "$.Attributes.image_labels.L",
-      geo_data: {
-        ...this.keysFromStringList(geoDataKeys, "$.Attributes.geo_data.M"),
+      geo_point: {
+        ...this.keysFromStringList(geoPointKeys, "$.Attributes.geo_point.M"),
+      },
+      location_data: {
+        ...this.keysFromStringList(
+          locationDataKeys,
+          "$.Attributes.location_data.M"
+        ),
+      },
+      image_properties: {
+        ...this.keysFromStringList(
+          imagePropertiesKeys,
+          "$.Attributes.image_properties.M"
+        ),
       },
     };
   }
