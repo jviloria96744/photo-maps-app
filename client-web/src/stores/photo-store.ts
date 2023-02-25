@@ -1,21 +1,21 @@
 import { create } from "zustand";
-import { PhotoObject } from "../models/photo";
+import { GeoPoint } from "../models/photo";
 import { deletePhoto } from "../api/base-endpoints";
 
 interface PhotoStoreState {
-  photos: PhotoObject[] | null;
+  photos: GeoPoint[];
   isContainerOpen: boolean;
   selectedPhotoKeys: string[];
   userSelectedPhoto: string | null;
   closeContainer: () => void;
   openContainer: (selectedKeys: string[]) => void;
   setUserSelectedPhoto: (selectedPhoto: string | null) => void;
-  setPhotos: (newPhotos: PhotoObject[]) => void;
+  setPhotos: (newPhotos: GeoPoint[]) => void;
   deletePhoto: (photoToDelete: string, isMobile: boolean) => void;
 }
 
 export const usePhotoStore = create<PhotoStoreState>()((set, get) => ({
-  photos: null,
+  photos: [],
   isContainerOpen: false,
   selectedPhotoKeys: [],
   userSelectedPhoto: null,
@@ -29,10 +29,10 @@ export const usePhotoStore = create<PhotoStoreState>()((set, get) => ({
     set(() => ({ isContainerOpen: true, selectedPhotoKeys: selectedKeys })),
   setUserSelectedPhoto: (selectedPhoto) =>
     set(() => ({ userSelectedPhoto: selectedPhoto })),
-  setPhotos: (photos: PhotoObject[]) => {
+  setPhotos: (newPhotos: GeoPoint[]) => {
     set(() => {
       return {
-        photos,
+        photos: [...get().photos, ...newPhotos],
       };
     });
   },

@@ -19,6 +19,9 @@ export function getPreSignedPost(body: {
   asset_uuid: string;
   asset_extension: string;
   endpoint: string;
+  custom_fields: {
+    [key: string]: string;
+  };
 }) {
   return postCall(body.endpoint, body);
 }

@@ -30,9 +30,6 @@ function useProvideAuth() {
           userCreatedDate: userData.datetime_created,
         };
 
-        // This cookie is used to authenticate against img src network calls
-        document.cookie = `userId=${user.id}`;
-
         setUser(user);
       })
       .catch((err) => {

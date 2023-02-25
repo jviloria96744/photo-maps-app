@@ -4,7 +4,7 @@ import { PointFeature } from "supercluster";
 import { BBox, GeoJsonProperties } from "geojson";
 import useSupercluster from "use-supercluster";
 import { usePhotoStore } from "../stores/photo-store";
-import { PhotoObject } from "../models/photo";
+import { PhotoObject, GeoPoint } from "../models/photo";
 
 const getMapBounds = (mapRef: RefObject<MapRef>): BBox => {
   return mapRef.current
@@ -13,9 +13,9 @@ const getMapBounds = (mapRef: RefObject<MapRef>): BBox => {
 };
 
 const transformPhotoObjects = (
-  data: PhotoObject[]
+  data: GeoPoint[]
 ): PointFeature<GeoJsonProperties>[] => {
-  return data.map((point: PhotoObject): PointFeature<GeoJsonProperties> => {
+  return data.map((point: GeoPoint): PointFeature<GeoJsonProperties> => {
     const geoJsonPoint: PointFeature<GeoJsonProperties> = {
       type: "Feature",
       properties: {
@@ -26,10 +26,7 @@ const transformPhotoObjects = (
       },
       geometry: {
         type: "Point",
-        coordinates: [
-          parseFloat(point.geo_data.lng),
-          parseFloat(point.geo_data.lat),
-        ],
+        coordinates: [parseFloat(point.lng), parseFloat(point.lat)],
       },
     };
 
@@ -38,7 +35,7 @@ const transformPhotoObjects = (
 };
 
 const createClusters = (
-  data: PhotoObject[] | undefined,
+  data: GeoPoint[],
   zoom: number,
   mapRef: RefObject<MapRef>
 ) => {

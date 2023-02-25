@@ -10,6 +10,13 @@ export interface PresignedPostResponse {
   fields: PresignedPostResponseFields;
 }
 
+export interface GeoPoint {
+  sk: string;
+  object_key: string;
+  lat: string;
+  lng: string;
+}
+
 export interface ImageGeo {
   city?: string;
   country?: string;

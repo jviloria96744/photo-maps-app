@@ -5,3 +5,13 @@ export const getIdToken = async () => {
   const idToken = currentSession.getIdToken().getJwtToken();
   return idToken;
 };
+
+export const EXIF_TAGS = [
+  "ImageHeight",
+  "ImageWidth",
+  "GPSDateStamp",
+  "GPSLatitude",
+  "GPSLatitudeRef",
+  "GPSLongitude",
+  "GPSLongitudeRef",
+];

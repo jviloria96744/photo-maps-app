@@ -4,50 +4,77 @@ import { getPreSignedPost } from "./base-endpoints";
 import {
   PresignedPostResponse,
   PresignedPostResponseFields,
+  GeoPoint,
 } from "../models/photo";
-import { User } from "../models/user";
+import { ExifParseResponse } from "./types";
+import exifr from "exifr";
+import { EXIF_TAGS } from "./utils";
 
-export const uploadPhotosToS3 = (photos: FileList, user: User): void => {
+export const uploadPhotosToS3 = async (
+  photos: FileList,
+  setPhotosFunc: (newPhotos: GeoPoint[]) => void
+): Promise<void> => {
   const uploadPhotosPromiseArray: Promise<any>[] = [];
-  const photoIdArray: string[] = [];
+  const photoArray: GeoPoint[] = [];
   for (let i = 0; i < photos.length; i++) {
     const photoId = uuidv4();
     const extension = photos[i].name.split(".").pop() || "";
+
     uploadPhotosPromiseArray.push(
-      uploadPhotoToS3(photos[i], photoId, extension, photoIdArray)
+      uploadPhotoToS3(photos[i], photoId, extension)
     );
   }
 
-  Promise.allSettled(uploadPhotosPromiseArray).then(() => {
-    const manifestJson = {
-      userId: user.id,
-      imageIds: photoIdArray,
-    };
-    const manifestId = uuidv4();
-    getPreSignedPost({
-      asset_uuid: manifestId,
-      asset_extension: "json",
-      endpoint: "/photo_manifest",
-    }).then((res: PresignedPostResponse) => {
-      constructAndPostForm(res, JSON.stringify(manifestJson));
+  Promise.allSettled(uploadPhotosPromiseArray).then((res) => {
+    res.forEach((uploadPhotoResponse) => {
+      if (uploadPhotoResponse.status === "fulfilled") {
+        photoArray.push(uploadPhotoResponse.value);
+      }
     });
+    setPhotosFunc(photoArray);
+    console.log(photoArray);
   });
 };
 
 const uploadPhotoToS3 = async (
   photo: File,
   photoId: string,
-  photoExtension: string,
-  photoIdArray: string[]
-): Promise<any> => {
+  photoExtension: string
+): Promise<GeoPoint> => {
+  const parsedExifData: ExifParseResponse = await exifr.parse(photo, EXIF_TAGS);
+
+  if (!(parsedExifData.latitude && parsedExifData.longitude)) {
+    return Promise.reject(new Error("Failed to extract EXIF Data"));
+  }
+
   const res: PresignedPostResponse = await getPreSignedPost({
     asset_uuid: photoId,
     asset_extension: photoExtension,
     endpoint: "/photo",
+    custom_fields: {
+      "x-amz-meta-latitude": String(parsedExifData.latitude),
+      "x-amz-meta-longitude": String(parsedExifData.longitude),
+      "x-amz-meta-date": parsedExifData.GPSDateStamp.replaceAll(":", "-"),
+      "x-amz-meta-width": String(parsedExifData.ImageWidth),
+      "x-amz-meta-height": String(parsedExifData.ImageHeight),
+    },
   });
 
-  photoIdArray.push(res.fields.key);
-  return constructAndPostForm(res, photo);
+  if (!res.fields.key) {
+    return Promise.reject(new Error("Failed to generate presigned post"));
+  }
+
+  const upload = await constructAndPostForm(res, photo);
+  if (upload.status !== 204) {
+    return Promise.reject(new Error("Failed to upload to s3 bucket"));
+  }
+
+  return Promise.resolve({
+    sk: photoId,
+    object_key: res.fields.key,
+    lat: String(parsedExifData.latitude),
+    lng: String(parsedExifData.longitude),
+  });
 };
 
 const constructAndPostForm = (
