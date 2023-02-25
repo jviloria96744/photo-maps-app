@@ -1,14 +1,19 @@
 interface PhotoObject {
-  geo_data: {
-    date: string;
+  geo_point: {
+    object_key: string;
+    lng: string;
+    lat: string;
+  };
+  location_data: {
     country: string;
     country_code: string;
-    image_length: string;
-    lng: string;
     city: string;
+  };
+  image_properties: {
+    date: string;
+    owner: string;
+    image_height: string;
     image_width: string;
-    image_id: string;
-    lat: string;
   };
   datetime_updated: string;
   datetime_created: string;
@@ -17,20 +22,14 @@ interface PhotoObject {
   pk: string;
   sk: string;
 }
-interface ImageProcessingResult {
-  imageId: string;
-  Bucket: string;
-  userId: string;
-  result: {
-    item: PhotoObject;
-    statusCode: number;
-  };
-}
 
 export interface Event {
   bucket_name: string;
   object_key: string;
-  result: ImageProcessingResult[];
+  user_id: string;
+  result: {
+    item: PhotoObject;
+  };
 }
 
 export interface ParserResult {
@@ -40,18 +39,15 @@ export interface ParserResult {
 
 export const eventParser = (event: Event) => {
   const { result } = event;
-  const userId = result[0].userId;
+  const userId = result.item.pk;
 
-  const imageObjects = result
-    .filter((res) => res.result.statusCode === 200)
-    .map((res) => {
-      return {
-        ...res.result.item,
-      };
-    });
+  const parsedItem = {
+    ...result.item,
+    image_labels: result.item.image_labels.map((label) => label.S),
+  };
 
   return {
     channel: `channel-${userId}`,
-    data: JSON.stringify(imageObjects),
+    data: JSON.stringify(parsedItem),
   };
 };
