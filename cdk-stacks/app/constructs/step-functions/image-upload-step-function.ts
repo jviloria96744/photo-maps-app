@@ -63,22 +63,22 @@ export class ImageUploadStepFunction extends Construct {
 
     // const manifestTasks = new ManifestFileTasks(parent, "ManifestFileTasks");
 
-    // const appsyncMutationTask = new AppsyncMutationTask(
-    //   parent,
-    //   "SendMessageTask",
-    //   {
-    //     lambda: appsyncMessengerLambda,
-    //   }
-    // );
+    const appsyncMutationTask = new AppsyncMutationTask(
+      parent,
+      "SendMessageTask",
+      {
+        lambda: appsyncMessengerLambda,
+      }
+    );
 
     // const definition = manifestTasks.uploadTask
     //   .next(mapImages)
     //   .next(appsyncMutationTask.task)
     //   .next(manifestTasks.deleteTask);
 
-    const definition = parallelImageProcessingTask.task.next(
-      dynamoDbWriteItemTask.task
-    );
+    const definition = parallelImageProcessingTask.task
+      .next(dynamoDbWriteItemTask.task)
+      .next(appsyncMutationTask.task);
 
     const machine = new step_function.StateMachine(this, "StateMachine", {
       definition,

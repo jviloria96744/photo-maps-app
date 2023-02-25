@@ -86,7 +86,12 @@ export class DynamoDbWriteItemTask extends Construct {
     ];
     const geoPointKeys = ["object_key", "lat", "lng"];
     const locationDataKeys = ["city", "country", "country_code"];
-    const imagePropertiesKeys = ["date", "image_width", "image_heigh", "owner"];
+    const imagePropertiesKeys = [
+      "date",
+      "image_width",
+      "image_height",
+      "owner",
+    ];
 
     return {
       ...this.keysFromStringList(itemKeys, "$.Attributes"),
