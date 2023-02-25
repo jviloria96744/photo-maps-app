@@ -69,7 +69,6 @@ const uploadPhotoToS3 = async (
   }
 
   return Promise.resolve({
-    sk: photoId,
     object_key: res.fields.key,
     lat: String(parsedExifData.latitude),
     lng: String(parsedExifData.longitude),

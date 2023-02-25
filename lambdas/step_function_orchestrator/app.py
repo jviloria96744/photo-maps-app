@@ -15,10 +15,12 @@ def get_event_metadata(event: dict):
 
         s3_bucket_name = event_metadata["s3"]["bucket"]["name"] 
         s3_object_key = event_metadata["s3"]["object"]["key"]
+        user_id = s3_object_key.split("/")[0]
 
         return json.dumps({
             "bucket_name": s3_bucket_name,
             "object_key": s3_object_key,
+            "user_id": user_id
         })
     except Exception as e:
         logger.debug(str(e), extra=event)

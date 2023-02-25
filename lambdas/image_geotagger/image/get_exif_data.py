@@ -6,13 +6,20 @@ from utils.logger import logger
 def get_exif_data_from_s3_image(bucket_name: str, key: str, s3_client):
 
     try:
-        s3_response_object = s3_client.get_object(Bucket=bucket_name, Key=key)
-        object_content = s3_response_object['Body'].read()
+        s3_response_object = s3_client.head_object(Bucket=bucket_name, Key=key)
+        object_content = s3_response_object['Metadata'].read()
+        exif_data = {
+            "lat": object_content["x-amz-meta-latitude"],
+            "lng": object_content["x-amz-meta-longitude"],
+            "date": object_content["x-amz-meta-date"],
+            "image_width": object_content["x-amz-meta-width"],
+            "image_height": object_content["x-amz-meta-height"],
+        }
     except Exception:
         logger.exception("Error retrieving file from S3")
         raise
 
-    return get_exif_data(object_content)
+    return exif_data
 
 def lat_lng_calculator(lat_lng: str, ref: str, values: list[int]) -> float:
     try:

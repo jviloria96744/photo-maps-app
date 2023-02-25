@@ -7,8 +7,8 @@ s3_client = boto3.client('s3')
 
 def get_event_metadata(event):
     try:
-        s3_bucket_name = event["Bucket"]
-        s3_object_key = event["imageId"] 
+        s3_bucket_name = event["bucket_name"]
+        s3_object_key = event["object_key"] 
         image_id = s3_object_key.split("/")[-1]
         image_id = image_id.split(".")[0]
 
@@ -35,8 +35,20 @@ def handler(event, context: LambdaContext):
     rev_geocode_data = image.get_reverse_geocoding_from_lat_lng(exif_data["lat"], exif_data["lng"])
 
     geotagged_data = {
-        **exif_data,
-        **rev_geocode_data,
+        "geoPoint": {
+            "object_key": event_metadata["key"],
+            "lat": exif_data["lat"],
+            "lng": exif_data["lng"]
+        },
+        "locationData": {
+            **rev_geocode_data
+        },
+        "imageProperties": {
+            "date": exif_data["date"],
+            "image_width": exif_data["image_width"],
+            "image_height": exif_data["image_height"],
+            "owner": event["user_id"]
+        },
         "image_id": event_metadata["image_id"]
     }
 

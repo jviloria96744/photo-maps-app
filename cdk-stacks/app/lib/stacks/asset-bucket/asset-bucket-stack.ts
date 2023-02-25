@@ -140,8 +140,15 @@ export class AssetBucketStack extends cdk.Stack {
       s3.EventType.OBJECT_CREATED,
       uploadQueueNotification,
       {
-        prefix: "image_manifest/",
-        suffix: ".json",
+        suffix: ".jpg",
+      }
+    );
+
+    bucket.addEventNotification(
+      s3.EventType.OBJECT_CREATED,
+      uploadQueueNotification,
+      {
+        suffix: ".jpeg",
       }
     );
 

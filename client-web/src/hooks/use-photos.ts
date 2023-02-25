@@ -20,7 +20,7 @@ const transformPhotoObjects = (
       type: "Feature",
       properties: {
         cluster: false,
-        pointId: point.sk,
+        pointId: point.object_key,
         category: "Photo",
         objectKey: point.object_key,
       },

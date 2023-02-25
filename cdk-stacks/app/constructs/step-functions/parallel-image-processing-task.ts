@@ -39,19 +39,19 @@ export class ParallelImageProcessingTask extends Construct {
       "geoData"
     );
 
-    geoTaggingTask.addRetry({
-      interval: Duration.seconds(1),
-      maxAttempts: 3,
-    });
+    // geoTaggingTask.addRetry({
+    //   interval: Duration.seconds(1),
+    //   maxAttempts: 3,
+    // });
     // Left Branch
 
     // Right Branch
     const rekognitionBranch = this.createRekognitionTask();
 
-    rekognitionBranch.addRetry({
-      interval: Duration.seconds(1),
-      maxAttempts: 3,
-    });
+    // rekognitionBranch.addRetry({
+    //   interval: Duration.seconds(1),
+    //   maxAttempts: 3,
+    // });
 
     const imageLabelFilterTask = this.createLambdaInvokeTask(
       "Filter Image Labels",
@@ -91,8 +91,8 @@ export class ParallelImageProcessingTask extends Construct {
         Features: ["GENERAL_LABELS"],
         Image: {
           S3Object: {
-            "Bucket.$": "$.Bucket",
-            "Name.$": "$.imageId",
+            "Bucket.$": "$.bucket_name",
+            "Name.$": "$.object_key",
           },
         },
       },

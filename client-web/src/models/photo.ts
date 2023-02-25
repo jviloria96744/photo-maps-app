@@ -11,7 +11,6 @@ export interface PresignedPostResponse {
 }
 
 export interface GeoPoint {
-  sk: string;
   object_key: string;
   lat: string;
   lng: string;
