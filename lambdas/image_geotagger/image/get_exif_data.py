@@ -7,7 +7,7 @@ def get_exif_data_from_s3_image(bucket_name: str, key: str, s3_client):
 
     try:
         s3_response_object = s3_client.head_object(Bucket=bucket_name, Key=key)
-        object_content = s3_response_object['Metadata'].read()
+        object_content = s3_response_object['Metadata']
         exif_data = {
             "lat": object_content["x-amz-meta-latitude"],
             "lng": object_content["x-amz-meta-longitude"],
