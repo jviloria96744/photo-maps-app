@@ -32,7 +32,6 @@ export const uploadPhotosToS3 = async (
       }
     });
     setPhotosFunc(photoArray);
-    console.log(photoArray);
   });
 };
 

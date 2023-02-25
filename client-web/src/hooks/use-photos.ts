@@ -4,7 +4,7 @@ import { PointFeature } from "supercluster";
 import { BBox, GeoJsonProperties } from "geojson";
 import useSupercluster from "use-supercluster";
 import { usePhotoStore } from "../stores/photo-store";
-import { PhotoObject, GeoPoint } from "../models/photo";
+import { GeoPoint } from "../models/photo";
 
 const getMapBounds = (mapRef: RefObject<MapRef>): BBox => {
   return mapRef.current
