@@ -1,4 +1,3 @@
-ExifRead==3.0.0
 boto3==1.26.48
 botocore==1.29.48
 jmespath==1.0.1
