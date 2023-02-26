@@ -12,7 +12,7 @@ const PhotoView = () => {
     <ModalBody>
       <Box pos="absolute" top={STYLING_CONFIG.WEB_MODAL_TOP_BUTTON_OFFSET}>
         <IconButton
-          tooltipLabel="Back To Gallery"
+          tooltipLabel={null}
           ariaLabel="Back To Gallery"
           IconComponent={MdChevronLeft}
           clickHandler={() => setUserSelectedPhoto(null)}

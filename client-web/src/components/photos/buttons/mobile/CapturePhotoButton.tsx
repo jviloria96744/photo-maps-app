@@ -9,7 +9,7 @@ const CapturePhotoButton = (props: PhotoUploadButtonProps) => {
   return (
     <Box pos="absolute" top="5" left="5" _hover={{ cursor: "pointer" }}>
       <IconButton
-        tooltipLabel="Capture Photo"
+        tooltipLabel={null}
         IconComponent={iconComponent}
         ariaLabel="Capture Photo"
         clickHandler={handleUploadClick}

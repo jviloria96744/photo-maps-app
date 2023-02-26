@@ -19,7 +19,7 @@ const DeletePhotoButton = ({ photoKey }: { photoKey: string }) => {
       right={STYLING_CONFIG.MOBILE_DRAWER_LEFT_RIGHT_BUTTON_OFFSET}
     >
       <IconButton
-        tooltipLabel="Delete Photo"
+        tooltipLabel={null}
         ariaLabel="Delete Photo"
         IconComponent={MdDelete}
         clickHandler={() => deletePhoto(photoKey, isMobile)}
