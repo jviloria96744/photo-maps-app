@@ -10,7 +10,7 @@ const FileUploadButton = lazy(() => import("./web/FileUploadButton"));
 
 const PhotoUploadButton = () => {
   const { isMobile } = useMedia();
-  const { setPhotos } = usePhotoStore();
+  const { setGeoPoints } = usePhotoStore();
   const inputRef = useRef<HTMLInputElement | null>(null);
 
   const handleUploadClick = () => {
@@ -22,7 +22,7 @@ const PhotoUploadButton = () => {
       return;
     }
 
-    uploadPhotosToS3(e.target.files, setPhotos);
+    uploadPhotosToS3(e.target.files, setGeoPoints);
 
     if (inputRef.current?.value) {
       inputRef.current.value = "";

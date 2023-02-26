@@ -2,12 +2,12 @@ import { useEffect } from "react";
 import { usePhotoStore } from "../stores/photo-store";
 import { useAuth } from "./use-auth";
 import { getPhotosByUser } from "../api/base-endpoints";
-import { GeoPoint } from "../models/photo";
+import { PhotoObject } from "../models/photo";
 import { CallbackFunctionType } from "./use-subscription";
 
 export const usePhotosQuery = () => {
   const { user } = useAuth();
-  const { photos, setPhotos } = usePhotoStore();
+  const { setPhotos, setInitialData } = usePhotoStore();
 
   useEffect(() => {
     if (!user) {
@@ -15,21 +15,18 @@ export const usePhotosQuery = () => {
     }
 
     getPhotosByUser().then((data) => {
-      setPhotos(data);
+      setInitialData(data);
     });
 
-    return () => setPhotos([]);
+    return () => setInitialData([]);
   }, [user]);
 
   const refreshData: CallbackFunctionType = (event) => {
-    console.log(event);
-    // const incomingPhotos: GeoPoint[] = JSON.parse(
-    //   event.data?.subscribe2channel?.data as string
-    // );
+    const incomingPhoto: PhotoObject = JSON.parse(
+      event.data?.subscribe2channel?.data as string
+    );
 
-    // const newPhotos = photos ? [...photos, ...incomingPhotos] : incomingPhotos;
-
-    // setPhotos(newPhotos);
+    setPhotos([incomingPhoto], true);
   };
 
   return {

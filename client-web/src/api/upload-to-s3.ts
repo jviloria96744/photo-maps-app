@@ -12,7 +12,7 @@ import { EXIF_TAGS } from "./utils";
 
 export const uploadPhotosToS3 = async (
   photos: FileList,
-  setPhotosFunc: (newPhotos: GeoPoint[]) => void
+  setPhotosFunc: (geoPoints: GeoPoint[], isAppend: boolean) => void
 ): Promise<void> => {
   const uploadPhotosPromiseArray: Promise<any>[] = [];
   const photoArray: GeoPoint[] = [];
@@ -31,7 +31,7 @@ export const uploadPhotosToS3 = async (
         photoArray.push(uploadPhotoResponse.value);
       }
     });
-    setPhotosFunc(photoArray);
+    setPhotosFunc(photoArray, true);
   });
 };
 

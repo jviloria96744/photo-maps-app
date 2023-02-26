@@ -1,4 +1,4 @@
-import { Suspense, useState, useRef } from "react";
+import { Suspense, useState, useRef, useEffect } from "react";
 import Map, { NavigationControl, MapRef } from "react-map-gl";
 import StaticMapView from "./StaticMapView";
 import { usePhotos } from "../../hooks/use-photos";
@@ -7,6 +7,7 @@ import { useMedia } from "../../hooks/use-media";
 import { ENV, MAP_CONFIG } from "../../config";
 import ClusterMarker from "./ClusterMarker";
 import Supercluster from "supercluster";
+import { usePhotoStore } from "../../stores/photo-store";
 
 interface ViewPort {
   latitude: number;
@@ -23,7 +24,18 @@ const MapView = () => {
     zoom: zoom,
   };
   const [viewPort, setViewPort] = useState<ViewPort>(initialViewPort);
+
+  const { setMapRef } = usePhotoStore();
   const mapRef = useRef<MapRef>(null);
+
+  useEffect(() => {
+    if (!mapRef) {
+      return;
+    }
+    setMapRef(mapRef);
+
+    return () => setMapRef(null);
+  }, [mapRef]);
 
   const { clusters, supercluster } = usePhotos({
     zoom: viewPort.zoom,
