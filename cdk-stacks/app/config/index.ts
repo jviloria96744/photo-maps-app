@@ -124,7 +124,7 @@ export const CONFIG: IConfig = {
     stepFunctionOrchestrator: {
       codeDirectory: "step_function_orchestrator",
       logLevel: LOG_LEVELS.INFO,
-      batchSize: 1,
+      batchSize: 10,
       maxConcurrency: 100,
       duration: 10,
     },

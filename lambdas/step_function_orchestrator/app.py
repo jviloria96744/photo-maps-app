@@ -10,7 +10,7 @@ client = boto3.client('stepfunctions')
 
 def get_event_metadata(event: dict):
     try:
-        event_metadata = json.loads(event["Records"][0]["body"])
+        event_metadata = json.loads(event)
         event_metadata = event_metadata["Records"][0]
 
         s3_bucket_name = event_metadata["s3"]["bucket"]["name"] 
@@ -27,9 +27,11 @@ def get_event_metadata(event: dict):
         raise Exception("Error extracting metadata from event object")
 
 def handler(event, context):
-    event_metadata = get_event_metadata(event)
-    logger.info("Event", extra={"event_string": event_metadata})
-    response = client.start_execution(
-        stateMachineArn=os.getenv("STATE_MACHINE_ARN"),
-        input=event_metadata
-    )
+
+    for record in event["Records"]:
+        event_metadata = get_event_metadata(record["body"])
+        logger.info("Event", extra={"event_string": event_metadata})
+        response = client.start_execution(
+            stateMachineArn=os.getenv("STATE_MACHINE_ARN"),
+            input=event_metadata
+        )
