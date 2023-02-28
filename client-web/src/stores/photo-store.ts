@@ -3,6 +3,10 @@ import { MapRef } from "react-map-gl";
 import { GeoPoint, PhotoObject } from "../models/photo";
 import { deletePhoto } from "../api/base-endpoints";
 
+export type FilterOptionValue = {
+  label: string;
+  type: string;
+};
 interface PhotoStoreState {
   photos: PhotoObject[];
   geoPoints: GeoPoint[];
@@ -20,6 +24,13 @@ interface PhotoStoreState {
   // The references are repeated here to update the map when new geopoints are added to the map
   storeMapRef: React.RefObject<MapRef> | null;
   setMapRef: (mapRef: React.RefObject<MapRef> | null) => void;
+
+  // These methods/properties are meant to manage the state of the search filter/filtered options
+  getPhotoFilterOptions: () => FilterOptionValue[];
+  selectedPhotoFilters: FilterOptionValue[];
+  setSelectedPhotoFilters: (filters: FilterOptionValue[]) => void;
+  filteredGeoPoints: GeoPoint[];
+  setFilteredGeoPoints: () => void;
 }
 
 export const usePhotoStore = create<PhotoStoreState>()((set, get) => ({
@@ -34,8 +45,13 @@ export const usePhotoStore = create<PhotoStoreState>()((set, get) => ({
       selectedPhotoKeys: [],
       userSelectedPhoto: null,
     })),
-  openContainer: (selectedKeys: string[]) =>
-    set(() => ({ isContainerOpen: true, selectedPhotoKeys: selectedKeys })),
+  openContainer: (selectedKeys: string[]) => {
+    set(() => ({
+      isContainerOpen: true,
+      selectedPhotoKeys: selectedKeys,
+      userSelectedPhoto: selectedKeys.length === 1 ? selectedKeys[0] : null,
+    }));
+  },
   setUserSelectedPhoto: (selectedPhoto) =>
     set(() => ({ userSelectedPhoto: selectedPhoto })),
   setGeoPoints: (geoPoints: GeoPoint[], isAppend: boolean) => {
@@ -51,6 +67,8 @@ export const usePhotoStore = create<PhotoStoreState>()((set, get) => ({
         zoom: 12,
       });
     }
+
+    get().setFilteredGeoPoints();
   },
   setPhotos: (photos: PhotoObject[], isAppend: boolean) => {
     if (!isAppend) {
@@ -58,14 +76,16 @@ export const usePhotoStore = create<PhotoStoreState>()((set, get) => ({
     } else {
       set((state) => ({ photos: [...state.photos, ...photos] }));
     }
+
+    get().setFilteredGeoPoints();
   },
   setInitialData: (photos: PhotoObject[]) => {
     if (photos.length > 0) {
-      get().setGeoPoints(
-        photos.map((photo) => photo.geo_point),
-        false
-      );
-      get().setPhotos(photos, false);
+      set(() => ({
+        geoPoints: photos.map((photo) => photo.geo_point),
+        photos: photos,
+        filteredGeoPoints: photos.map((photo) => photo.geo_point),
+      }));
 
       get().storeMapRef?.current?.easeTo({
         center: [
@@ -105,4 +125,75 @@ export const usePhotoStore = create<PhotoStoreState>()((set, get) => ({
 
   storeMapRef: null,
   setMapRef: (mapRef) => set(() => ({ storeMapRef: mapRef })),
+
+  getPhotoFilterOptions: () => {
+    const locationOptions = new Set<string>();
+    const contentOptions = new Set<string>();
+    const optionsSet = new Set<string>();
+    get().photos.forEach((photo) => {
+      // TODO: Loop over location_data properties and add to locationOptions
+      locationOptions.add(photo.location_data.city);
+      locationOptions.add(photo.location_data.country_code);
+      locationOptions.add(photo.location_data.country);
+
+      photo.image_labels.forEach((label) => contentOptions.add(label));
+    });
+
+    const locationOptionsArray: FilterOptionValue[] = [...locationOptions]
+      .sort()
+      .map((location) => {
+        return {
+          label: location,
+          type: "Location",
+        };
+      });
+    const contentOptionsArray: FilterOptionValue[] = [...contentOptions]
+      .sort()
+      .map((content) => {
+        return {
+          label: content,
+          type: "Content",
+        };
+      });
+    return [...locationOptionsArray, ...contentOptionsArray].sort();
+  },
+  selectedPhotoFilters: [],
+  setSelectedPhotoFilters: (filters: FilterOptionValue[]) => {
+    set(() => ({ selectedPhotoFilters: filters }));
+    get().setFilteredGeoPoints();
+  },
+  filteredGeoPoints: [],
+  setFilteredGeoPoints: () => {
+    if (get().selectedPhotoFilters.length === 0) {
+      set((state) => ({ filteredGeoPoints: state.geoPoints }));
+      return;
+    }
+    const selectedLocations = get()
+      .selectedPhotoFilters.filter((filter) => filter.type === "Location")
+      .map((filter) => filter.label);
+    const selectedContent = get()
+      .selectedPhotoFilters.filter((filter) => filter.type === "Content")
+      .map((filter) => filter.label);
+    const filteredPhotos = get().photos.filter((photo) => {
+      const isSelectedLocation =
+        selectedLocations.includes(photo.location_data.city) ||
+        selectedLocations.includes(photo.location_data.country) ||
+        selectedLocations.includes(photo.location_data.country_code);
+
+      const isSelectedContent = photo.image_labels.some((label) =>
+        selectedContent.includes(label)
+      );
+      return (
+        (selectedLocations.length > 0 && isSelectedLocation) ||
+        (selectedContent.length > 0 && isSelectedContent)
+      );
+    });
+
+    const filteredPhotoKeys = filteredPhotos.map((photo) => photo.object_key);
+    set((state) => ({
+      filteredGeoPoints: state.geoPoints.filter((geoPoint) => {
+        return filteredPhotoKeys.includes(geoPoint.object_key);
+      }),
+    }));
+  },
 }));

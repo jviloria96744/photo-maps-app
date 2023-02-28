@@ -1,40 +1,58 @@
-import {
-  Menu,
-  MenuButton,
-  MenuList,
-  MenuItem,
-  Box,
-  Text,
-} from "@chakra-ui/react";
+import { useState } from "react";
+import Menu from "@mui/material/Menu";
+import MenuItem from "@mui/material/MenuItem";
+import Typography from "@mui/material/Typography";
+import IconButton from "@mui/material/IconButton";
+import { MdAccountCircle } from "react-icons/md";
 import { useAuth } from "../hooks/use-auth";
-import UserIconButton from "./UserIconButton";
+import { useMedia } from "../hooks/use-media";
+import "./styles.css";
 
 const UserMenu = () => {
   const { signIn, signOut, signOutAndDelete, user } = useAuth();
+  const { isMobile } = useMedia();
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const open = Boolean(anchorEl);
+
+  const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleClose = (callbackFunc: () => void): void => {
+    setAnchorEl(null);
+    callbackFunc();
+  };
   return (
-    <Box pos="absolute" top="5" right="5" _hover={{ cursor: "pointer" }}>
-      <Menu>
-        <MenuButton as="div">
-          <UserIconButton />
-        </MenuButton>
-        <MenuList>
-          {user ? (
-            <>
-              <MenuItem onClick={signOut}>
-                <Text fontSize="lg">Logout</Text>
-              </MenuItem>
-              <MenuItem onClick={signOutAndDelete}>
-                <Text fontSize="lg">Delete Account</Text>
-              </MenuItem>
-            </>
-          ) : (
-            <MenuItem onClick={signIn}>
-              <Text fontSize="lg">Login/Create Account</Text>
+    <div
+      className={
+        isMobile ? "user-menu-container-mobile" : "user-menu-container-web"
+      }
+    >
+      <IconButton
+        disableFocusRipple
+        disableRipple
+        color="primary"
+        onClick={handleClick}
+      >
+        <MdAccountCircle size={isMobile ? "38" : "50"} />
+      </IconButton>
+      <Menu anchorEl={anchorEl} open={open} onClose={handleClose}>
+        {user ? (
+          <div>
+            <MenuItem onClick={() => handleClose(signOut)}>
+              <Typography variant="h4">Logout</Typography>
             </MenuItem>
-          )}
-        </MenuList>
+            <MenuItem onClick={() => handleClose(signOutAndDelete)}>
+              <Typography variant="h4">Delete Account</Typography>
+            </MenuItem>
+          </div>
+        ) : (
+          <MenuItem onClick={() => handleClose(signIn)}>
+            <Typography variant="h4">Login/Create Account</Typography>
+          </MenuItem>
+        )}
       </Menu>
-    </Box>
+    </div>
   );
 };
 

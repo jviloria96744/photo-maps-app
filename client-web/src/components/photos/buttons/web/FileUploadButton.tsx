@@ -1,19 +1,20 @@
-import { Box } from "@chakra-ui/react";
 import IconButton from "../../../base/utility/IconButton";
 import { PhotoUploadButtonProps } from "../types";
+import "../styles.css";
 
 const FileUploadButton = (props: PhotoUploadButtonProps) => {
   const { inputRef, handleUploadClick, handleFileChange, iconComponent } =
     props;
 
   return (
-    <Box pos="absolute" bottom="5" right="5" _hover={{ cursor: "pointer" }}>
+    <div className="photo-upload-button-web-container">
       <IconButton
         tooltipLabel="Upload Photo"
         IconComponent={iconComponent}
         ariaLabel="Upload Photo"
         clickHandler={handleUploadClick}
         photoUploadRef={inputRef}
+        boxSize="50"
       />
 
       <input
@@ -24,7 +25,7 @@ const FileUploadButton = (props: PhotoUploadButtonProps) => {
         accept="image/jpg,image/jpeg"
         multiple={true}
       />
-    </Box>
+    </div>
   );
 };
 

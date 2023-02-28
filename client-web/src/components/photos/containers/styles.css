@@ -1,0 +1,37 @@
+.photo-view-web-container {
+  position: absolute;
+  top: 7px;
+  right: 7px;
+}
+
+.photo-gallery-web-image {
+  cursor: pointer;
+}
+
+.photo-gallery-mobile-close-button {
+  position: absolute;
+  top: 20px;
+  left: 5px;
+}
+
+.photo-gallery-mobile-navigation-left-button {
+  position: absolute;
+  bottom: 5px;
+}
+
+.photo-gallery-mobile-navigation-right-button {
+  position: absolute;
+  bottom: 5px;
+  right: 5px;
+}
+
+.photo-gallery-mobile-image {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  margin: auto;
+  width: 100%;
+  height: auto;
+}

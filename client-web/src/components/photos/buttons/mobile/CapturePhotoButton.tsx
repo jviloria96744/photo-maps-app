@@ -1,19 +1,20 @@
-import { Box } from "@chakra-ui/react";
 import IconButton from "../../../base/utility/IconButton";
 import { PhotoUploadButtonProps } from "../types";
+import "../styles.css";
 
 const CapturePhotoButton = (props: PhotoUploadButtonProps) => {
   const { inputRef, handleUploadClick, handleFileChange, iconComponent } =
     props;
 
   return (
-    <Box pos="absolute" top="5" left="5" _hover={{ cursor: "pointer" }}>
+    <div className="photo-upload-button-mobile-container">
       <IconButton
         tooltipLabel={null}
         IconComponent={iconComponent}
         ariaLabel="Capture Photo"
         clickHandler={handleUploadClick}
         photoUploadRef={inputRef}
+        boxSize="38"
       />
 
       <input
@@ -25,7 +26,7 @@ const CapturePhotoButton = (props: PhotoUploadButtonProps) => {
         multiple={true}
         capture
       />
-    </Box>
+    </div>
   );
 };
 

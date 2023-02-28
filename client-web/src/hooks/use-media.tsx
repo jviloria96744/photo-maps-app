@@ -1,5 +1,5 @@
 import React, { useContext } from "react";
-import { useMediaQuery } from "@chakra-ui/react";
+import useMediaQuery from "@mui/material/useMediaQuery";
 import { MediaContext } from "../context/MediaContext";
 
 export function ProvideMedia({ children }: React.PropsWithChildren) {
@@ -12,9 +12,9 @@ export function ProvideMedia({ children }: React.PropsWithChildren) {
 export const useMedia = () => useContext(MediaContext);
 
 function useProvideMedia() {
-  const [isSmallerThan768] = useMediaQuery("(max-width: 768px)");
+  const isMobile = useMediaQuery("(max-width: 768px)");
 
   return {
-    isMobile: isSmallerThan768,
+    isMobile,
   };
 }

@@ -1,4 +1,4 @@
-import { Drawer } from "@chakra-ui/react";
+import SwipeableDrawer from "@mui/material/SwipeableDrawer";
 import DrawerGalleryView from "./DrawerGalleryView";
 import { usePhotoStore } from "../../../../stores/photo-store";
 
@@ -10,15 +10,23 @@ const PhotoContainerDrawer = () => {
   };
 
   return (
-    <Drawer
-      isOpen={isContainerOpen}
+    <SwipeableDrawer
+      open={isContainerOpen}
+      onOpen={() => {}}
       onClose={handleCloseDrawer}
-      placement="bottom"
-      isFullHeight={true}
-      size="full"
+      anchor="bottom"
+      disableSwipeToOpen={true}
+      PaperProps={{
+        style: {
+          height: "100%",
+          background: "black",
+        },
+      }}
     >
-      <DrawerGalleryView handleCloseDrawer={handleCloseDrawer} />
-    </Drawer>
+      {isContainerOpen && (
+        <DrawerGalleryView handleCloseDrawer={handleCloseDrawer} />
+      )}
+    </SwipeableDrawer>
   );
 };
 

@@ -65,10 +65,10 @@ export const usePhotos = ({
   zoom: number;
   mapRef: RefObject<MapRef>;
 }) => {
-  const { geoPoints } = usePhotoStore();
+  const { filteredGeoPoints } = usePhotoStore();
 
   const { clusters, supercluster, points } = createClusters(
-    geoPoints || [],
+    filteredGeoPoints || [],
     zoom,
     mapRef
   );

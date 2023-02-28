@@ -1,10 +1,10 @@
 import { useState } from "react";
-import { DrawerContent, Box, Image } from "@chakra-ui/react";
 import { MdClose, MdChevronLeft, MdChevronRight } from "react-icons/md";
 import IconButton from "../../../base/utility/IconButton";
 import DeletePhotoButton from "../../buttons/DeletePhotoButton";
 import { usePhotoStore } from "../../../../stores/photo-store";
 import { ENV, STYLING_CONFIG } from "../../../../config";
+import "../styles.css";
 
 const DrawerGalleryView = ({
   handleCloseDrawer,
@@ -30,17 +30,16 @@ const DrawerGalleryView = ({
 
   // If the user deletes the last photo in the array, the index will be out of bounds, so we need to adjust it to the new last photo
   // For any other image, the index will remain the same, effectively shifting it right to the following image
-  if (activeIndex === selectedPhotoKeys.length) {
+  if (
+    activeIndex === selectedPhotoKeys.length &&
+    selectedPhotoKeys.length > 0
+  ) {
     setActiveIndex(selectedPhotoKeys.length - 1);
   }
 
   return (
-    <DrawerContent background="black">
-      <Box
-        pos="absolute"
-        top={STYLING_CONFIG.MOBILE_DRAWER_TOP_BUTTON_OFFSET}
-        left={STYLING_CONFIG.MOBILE_DRAWER_LEFT_RIGHT_BUTTON_OFFSET}
-      >
+    <div>
+      <div className="photo-gallery-mobile-close-button">
         <IconButton
           tooltipLabel={null}
           ariaLabel="Close Photo Drawer"
@@ -48,13 +47,10 @@ const DrawerGalleryView = ({
           clickHandler={() => handleClose()}
           boxSize={STYLING_CONFIG.MOBILE_ICON_BOX_SIZE}
           variant={STYLING_CONFIG.MOBILE_ICON_VARIANT}
-          color={STYLING_CONFIG.MOBILE_ICON_COLOR}
+          color="secondary"
         />
-      </Box>
-      <Box
-        pos="absolute"
-        bottom={STYLING_CONFIG.MOBILE_DRAWER_BOTTOM_BUTTON_OFFSET}
-      >
+      </div>
+      <div className="photo-gallery-mobile-navigation-left-button">
         <IconButton
           tooltipLabel={null}
           ariaLabel="Move Left"
@@ -62,14 +58,10 @@ const DrawerGalleryView = ({
           clickHandler={() => handleGalleryNavigation(-1)}
           boxSize={STYLING_CONFIG.MOBILE_ICON_BOX_SIZE}
           variant={STYLING_CONFIG.MOBILE_ICON_VARIANT}
-          color={STYLING_CONFIG.MOBILE_ICON_COLOR}
+          color="secondary"
         />
-      </Box>
-      <Box
-        pos="absolute"
-        bottom={STYLING_CONFIG.MOBILE_DRAWER_BOTTOM_BUTTON_OFFSET}
-        right={STYLING_CONFIG.MOBILE_DRAWER_LEFT_RIGHT_BUTTON_OFFSET}
-      >
+      </div>
+      <div className="photo-gallery-mobile-navigation-right-button">
         <IconButton
           tooltipLabel={null}
           ariaLabel="Move Left"
@@ -77,22 +69,18 @@ const DrawerGalleryView = ({
           clickHandler={() => handleGalleryNavigation(1)}
           boxSize={STYLING_CONFIG.MOBILE_ICON_BOX_SIZE}
           variant={STYLING_CONFIG.MOBILE_ICON_VARIANT}
-          color={STYLING_CONFIG.MOBILE_ICON_COLOR}
+          color="secondary"
         />
-      </Box>
+      </div>
       <DeletePhotoButton photoKey={selectedPhotoKeys[activeIndex]} />
       {selectedPhotoKeys[activeIndex] && (
-        <Image
+        <img
           src={`${ENV.VITE_ASSETS_BASE_URL}${selectedPhotoKeys[activeIndex]}`}
           alt={selectedPhotoKeys[activeIndex]}
-          top="0"
-          bottom="0"
-          left="0"
-          right="0"
-          margin="auto"
+          className="photo-gallery-mobile-image"
         />
       )}
-    </DrawerContent>
+    </div>
   );
 };
 

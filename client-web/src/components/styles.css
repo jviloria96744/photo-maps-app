@@ -1,0 +1,12 @@
+.user-menu-container-web {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  cursor: pointer;
+}
+
+.user-menu-container-mobile {
+  position: absolute;
+  bottom: 20px;
+  right: 5px;
+}

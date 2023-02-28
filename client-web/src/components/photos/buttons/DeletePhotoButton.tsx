@@ -1,4 +1,3 @@
-import { Box } from "@chakra-ui/react";
 import IconButton from "../../base/utility/IconButton";
 import { MdDelete } from "react-icons/md";
 import { usePhotoStore } from "../../../stores/photo-store";
@@ -9,14 +8,12 @@ const DeletePhotoButton = ({ photoKey }: { photoKey: string }) => {
   const { deletePhoto } = usePhotoStore();
   const { isMobile } = useMedia();
   return (
-    <Box
-      pos="absolute"
-      top={
+    <div
+      className={
         isMobile
-          ? STYLING_CONFIG.MOBILE_DRAWER_TOP_BUTTON_OFFSET
-          : STYLING_CONFIG.WEB_MODAL_TOP_BUTTON_OFFSET
+          ? "photo-delete-button-mobile-container"
+          : "photo-delete-button-web-container"
       }
-      right={STYLING_CONFIG.MOBILE_DRAWER_LEFT_RIGHT_BUTTON_OFFSET}
     >
       <IconButton
         tooltipLabel={null}
@@ -25,9 +22,9 @@ const DeletePhotoButton = ({ photoKey }: { photoKey: string }) => {
         clickHandler={() => deletePhoto(photoKey, isMobile)}
         boxSize={STYLING_CONFIG.MOBILE_ICON_BOX_SIZE}
         variant={STYLING_CONFIG.MOBILE_ICON_VARIANT}
-        color={STYLING_CONFIG.MOBILE_ICON_COLOR}
+        color="secondary"
       />
-    </Box>
+    </div>
   );
 };
 
