@@ -18,7 +18,7 @@ const UserMenu = () => {
     setAnchorEl(event.currentTarget);
   };
 
-  const handleClose = (callbackFunc: () => Promise<void>): void => {
+  const handleClose = (callbackFunc: null | (() => Promise<void>)): void => {
     setAnchorEl(null);
 
     if (callbackFunc) {
