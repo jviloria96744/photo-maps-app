@@ -42,34 +42,28 @@ const DrawerGalleryView = ({
       <div className="photo-gallery-mobile-close-button">
         <IconButton
           tooltipLabel={null}
-          ariaLabel="Close Photo Drawer"
           IconComponent={MdClose}
           clickHandler={() => handleClose()}
           boxSize={STYLING_CONFIG.MOBILE_ICON_BOX_SIZE}
-          variant={STYLING_CONFIG.MOBILE_ICON_VARIANT}
-          color="secondary"
+          color={STYLING_CONFIG.COLOR_SECONDARY}
         />
       </div>
       <div className="photo-gallery-mobile-navigation-left-button">
         <IconButton
           tooltipLabel={null}
-          ariaLabel="Move Left"
           IconComponent={MdChevronLeft}
           clickHandler={() => handleGalleryNavigation(-1)}
           boxSize={STYLING_CONFIG.MOBILE_ICON_BOX_SIZE}
-          variant={STYLING_CONFIG.MOBILE_ICON_VARIANT}
-          color="secondary"
+          color={STYLING_CONFIG.COLOR_SECONDARY}
         />
       </div>
       <div className="photo-gallery-mobile-navigation-right-button">
         <IconButton
           tooltipLabel={null}
-          ariaLabel="Move Left"
           IconComponent={MdChevronRight}
           clickHandler={() => handleGalleryNavigation(1)}
           boxSize={STYLING_CONFIG.MOBILE_ICON_BOX_SIZE}
-          variant={STYLING_CONFIG.MOBILE_ICON_VARIANT}
-          color="secondary"
+          color={STYLING_CONFIG.COLOR_SECONDARY}
         />
       </div>
       <DeletePhotoButton photoKey={selectedPhotoKeys[activeIndex]} />

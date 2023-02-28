@@ -6,6 +6,7 @@ import TextField from "@mui/material/TextField";
 import Chip from "@mui/material/Chip";
 import { usePhotoStore, FilterOptionValue } from "../../stores/photo-store";
 import { useMedia } from "../../hooks/use-media";
+import { STYLING_CONFIG } from "../../config";
 import "./styles.css";
 
 const SearchBarTextField = (
@@ -21,7 +22,11 @@ const SearchBarTextField = (
       className="autocomplete-input"
       InputProps={{
         ...params.InputProps,
-        style: { fontSize: isMobile ? 15 : 25 },
+        style: {
+          fontSize: isMobile
+            ? STYLING_CONFIG.MOBILE_SEARCH_BAR_FONT_SIZE
+            : STYLING_CONFIG.WEB_SEARCH_BAR_FONT_SIZE,
+        },
       }}
     />
   );
@@ -37,7 +42,11 @@ const SearchBarTags = (
       {...getTagProps({ index })}
       label={option.label}
       variant="filled"
-      size={isMobile ? "small" : "medium"}
+      size={
+        isMobile
+          ? STYLING_CONFIG.MOBILE_SEARCH_BAR_CHIP_SIZE
+          : STYLING_CONFIG.WEB_SEARCH_BAR_CHIP_SIZE
+      }
       className="autocomplete-chip"
     />
   ));
@@ -77,9 +86,13 @@ const SearchBar = () => {
         }
         ListboxProps={{
           style: {
-            maxHeight: isMobile ? "20rem" : "40rem",
+            maxHeight: isMobile
+              ? STYLING_CONFIG.MOBILE_SEARCH_BAR_MAX_HEIGHT
+              : STYLING_CONFIG.WEB_SEARCH_BAR_MAX_HEIGHT,
             overflowY: "hidden",
-            fontSize: isMobile ? 15 : 25,
+            fontSize: isMobile
+              ? STYLING_CONFIG.MOBILE_SEARCH_BAR_FONT_SIZE
+              : STYLING_CONFIG.WEB_SEARCH_BAR_FONT_SIZE,
           },
         }}
       />

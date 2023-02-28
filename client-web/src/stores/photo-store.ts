@@ -107,10 +107,13 @@ export const usePhotoStore = create<PhotoStoreState>()((set, get) => ({
       get().userSelectedPhoto || isMobile
         ? get().selectedPhotoKeys.filter((key) => key !== photoToDelete)
         : [];
-    set(({ userSelectedPhoto, photos, geoPoints }) => {
+    set(({ userSelectedPhoto, photos, geoPoints, filteredGeoPoints }) => {
       return {
         photos: photos?.filter((photo) => photo.object_key !== photoToDelete),
         geoPoints: geoPoints?.filter(
+          (geoPoint) => geoPoint.object_key !== photoToDelete
+        ),
+        filteredGeoPoints: filteredGeoPoints?.filter(
           (geoPoint) => geoPoint.object_key !== photoToDelete
         ),
         selectedPhotoKeys: newSelectedPhotoKeys,

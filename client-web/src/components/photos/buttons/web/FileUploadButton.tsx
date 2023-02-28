@@ -1,5 +1,6 @@
 import IconButton from "../../../base/utility/IconButton";
 import { PhotoUploadButtonProps } from "../types";
+import { STYLING_CONFIG } from "../../../../config";
 import "../styles.css";
 
 const FileUploadButton = (props: PhotoUploadButtonProps) => {
@@ -11,10 +12,8 @@ const FileUploadButton = (props: PhotoUploadButtonProps) => {
       <IconButton
         tooltipLabel="Upload Photo"
         IconComponent={iconComponent}
-        ariaLabel="Upload Photo"
         clickHandler={handleUploadClick}
-        photoUploadRef={inputRef}
-        boxSize="50"
+        boxSize={STYLING_CONFIG.WEB_ICON_BOX_SIZE}
       />
 
       <input

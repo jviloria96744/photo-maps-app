@@ -6,6 +6,7 @@ import IconButton from "@mui/material/IconButton";
 import { MdAccountCircle } from "react-icons/md";
 import { useAuth } from "../hooks/use-auth";
 import { useMedia } from "../hooks/use-media";
+import { STYLING_CONFIG } from "../config";
 import "./styles.css";
 
 const UserMenu = () => {
@@ -34,28 +35,52 @@ const UserMenu = () => {
       <IconButton
         disableFocusRipple
         disableRipple
-        color="primary"
+        color={STYLING_CONFIG.COLOR_PRIMARY}
         onClick={handleClick}
       >
-        <MdAccountCircle size={isMobile ? "38" : "50"} />
+        <MdAccountCircle
+          size={
+            isMobile
+              ? STYLING_CONFIG.MOBILE_ICON_BOX_SIZE
+              : STYLING_CONFIG.WEB_ICON_BOX_SIZE
+          }
+        />
       </IconButton>
       <Menu anchorEl={anchorEl} open={open} onClose={() => handleClose(null)}>
         {user ? (
           <div>
             <MenuItem onClick={() => handleClose(signOut)}>
-              <Typography variant={isMobile ? "body2" : "h4"}>
+              <Typography
+                variant={
+                  isMobile
+                    ? STYLING_CONFIG.MOBILE_USER_MENU_FONT_SIZE
+                    : STYLING_CONFIG.WEB_USER_MENU_FONT_SIZE
+                }
+              >
                 Logout
               </Typography>
             </MenuItem>
             <MenuItem onClick={() => handleClose(signOutAndDelete)}>
-              <Typography variant={isMobile ? "body2" : "h4"}>
+              <Typography
+                variant={
+                  isMobile
+                    ? STYLING_CONFIG.MOBILE_USER_MENU_FONT_SIZE
+                    : STYLING_CONFIG.WEB_USER_MENU_FONT_SIZE
+                }
+              >
                 Delete Account
               </Typography>
             </MenuItem>
           </div>
         ) : (
           <MenuItem onClick={() => handleClose(signIn)}>
-            <Typography variant={isMobile ? "body2" : "h4"}>
+            <Typography
+              variant={
+                isMobile
+                  ? STYLING_CONFIG.MOBILE_USER_MENU_FONT_SIZE
+                  : STYLING_CONFIG.WEB_USER_MENU_FONT_SIZE
+              }
+            >
               Login/Create Account
             </Typography>
           </MenuItem>

@@ -1,5 +1,6 @@
 import IconButton from "../../../base/utility/IconButton";
 import { PhotoUploadButtonProps } from "../types";
+import { STYLING_CONFIG } from "../../../../config";
 import "../styles.css";
 
 const CapturePhotoButton = (props: PhotoUploadButtonProps) => {
@@ -11,10 +12,8 @@ const CapturePhotoButton = (props: PhotoUploadButtonProps) => {
       <IconButton
         tooltipLabel={null}
         IconComponent={iconComponent}
-        ariaLabel="Capture Photo"
         clickHandler={handleUploadClick}
-        photoUploadRef={inputRef}
-        boxSize="38"
+        boxSize={STYLING_CONFIG.MOBILE_ICON_BOX_SIZE}
       />
 
       <input

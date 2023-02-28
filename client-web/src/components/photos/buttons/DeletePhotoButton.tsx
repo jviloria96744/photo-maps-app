@@ -17,12 +17,10 @@ const DeletePhotoButton = ({ photoKey }: { photoKey: string }) => {
     >
       <IconButton
         tooltipLabel={null}
-        ariaLabel="Delete Photo"
         IconComponent={MdDelete}
         clickHandler={() => deletePhoto(photoKey, isMobile)}
         boxSize={STYLING_CONFIG.MOBILE_ICON_BOX_SIZE}
-        variant={STYLING_CONFIG.MOBILE_ICON_VARIANT}
-        color="secondary"
+        color={STYLING_CONFIG.COLOR_SECONDARY}
       />
     </div>
   );

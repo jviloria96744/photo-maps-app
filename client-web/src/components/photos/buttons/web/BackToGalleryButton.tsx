@@ -10,12 +10,10 @@ const BackToGalleryButton = () => {
     <div className="photo-gallery-back-web-container">
       <IconButton
         tooltipLabel={null}
-        ariaLabel="Back To Gallery"
         IconComponent={MdChevronLeft}
         clickHandler={() => setUserSelectedPhoto(null)}
         boxSize={STYLING_CONFIG.MOBILE_ICON_BOX_SIZE}
-        variant={STYLING_CONFIG.MOBILE_ICON_VARIANT}
-        color="secondary"
+        color={STYLING_CONFIG.COLOR_SECONDARY}
       />
     </div>
   );
