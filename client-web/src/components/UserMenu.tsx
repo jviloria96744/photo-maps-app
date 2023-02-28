@@ -18,9 +18,12 @@ const UserMenu = () => {
     setAnchorEl(event.currentTarget);
   };
 
-  const handleClose = (callbackFunc: () => void): void => {
+  const handleClose = (callbackFunc: () => Promise<void>): void => {
     setAnchorEl(null);
-    callbackFunc();
+
+    if (callbackFunc) {
+      callbackFunc();
+    }
   };
   return (
     <div
@@ -36,19 +39,25 @@ const UserMenu = () => {
       >
         <MdAccountCircle size={isMobile ? "38" : "50"} />
       </IconButton>
-      <Menu anchorEl={anchorEl} open={open} onClose={handleClose}>
+      <Menu anchorEl={anchorEl} open={open} onClose={() => handleClose(null)}>
         {user ? (
           <div>
             <MenuItem onClick={() => handleClose(signOut)}>
-              <Typography variant="h4">Logout</Typography>
+              <Typography variant={isMobile ? "body2" : "h4"}>
+                Logout
+              </Typography>
             </MenuItem>
             <MenuItem onClick={() => handleClose(signOutAndDelete)}>
-              <Typography variant="h4">Delete Account</Typography>
+              <Typography variant={isMobile ? "body2" : "h4"}>
+                Delete Account
+              </Typography>
             </MenuItem>
           </div>
         ) : (
           <MenuItem onClick={() => handleClose(signIn)}>
-            <Typography variant="h4">Login/Create Account</Typography>
+            <Typography variant={isMobile ? "body2" : "h4"}>
+              Login/Create Account
+            </Typography>
           </MenuItem>
         )}
       </Menu>
