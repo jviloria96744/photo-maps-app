@@ -2,6 +2,7 @@ import { create } from "zustand";
 import { MapRef } from "react-map-gl";
 import { GeoPoint, PhotoObject } from "../models/photo";
 import { deletePhoto } from "../api/base-endpoints";
+import { CallbackFunctionType } from "../hooks/use-subscription";
 
 export type FilterOptionValue = {
   label: string;
@@ -17,6 +18,7 @@ interface PhotoStoreState {
   openContainer: (selectedKeys: string[]) => void;
   setUserSelectedPhoto: (selectedPhoto: string | null) => void;
   setGeoPoints: (geoPoints: GeoPoint[], isAppend: boolean) => void;
+  addNewPhotoFromWebsocketMessage: CallbackFunctionType;
   setPhotos: (photos: PhotoObject[], isAppend: boolean) => void;
   setInitialData: (photos: PhotoObject[]) => void;
   deletePhoto: (photoToDelete: string, isMobile: boolean) => void;
@@ -69,6 +71,13 @@ export const usePhotoStore = create<PhotoStoreState>()((set, get) => ({
     }
 
     get().setFilteredGeoPoints();
+  },
+  addNewPhotoFromWebsocketMessage: (event) => {
+    const incomingPhoto: PhotoObject = JSON.parse(
+      event.data?.subscribe2channel?.data as string
+    );
+
+    set((state) => ({ photos: [...state.photos, incomingPhoto] }));
   },
   setPhotos: (photos: PhotoObject[], isAppend: boolean) => {
     if (!isAppend) {

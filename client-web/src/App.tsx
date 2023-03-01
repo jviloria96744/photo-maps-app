@@ -6,18 +6,18 @@ import UserMenu from "./components/UserMenu";
 import SearchBar from "./components/search-bar/SearchBar";
 import { useAuth } from "./hooks/use-auth";
 import { useSubscription } from "./hooks/use-subscription";
-import { usePhotosQuery } from "./hooks/use-photos-query";
+import { usePhotoStore } from "./stores/photo-store";
 import { User } from "./models/user";
 
 const MapView = lazy(() => import("./components/map/MapView"));
 
 function App() {
   const { user } = useAuth();
-  const { refreshData } = usePhotosQuery();
+  const { addNewPhotoFromWebsocketMessage } = usePhotoStore();
   useSubscription({
     channel: "channel",
     user: user as User,
-    callbackFunction: refreshData,
+    callbackFunction: addNewPhotoFromWebsocketMessage,
   });
 
   return (
