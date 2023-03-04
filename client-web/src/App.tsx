@@ -1,4 +1,5 @@
 import { lazy } from "react";
+import LoginPage from "./components/login-page/LoginPage";
 import StaticMapView from "./components/map/StaticMapView";
 import PhotoUploadButton from "./components/photos/buttons/PhotoUploadButton";
 import PhotoContainer from "./components/photos/containers/PhotoContainer";
@@ -22,11 +23,17 @@ function App() {
 
   return (
     <div style={{ height: "100%", width: "100%" }}>
-      {user ? <MapView /> : <StaticMapView />}
-      <UserMenu />
-      {user && <SearchBar />}
-      {user && <PhotoUploadButton />}
-      {user && <PhotoContainer />}
+      {!user ? (
+        <LoginPage />
+      ) : (
+        <>
+          <MapView />
+          <UserMenu />
+          <SearchBar />
+          <PhotoUploadButton />
+          <PhotoContainer />
+        </>
+      )}
     </div>
   );
 }
