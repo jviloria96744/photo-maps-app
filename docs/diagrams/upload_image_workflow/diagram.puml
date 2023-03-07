@@ -1,0 +1,21 @@
+@startuml Photo Upload Workflow
+
+title Photo Upload Workflow
+
+actor User
+User -> Application: User Authenticates
+Application <-> AppSync: Websocket Connection Established
+User -> Application: Upload Photo(s)
+Application -> Application: Parse EXIF Data
+Application -> Server: POST /photo {...EXIF data}
+Server -> Application: S3 Presigned POST Data
+Application -> S3_Bucket: POST photo to S3 Bucket
+Application -> User: Re-render Map With Parsed EXIF Data
+S3_Bucket -> SQS_Queue: Event Trigger (Object Create)
+SQS_Queue -> Step_Function_Lambda: SQS Lambda Event Source
+Step_Function_Lambda -> Image_Processing_Step_Function: Execute Step Function
+Image_Processing_Step_Function -> DynamoDB: Write Photo Metadata To DB
+Image_Processing_Step_Function -> AppSync: Publish Photo Metadata To Websocket
+AppSync -> Application: Photo Metadata Received By Application
+Application -> User: Filter AutoComplete Dropdown Updated With Received Metadata
+@enduml
