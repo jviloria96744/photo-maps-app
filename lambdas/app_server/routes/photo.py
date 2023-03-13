@@ -28,26 +28,6 @@ def get_presigned_post():
             status_code=500,
             body="Error on presigned post"
         )
-    
-
-@router.post("/photo_manifest")
-def get_manifest_presigned_post():
-    try:
-        body = router.current_event.json_body
-        asset_uuid = body["asset_uuid"]
-        asset_extension = body["asset_extension"]
-        
-        object_key = f"image_manifest/{asset_uuid}.{asset_extension}"
-        
-        presigned_post_object = asset_bucket.create_presigned_url(object_key)
-
-        return presigned_post_object
-    except Exception:
-        logger.exception("Error on presigned post")
-        return Response(
-            status_code=500,
-            body="Error on presigned post"
-        )
 
 
 # These are slightly different resources but I am grouping them together in the same file because of similarity
